@@ -1,0 +1,81 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import DepthBadge from '../../components/DepthBadge.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('learn');
+  return articles.map(article => ({
+    params: { slug: article.id },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+// Find related articles at other depths for the same topic
+const allArticles = await getCollection('learn', ({ data }) => !data.draft);
+const sameTopicOtherDepths = allArticles.filter(
+  a => a.data.topic === article.data.topic && a.id !== article.id
+);
+
+const depthOrder = { essential: 0, applied: 1, technical: 2, research: 3 };
+sameTopicOtherDepths.sort((a, b) => depthOrder[a.data.depth] - depthOrder[b.data.depth]);
+---
+
+<Layout title={`${article.data.title} — Zro2One`} description={article.data.description}>
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <!-- Header -->
+    <header class="mb-12">
+      <div class="flex items-center gap-4 mb-6">
+        <DepthBadge depth={article.data.depth} />
+        <span class="text-sm text-zro-gray">{article.data.readTime} min read</span>
+      </div>
+      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark leading-tight mb-4">
+        {article.data.title}
+      </h1>
+      <p class="text-xl text-zro-gray">
+        {article.data.description}
+      </p>
+    </header>
+
+    <!-- Other depths for this topic -->
+    {sameTopicOtherDepths.length > 0 && (
+      <div class="bg-zro-light rounded-xl p-6 mb-12">
+        <p class="text-sm font-medium text-zro-gray mb-3">Also available at:</p>
+        <div class="flex flex-wrap gap-2">
+          {sameTopicOtherDepths.map(a => (
+            <a href={`/learn/${a.id}`} class="hover:opacity-80 transition-opacity">
+              <DepthBadge depth={a.data.depth} size="sm" />
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="prose">
+      <Content />
+    </div>
+
+    <!-- Tags -->
+    {article.data.tags.length > 0 && (
+      <div class="mt-12 pt-8 border-t border-gray-200">
+        <div class="flex flex-wrap gap-2">
+          {article.data.tags.map((tag: string) => (
+            <span class="bg-gray-100 text-zro-gray text-xs rounded-full px-3 py-1">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Newsletter -->
+    <div class="mt-16">
+      <NewsletterForm />
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,57 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+}
+const { variant = 'light' } = Astro.props;
+---
+
+<div class:list={[
+  "rounded-2xl p-8 sm:p-12",
+  variant === 'light' ? 'bg-gradient-to-br from-zro-blue-light to-zro-purple-light' : 'bg-zro-dark'
+]}>
+  <div class="max-w-xl mx-auto text-center">
+    <h3 class:list={[
+      "text-2xl sm:text-3xl font-bold mb-3",
+      variant === 'light' ? 'text-zro-dark' : 'text-white'
+    ]}>
+      Stay ahead of the AI curve
+    </h3>
+    <p class:list={[
+      "mb-6",
+      variant === 'light' ? 'text-zro-gray' : 'text-gray-400'
+    ]}>
+      Weekly insights on AI — explained at the level that's right for you. No hype, no jargon, just what matters.
+    </p>
+    <form
+      action="https://buttondown.com/api/emails/embed-subscribe/bee-openclaw"
+      method="post"
+      target="popupwindow"
+      class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+    >
+      <input
+        type="email"
+        name="email"
+        placeholder="your@email.com"
+        required
+        class:list={[
+          "flex-1 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zro-blue",
+          variant === 'light'
+            ? 'bg-white border border-gray-200 text-zro-dark placeholder-gray-400'
+            : 'bg-gray-800 border border-gray-700 text-white placeholder-gray-500'
+        ]}
+      />
+      <button
+        type="submit"
+        class="bg-zro-blue hover:bg-zro-blue-dark text-white text-sm font-semibold rounded-lg px-6 py-3 transition-colors whitespace-nowrap"
+      >
+        Subscribe Free
+      </button>
+    </form>
+    <p class:list={[
+      "text-xs mt-3",
+      variant === 'light' ? 'text-zro-gray' : 'text-gray-500'
+    ]}>
+      No spam. Unsubscribe anytime. We respect your inbox.
+    </p>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-zro-dark text-gray-300 mt-20">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid md:grid-cols-3 gap-12">
+      <!-- Brand -->
+      <div>
+        <span class="text-2xl font-black tracking-tighter text-white">
+          Zro<span class="bg-gradient-to-r from-zro-green via-zro-blue to-zro-purple bg-clip-text text-transparent">2</span>One
+        </span>
+        <p class="mt-4 text-sm text-gray-400 leading-relaxed">
+          AI education for everyone. From curious beginner to frontier researcher.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Explore</h4>
+        <ul class="space-y-2">
+          <li><a href="/learn" class="text-sm hover:text-white transition-colors">Learn</a></li>
+          <li><a href="/about" class="text-sm hover:text-white transition-colors">About</a></li>
+          <li><a href="/newsletter" class="text-sm hover:text-white transition-colors">Newsletter</a></li>
+        </ul>
+        <h4 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4 mt-8">Depth Levels</h4>
+        <ul class="space-y-2">
+          <li><a href="/learn?depth=essential" class="text-sm hover:text-white transition-colors">🟢 Essential</a></li>
+          <li><a href="/learn?depth=applied" class="text-sm hover:text-white transition-colors">🔵 Applied</a></li>
+          <li><a href="/learn?depth=technical" class="text-sm hover:text-white transition-colors">🟣 Technical</a></li>
+          <li><a href="/learn?depth=research" class="text-sm hover:text-white transition-colors">🔴 Research</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div>
+        <h4 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-4">Stay Updated</h4>
+        <p class="text-sm text-gray-400 mb-4">Get the latest AI insights delivered weekly.</p>
+        <form
+          action="https://buttondown.com/api/emails/embed-subscribe/bee-openclaw"
+          method="post"
+          target="popupwindow"
+          class="flex flex-col gap-3"
+        >
+          <input
+            type="email"
+            name="email"
+            placeholder="your@email.com"
+            required
+            class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-zro-blue focus:ring-1 focus:ring-zro-blue"
+          />
+          <button
+            type="submit"
+            class="bg-zro-blue hover:bg-zro-blue-dark text-white text-sm font-medium rounded-lg px-4 py-2.5 transition-colors"
+          >
+            Subscribe
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <p class="text-xs text-gray-500">© {year} Zro2One. AI education for all of humanity.</p>
+      <p class="text-xs text-gray-500">Built with ❤️ for the AI age</p>
+    </div>
+  </div>
+</footer>

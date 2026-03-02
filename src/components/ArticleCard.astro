@@ -1,0 +1,32 @@
+---
+import DepthBadge from './DepthBadge.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  depth: 'essential' | 'applied' | 'technical' | 'research';
+  slug: string;
+  readTime?: number;
+  pillar?: string;
+}
+
+const { title, description, depth, slug, readTime, pillar } = Astro.props;
+---
+
+<a href={`/learn/${slug}`} class="group block">
+  <article class="border border-gray-200 rounded-xl p-6 hover:border-zro-blue hover:shadow-lg transition-all duration-200 h-full flex flex-col">
+    <div class="flex items-center gap-3 mb-4">
+      <DepthBadge depth={depth} size="sm" />
+      {readTime && <span class="text-xs text-zro-gray">{readTime} min read</span>}
+    </div>
+    <h3 class="text-lg font-bold text-zro-dark group-hover:text-zro-blue transition-colors mb-2">
+      {title}
+    </h3>
+    <p class="text-sm text-zro-gray leading-relaxed flex-1">
+      {description}
+    </p>
+    <div class="mt-4 text-sm font-medium text-zro-blue group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+      Read more →
+    </div>
+  </article>
+</a>

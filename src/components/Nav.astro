@@ -1,0 +1,70 @@
+---
+const currentPath = Astro.url.pathname;
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/learn', label: 'Learn' },
+  { href: '/about', label: 'About' },
+  { href: '/newsletter', label: 'Newsletter' },
+];
+---
+
+<header class="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+  <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-2 group">
+      <span class="text-2xl font-black tracking-tighter">
+        <span class="text-zro-dark">Zro</span><span class="bg-gradient-to-r from-zro-green via-zro-blue to-zro-purple bg-clip-text text-transparent">2</span><span class="text-zro-dark">One</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-8">
+      {links.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            "text-sm font-medium transition-colors",
+            currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+              ? "text-zro-blue"
+              : "text-zro-gray hover:text-zro-dark"
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <!-- Mobile menu button -->
+    <button id="mobile-menu-btn" class="md:hidden p-2 text-zro-gray hover:text-zro-dark" aria-label="Menu">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white">
+    <div class="px-4 py-4 space-y-3">
+      {links.map(link => (
+        <a
+          href={link.href}
+          class:list={[
+            "block text-sm font-medium py-2",
+            currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
+              ? "text-zro-blue"
+              : "text-zro-gray"
+          ]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  btn?.addEventListener('click', () => {
+    menu?.classList.toggle('hidden');
+  });
+</script>

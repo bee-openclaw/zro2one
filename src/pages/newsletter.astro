@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+---
+
+<Layout title="Newsletter — Zro2One" description="Weekly AI insights at the depth that's right for you.">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <h1 class="text-4xl sm:text-5xl font-black text-zro-dark mb-4">
+      The Zro2One Newsletter
+    </h1>
+    <p class="text-xl text-zro-gray mb-12">
+      A weekly dose of AI clarity. What happened, why it matters, and what to do about it — explained at the depth that's right for you.
+    </p>
+
+    <NewsletterForm />
+
+    <div class="mt-16 space-y-8">
+      <div>
+        <h2 class="text-2xl font-bold text-zro-dark mb-3">What you'll get</h2>
+        <ul class="space-y-3 text-zro-gray">
+          <li class="flex gap-3">
+            <span>📬</span>
+            <span><strong class="text-zro-dark">Weekly digest</strong> — The most important AI developments, curated and explained.</span>
+          </li>
+          <li class="flex gap-3">
+            <span>🎯</span>
+            <span><strong class="text-zro-dark">Depth-matched</strong> — Content calibrated to your level, from beginner to researcher.</span>
+          </li>
+          <li class="flex gap-3">
+            <span>🛠️</span>
+            <span><strong class="text-zro-dark">Practical</strong> — Not just news, but what it means for you and how to act on it.</span>
+          </li>
+          <li class="flex gap-3">
+            <span>🚫</span>
+            <span><strong class="text-zro-dark">No hype</strong> — Honest, grounded perspective. We'll tell you when something doesn't matter.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</Layout>
