@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Search — Zro2One" description="Search all Zro2One articles.">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <h1 class="text-4xl sm:text-5xl font-black text-zro-dark mb-4">Search</h1>
+    <p class="text-lg text-zro-gray mb-8">Find any article by topic, keyword, or phrase.</p>
+
+    <div id="search"></div>
+
+    <p class="text-sm text-zro-gray mt-8">Tip: try “RAG”, “LLMs”, “prompting”, or “this week in ai”.</p>
+  </div>
+
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // @ts-ignore
+      new PagefindUI({
+        element: '#search',
+        showSubResults: true,
+        highlightParam: 'highlight',
+        translations: {
+          placeholder: 'Search articles...'
+        }
+      });
+    });
+  </script>
+</Layout>
