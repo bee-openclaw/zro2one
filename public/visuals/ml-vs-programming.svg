@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" fill="none">
+  <rect width="1200" height="680" rx="24" fill="#F8FAFC"/>
+  <text x="70" y="88" font-family="Inter, sans-serif" font-size="46" font-weight="800" fill="#0F172A">Traditional Programming vs Machine Learning</text>
+
+  <rect x="70" y="140" width="500" height="470" rx="20" fill="#E2E8F0"/>
+  <rect x="630" y="140" width="500" height="470" rx="20" fill="#DBEAFE"/>
+
+  <text x="320" y="190" text-anchor="middle" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#0F172A">Traditional Programming</text>
+  <text x="880" y="190" text-anchor="middle" font-family="Inter, sans-serif" font-size="30" font-weight="700" fill="#0F172A">Machine Learning</text>
+
+  <g font-family="Inter, sans-serif" font-size="24" fill="#1E293B" text-anchor="middle">
+    <text x="320" y="270">Rules + Data</text>
+    <text x="320" y="315">→ Program</text>
+    <text x="320" y="360">→ Answers</text>
+
+    <text x="880" y="270">Data + Answers</text>
+    <text x="880" y="315">→ Learning Algorithm</text>
+    <text x="880" y="360">→ Model (learned rules)</text>
+  </g>
+
+  <text x="320" y="455" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#334155">Humans hand-write the logic</text>
+  <text x="880" y="455" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" fill="#334155">System infers patterns from examples</text>
+
+  <text x="70" y="640" font-family="Inter, sans-serif" font-size="22" fill="#475569">Best for: spam filtering, recommendations, forecasting, translation, detection at scale.</text>
+</svg>

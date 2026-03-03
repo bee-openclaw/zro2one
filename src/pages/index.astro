@@ -6,7 +6,9 @@ import ArticleCard from '../components/ArticleCard.astro';
 import { getCollection } from 'astro:content';
 
 const articles = await getCollection('learn', ({ data }) => !data.draft);
-const featured = articles.slice(0, 6);
+const featured = articles
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 6);
 ---
 
 <Layout title="Zro2One — AI Education for Everyone">
