@@ -1,0 +1,26 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "zro2one.com"
+        }
+      ],
+      "destination": "https://zro2.one/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.zro2one.com"
+        }
+      ],
+      "destination": "https://zro2.one/$1",
+      "permanent": true
+    }
+  ]
+}
