@@ -6,9 +6,28 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title: string;
   description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
 }
 
-const { title, description = "Zro2One — AI education for everyone. From curious beginner to frontier researcher." } = Astro.props;
+const {
+  title,
+  description = 'Zro2One — AI education for everyone. From curious beginner to frontier researcher.',
+  image = '/og/default-og.svg',
+  canonical,
+  noindex = false,
+  ogType = 'website'
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://zro2.one';
+const normalizedImage = image.startsWith('http') ? image : `${siteUrl}${image.startsWith('/') ? image : `/${image}`}`;
+const canonicalUrl = canonical
+  ? canonical.startsWith('http')
+    ? canonical
+    : `${siteUrl}${canonical.startsWith('/') ? canonical : `/${canonical}`}`
+  : `${siteUrl}${Astro.url.pathname}`;
 ---
 
 <!doctype html>
@@ -17,14 +36,26 @@ const { title, description = "Zro2One — AI education for everyone. From curiou
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={normalizedImage} />
+    <meta property="og:site_name" content="Zro2One" />
+
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={normalizedImage} />
+
     <title>{title}</title>
   </head>
   <body class="min-h-screen flex flex-col">

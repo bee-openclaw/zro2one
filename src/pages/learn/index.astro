@@ -8,49 +8,64 @@ const allArticles = await getCollection('learn', ({ data }) => !data.draft);
 const articles = allArticles.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
 const depths = ['essential', 'applied', 'technical', 'research'] as const;
+const depthLabels = {
+  essential: 'Essential',
+  applied: 'Applied',
+  technical: 'Technical',
+  research: 'Research'
+};
+
+const topicMap = new Map<string, typeof articles>();
+for (const article of articles) {
+  const topicArticles = topicMap.get(article.data.topic) ?? [];
+  topicArticles.push(article);
+  topicMap.set(article.data.topic, topicArticles);
+}
+
+const topics = [...topicMap.entries()]
+  .map(([topic, topicArticles]) => ({
+    topic,
+    articles: topicArticles.sort((a, b) => depths.indexOf(a.data.depth) - depths.indexOf(b.data.depth))
+  }))
+  .sort((a, b) => b.articles.length - a.articles.length || a.topic.localeCompare(b.topic));
 ---
 
-<Layout title="Learn — Zro2One" description="AI education at every depth level. Pick your level and start learning.">
+<Layout title="Learn — Zro2One" description="AI education at every depth level. Pick your level and start learning." canonical="/learn">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-    <div class="max-w-3xl mb-16">
-      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark mb-4">
-        Learn AI
-      </h1>
-      <p class="text-xl text-zro-gray">
-        Pick your depth level. Go at your own pace. Every article meets you where you are.
-      </p>
+    <div class="max-w-3xl mb-12">
+      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark mb-4">Learn AI</h1>
+      <p class="text-xl text-zro-gray">Pick your depth level. Go at your own pace. Every article meets you where you are.</p>
     </div>
 
-    <!-- Depth filter buttons -->
-    <div class="flex flex-wrap gap-3 mb-12" id="depth-filters">
-      <button
-        data-depth="all"
-        class="filter-btn active px-4 py-2 rounded-full text-sm font-medium border border-gray-300 bg-zro-dark text-white transition-colors"
-      >
-        All Levels
-      </button>
+    {topics.length > 0 && (
+      <section class="mb-12 p-6 rounded-2xl border border-gray-200 bg-white/80">
+        <h2 class="text-lg font-bold text-zro-dark mb-3">Browse by topic</h2>
+        <div class="grid sm:grid-cols-2 gap-3">
+          {topics.map(({ topic, articles: topicArticles }) => (
+            <a href={`/learn/topic/${topic}`} class="group border border-gray-200 rounded-xl p-4 hover:border-zro-blue transition-colors">
+              <p class="font-semibold text-zro-dark capitalize group-hover:text-zro-blue">{topic.replace(/-/g, ' ')}</p>
+              <p class="text-sm text-zro-gray mt-1">{topicArticles.length} depth level{topicArticles.length === 1 ? '' : 's'}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <div class="flex flex-wrap gap-3 mb-5" id="depth-filters">
+      <button data-depth="all" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium border border-gray-300 bg-zro-dark text-white transition-colors">All Levels</button>
       {depths.map(depth => (
-        <button
-          data-depth={depth}
-          class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-zro-gray hover:border-zro-dark hover:text-zro-dark transition-colors"
-        >
+        <button data-depth={depth} class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-zro-gray hover:border-zro-dark hover:text-zro-dark transition-colors">
           <DepthBadge depth={depth} size="sm" />
         </button>
       ))}
     </div>
 
-    <!-- Articles grid -->
+    <p class="text-sm text-zro-gray mb-8" id="results-count">Showing {articles.length} article{articles.length === 1 ? '' : 's'}</p>
+
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="articles-grid">
       {articles.map((article) => (
         <div data-depth={article.data.depth} class="article-item">
-          <ArticleCard
-            title={article.data.title}
-            description={article.data.description}
-            depth={article.data.depth}
-            slug={article.id}
-            readTime={article.data.readTime}
-            pillar={article.data.pillar}
-          />
+          <ArticleCard title={article.data.title} description={article.data.description} depth={article.data.depth} slug={article.id} readTime={article.data.readTime} pillar={article.data.pillar} />
         </div>
       ))}
     </div>
@@ -67,12 +82,19 @@ const depths = ['essential', 'applied', 'technical', 'research'] as const;
 <script>
   const buttons = document.querySelectorAll('.filter-btn');
   const items = document.querySelectorAll('.article-item');
+  const resultsCount = document.getElementById('results-count');
+
+  const updateCount = () => {
+    const visible = [...items].filter((item) => (item as HTMLElement).style.display !== 'none').length;
+    if (resultsCount) {
+      resultsCount.textContent = `Showing ${visible} article${visible === 1 ? '' : 's'}`;
+    }
+  };
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       const depth = (btn as HTMLElement).dataset.depth;
-      
-      // Update active state
+
       buttons.forEach(b => {
         b.classList.remove('active', 'bg-zro-dark', 'text-white');
         b.classList.add('text-zro-gray', 'border-gray-300');
@@ -80,7 +102,6 @@ const depths = ['essential', 'applied', 'technical', 'research'] as const;
       btn.classList.add('active', 'bg-zro-dark', 'text-white');
       btn.classList.remove('text-zro-gray', 'border-gray-300');
 
-      // Filter articles
       items.forEach(item => {
         const el = item as HTMLElement;
         if (depth === 'all' || el.dataset.depth === depth) {
@@ -89,14 +110,24 @@ const depths = ['essential', 'applied', 'technical', 'research'] as const;
           el.style.display = 'none';
         }
       });
+
+      const url = new URL(window.location.href);
+      if (depth && depth !== 'all') {
+        url.searchParams.set('depth', depth);
+      } else {
+        url.searchParams.delete('depth');
+      }
+      window.history.replaceState({}, '', url);
+      updateCount();
     });
   });
 
-  // Handle URL params
   const params = new URLSearchParams(window.location.search);
   const depthParam = params.get('depth');
   if (depthParam) {
     const btn = document.querySelector(`[data-depth="${depthParam}"]`) as HTMLElement;
     btn?.click();
+  } else {
+    updateCount();
   }
 </script>

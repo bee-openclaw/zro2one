@@ -15,39 +15,35 @@ export async function getStaticPaths() {
 const { article } = Astro.props;
 const { Content } = await render(article);
 
-// Find related articles at other depths for the same topic
 const allArticles = await getCollection('learn', ({ data }) => !data.draft);
-const sameTopicOtherDepths = allArticles.filter(
-  a => a.data.topic === article.data.topic && a.id !== article.id
-);
-
+const sameTopic = allArticles.filter((a) => a.data.topic === article.data.topic);
 const depthOrder = { essential: 0, applied: 1, technical: 2, research: 3 };
-sameTopicOtherDepths.sort((a, b) => depthOrder[a.data.depth] - depthOrder[b.data.depth]);
+const sortedTopic = sameTopic.sort((a, b) => depthOrder[a.data.depth] - depthOrder[b.data.depth]);
+const currentDepthIndex = sortedTopic.findIndex((a) => a.id === article.id);
+const previousDepth = currentDepthIndex > 0 ? sortedTopic[currentDepthIndex - 1] : null;
+const nextDepth = currentDepthIndex >= 0 && currentDepthIndex < sortedTopic.length - 1 ? sortedTopic[currentDepthIndex + 1] : null;
+
+const relatedFromFrontmatter = allArticles.filter((a) => article.data.related?.includes(a.id));
 ---
 
-<Layout title={`${article.data.title} — Zro2One`} description={article.data.description}>
+<Layout title={`${article.data.title} — Zro2One`} description={article.data.description} canonical={`/learn/${article.id}`} ogType="article">
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-    <!-- Header -->
     <header class="mb-12">
       <div class="flex items-center gap-4 mb-6">
         <DepthBadge depth={article.data.depth} />
         <span class="text-sm text-zro-gray">{article.data.readTime} min read</span>
       </div>
-      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark leading-tight mb-4">
-        {article.data.title}
-      </h1>
-      <p class="text-xl text-zro-gray">
-        {article.data.description}
-      </p>
+      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark leading-tight mb-4">{article.data.title}</h1>
+      <p class="text-xl text-zro-gray">{article.data.description}</p>
+      <a href={`/learn/topic/${article.data.topic}`} class="inline-flex mt-4 text-sm text-zro-blue hover:underline capitalize">View all {article.data.topic.replace(/-/g, ' ')} depths →</a>
     </header>
 
-    <!-- Other depths for this topic -->
-    {sameTopicOtherDepths.length > 0 && (
+    {sortedTopic.length > 1 && (
       <div class="bg-zro-light rounded-xl p-6 mb-12">
-        <p class="text-sm font-medium text-zro-gray mb-3">Also available at:</p>
+        <p class="text-sm font-medium text-zro-gray mb-3">Depth ladder for this topic:</p>
         <div class="flex flex-wrap gap-2">
-          {sameTopicOtherDepths.map(a => (
-            <a href={`/learn/${a.id}`} class="hover:opacity-80 transition-opacity">
+          {sortedTopic.map((a) => (
+            <a href={`/learn/${a.id}`} class={`hover:opacity-80 transition-opacity ${a.id === article.id ? 'ring-2 ring-zro-blue rounded-full' : ''}`}>
               <DepthBadge depth={a.data.depth} size="sm" />
             </a>
           ))}
@@ -55,25 +51,48 @@ sameTopicOtherDepths.sort((a, b) => depthOrder[a.data.depth] - depthOrder[b.data
       </div>
     )}
 
-    <!-- Content -->
     <div class="prose">
       <Content />
     </div>
 
-    <!-- Tags -->
+    {(previousDepth || nextDepth) && (
+      <section class="mt-14 pt-8 border-t border-gray-200 grid sm:grid-cols-2 gap-4">
+        {previousDepth ? (
+          <a href={`/learn/${previousDepth.id}`} class="rounded-xl border border-gray-200 p-4 hover:border-zro-blue transition-colors">
+            <p class="text-xs text-zro-gray mb-1">Simplify</p>
+            <p class="font-semibold text-zro-dark">← {previousDepth.data.title}</p>
+          </a>
+        ) : <div />}
+        {nextDepth && (
+          <a href={`/learn/${nextDepth.id}`} class="rounded-xl border border-gray-200 p-4 hover:border-zro-blue transition-colors text-left sm:text-right">
+            <p class="text-xs text-zro-gray mb-1">Go deeper</p>
+            <p class="font-semibold text-zro-dark">{nextDepth.data.title} →</p>
+          </a>
+        )}
+      </section>
+    )}
+
+    {relatedFromFrontmatter.length > 0 && (
+      <section class="mt-12">
+        <h2 class="text-xl font-bold text-zro-dark mb-4">Related reads</h2>
+        <div class="space-y-2">
+          {relatedFromFrontmatter.map((related) => (
+            <a href={`/learn/${related.id}`} class="block text-zro-blue hover:underline">{related.data.title}</a>
+          ))}
+        </div>
+      </section>
+    )}
+
     {article.data.tags.length > 0 && (
       <div class="mt-12 pt-8 border-t border-gray-200">
         <div class="flex flex-wrap gap-2">
           {article.data.tags.map((tag: string) => (
-            <span class="bg-gray-100 text-zro-gray text-xs rounded-full px-3 py-1">
-              {tag}
-            </span>
+            <span class="bg-gray-100 text-zro-gray text-xs rounded-full px-3 py-1">{tag}</span>
           ))}
         </div>
       </div>
     )}
 
-    <!-- Newsletter -->
     <div class="mt-16">
       <NewsletterForm />
     </div>

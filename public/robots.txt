@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://zro2.one/sitemap-index.xml
