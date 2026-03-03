@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/this-week-in-ai",
+      "destination": "/newsletter",
+      "permanent": false
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
