@@ -2,7 +2,7 @@
   "redirects": [
     {
       "source": "/this-week-in-ai",
-      "destination": "/newsletter",
+      "destination": "/learn/topic/this-week-in-ai",
       "permanent": false
     },
     {
