@@ -11,6 +11,9 @@ description: "A technical deep-dive into transformer architecture, attention mec
 related: [how-llms-work-essential, how-llms-work-applied, how-llms-work-research]
 ---
 
+![Article visual](/visuals/llm-token-flow.svg)
+
+
 ## The transformer: where it all started
 
 Modern LLMs are built on the **transformer architecture**, introduced in Google's 2017 paper "Attention Is All You Need." Before transformers, language models used recurrent neural networks (RNNs) and LSTMs that processed text sequentially — one token at a time, left to right. This was slow and made it hard to capture long-range dependencies.

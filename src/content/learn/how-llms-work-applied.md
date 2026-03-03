@@ -11,6 +11,9 @@ description: "Understanding how LLMs work under the hood makes you dramatically 
 related: [how-llms-work-essential, how-llms-work-technical, how-llms-work-research]
 ---
 
+![Article visual](/visuals/llm-token-flow.svg)
+
+
 ## Why "how it works" matters for "how you use it"
 
 Most people use LLMs like a magic box: type something in, hope for something good out. But if you understand the mechanics — even at a high level — you'll get significantly better results.

@@ -1,0 +1,9 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='560' viewBox='0 0 1000 560'>
+<rect width='1000' height='560' fill='#111827'/>
+<text x='40' y='60' fill='#e5e7eb' font-size='38' font-family='Arial'>Prompting Iteration Loop</text>
+<circle cx='220' cy='280' r='100' fill='#1f2937'/><text x='165' y='290' fill='#93c5fd' font-size='28' font-family='Arial'>Draft</text>
+<circle cx='500' cy='160' r='100' fill='#1f2937'/><text x='440' y='170' fill='#93c5fd' font-size='28' font-family='Arial'>Critique</text>
+<circle cx='780' cy='280' r='100' fill='#1f2937'/><text x='715' y='290' fill='#93c5fd' font-size='28' font-family='Arial'>Refine</text>
+<circle cx='500' cy='400' r='100' fill='#1f2937'/><text x='455' y='410' fill='#93c5fd' font-size='28' font-family='Arial'>Apply</text>
+<path d='M315 245 L405 195 M595 195 L685 245 M730 345 L590 385 M410 385 L270 345' stroke='#38bdf8' stroke-width='6' fill='none'/>
+</svg>

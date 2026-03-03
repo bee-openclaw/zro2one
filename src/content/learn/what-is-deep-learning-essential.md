@@ -6,44 +6,31 @@ topic: deep-learning
 tags: [deep-learning, neural-networks, ai-foundations]
 author: bee
 date: "2026-03-03"
-readTime: 7
+readTime: 4
 description: "Deep learning explained clearly: what it is, why it works, and where it fits." 
 related: [machine-learning-essential, ai-map-how-ml-dl-llm-fit]
 ---
 
-Deep learning is a subset of machine learning that uses multi-layer neural networks.
+![AI map](/visuals/ai-map-stack.svg)
 
-## Plain-English version
+Deep learning is machine learning with many neural-network layers that learn representations automatically from data.
 
-If machine learning is learning patterns from examples,
-**deep learning is the version that uses stacked layers to learn very complex patterns**.
+## Why it matters
 
-This is why deep learning powers:
+It removed much of manual feature engineering for language, vision, and audio tasks.
 
-- speech recognition
-- image understanding
-- translation
-- modern LLMs
+## When it shines
 
-## Why “deep”?
+- Large unstructured data (text/images/speech)
+- Complex pattern recognition
+- Transfer learning from pretrained models
 
-“Deep” means many layers of representation.
-Earlier layers learn simple features.
-Later layers combine them into richer concepts.
+## Caveats
 
-## When to use it
+- Data- and compute-hungry.
+- Harder to interpret than simpler models.
+- Can fail silently on out-of-distribution inputs.
 
-Use deep learning when:
+## Practical takeaway
 
-- data is large,
-- patterns are complex,
-- and inputs are unstructured (text/image/audio/video).
-
-For small tabular datasets, simpler ML often wins.
-
-## Common misunderstanding
-
-Deep learning is not automatically better.
-It is more powerful *and* more demanding (data, compute, tuning).
-
-Use it when complexity justifies it.
+Use deep learning when classical ML plateaus on messy high-dimensional data and the business value justifies added complexity.

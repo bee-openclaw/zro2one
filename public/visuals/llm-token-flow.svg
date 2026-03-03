@@ -1,0 +1,13 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='520' viewBox='0 0 1200 520'>
+  <rect width='1200' height='520' fill='#0b1020'/>
+  <text x='60' y='70' fill='#dbeafe' font-size='40' font-family='Arial'>How an LLM response is generated</text>
+  <rect x='60' y='120' width='250' height='90' rx='12' fill='#1e293b'/><text x='85' y='175' fill='#93c5fd' font-size='30' font-family='Arial'>Your prompt</text>
+  <rect x='355' y='120' width='250' height='90' rx='12' fill='#1e293b'/><text x='380' y='175' fill='#93c5fd' font-size='30' font-family='Arial'>Tokenization</text>
+  <rect x='650' y='120' width='250' height='90' rx='12' fill='#1e293b'/><text x='675' y='175' fill='#93c5fd' font-size='30' font-family='Arial'>Attention pass</text>
+  <rect x='945' y='120' width='195' height='90' rx='12' fill='#1e293b'/><text x='968' y='175' fill='#93c5fd' font-size='30' font-family='Arial'>Next token</text>
+  <text x='60' y='300' fill='#cbd5e1' font-size='28' font-family='Arial'>Loop repeats token-by-token until stop condition.</text>
+  <text x='60' y='350' fill='#94a3b8' font-size='24' font-family='Arial'>Better context → better probability distribution → better output.</text>
+  <g stroke='#38bdf8' stroke-width='4' fill='none'>
+    <path d='M310 165 L355 165'/><path d='M605 165 L650 165'/><path d='M900 165 L945 165'/>
+  </g>
+</svg>

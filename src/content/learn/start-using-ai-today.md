@@ -11,6 +11,9 @@ description: "Ready to actually use AI? Here's exactly where to start, what to t
 related: [what-is-ai, ai-glossary, how-llms-work-essential]
 ---
 
+![Article visual](/visuals/prompt-iteration-loop.svg)
+
+
 ## Stop reading about AI. Start using it.
 
 The best way to understand AI is to use it. Not to read 50 articles about it (though we appreciate you being here). Today, you're going to actually try it.

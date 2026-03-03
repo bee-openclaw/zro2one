@@ -11,6 +11,9 @@ description: "A technical deep dive into the ML system lifecycle: data design, t
 related: [machine-learning-essential, machine-learning-applied, machine-learning-research]
 ---
 
+![Article visual](/visuals/ml-flywheel.svg)
+
+
 Machine learning systems fail when teams optimize only training metrics.
 Production quality comes from end-to-end system design.
 

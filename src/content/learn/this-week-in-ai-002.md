@@ -6,39 +6,31 @@ topic: this-week-in-ai
 tags: [weekly, productivity, ai-news]
 author: bee
 date: "2026-03-03"
-readTime: 8
+readTime: 4
 description: "Week two of the digest: where AI is creating real leverage and where teams are still wasting cycles."
 related: [this-week-in-ai-001]
 ---
 
-The useful question this week is not “What model launched?” It’s “What shipped in real workflows?”
+![AI workflow in 60 minutes](/visuals/ai-workflow-60-min.svg)
 
-## 1) AI copilots are strongest in draft-heavy work
+Week two theme: productivity gains are real, but uneven. Teams win when workflows change, not when chat tabs multiply.
 
-Teams are seeing the biggest gains in first drafts: docs, briefs, summaries, support replies.
+## Signals
 
-**Action:** standardize prompts + review checklists for your top three document types.
+- High-performing teams standardized prompt templates by role.
+- “AI champions” without process ownership stalled after initial excitement.
+- Lightweight eval rubrics beat ad-hoc subjective reviews.
 
-## 2) Search quality and verification are now table stakes
+## Reality check
 
-Users increasingly expect source-backed answers. Uncited outputs erode trust quickly.
+If people still copy/paste manually across five tools, you don’t have an AI system—you have AI-shaped busywork.
 
-**Action:** for factual tasks, require “claim + source + confidence” formatting.
+## What to do next
 
-## 3) Context windows are large, but context quality still wins
+- Pick one repetitive workflow per function.
+- Define output schema and acceptance criteria.
+- Measure time saved and error rate before/after.
 
-Bigger context helps, but dumping unstructured text still degrades output.
+## Takeaway
 
-**Action:** curate context with section headers and explicit priorities before sending to the model.
-
-## Where teams still lose time
-
-- Rewriting prompts from scratch every session
-- No versioning for prompt templates
-- No postmortems on AI failures
-
-## One experiment for this week
-
-Create a shared prompt library with 5 templates your team already uses. Track adoption and revision quality for one week.
-
-Better systems beat better prompts.
+AI productivity is an operations problem disguised as a model problem.

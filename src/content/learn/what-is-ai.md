@@ -11,6 +11,9 @@ description: "AI is everywhere, but most explanations are either hype or jargon.
 related: [how-llms-work-essential, ai-glossary, start-using-ai-today]
 ---
 
+![Article visual](/visuals/ai-map-stack.svg)
+
+
 ## Let's cut through the noise
 
 "AI" is the most hyped, misunderstood term in technology right now. Every product claims to use it. Every headline screams about it. And most explanations either oversimplify ("it's just computers thinking!") or overcomplicate ("it's a multi-layer perceptron with backpropagation and...").

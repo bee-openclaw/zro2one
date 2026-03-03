@@ -11,6 +11,9 @@ description: "AI has a jargon problem. Here's every term you'll encounter — de
 related: [what-is-ai, how-llms-work-essential, start-using-ai-today]
 ---
 
+![Article visual](/visuals/model-selection-matrix.svg)
+
+
 ## No jargon without explanation
 
 AI conversations are full of terms that sound intimidating but usually describe simple ideas. This glossary gives you plain-English definitions and tells you *why each term matters*.

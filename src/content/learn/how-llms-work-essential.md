@@ -11,6 +11,9 @@ description: "Large language models power ChatGPT, Claude, and Gemini. Here's ho
 related: [how-llms-work-applied, how-llms-work-technical, how-llms-work-research]
 ---
 
+![Article visual](/visuals/llm-token-flow.svg)
+
+
 ## You already know how this works (sort of)
 
 Have you ever started typing a text message and your phone suggested the next word? That's the basic idea behind large language models (LLMs). They predict what word comes next.

@@ -6,29 +6,31 @@ topic: nlp
 tags: [nlp, language, ai-foundations]
 author: bee
 date: "2026-03-03"
-readTime: 6
+readTime: 4
 description: "NLP explained simply: how computers work with human language." 
 related: [what-is-llm-essential, ai-map-how-ml-dl-llm-fit]
 ---
 
-NLP is the field of helping computers understand and generate human language.
+![AI map](/visuals/ai-map-stack.svg)
 
-## What NLP systems do
+NLP (Natural Language Processing) is the field focused on making computers work with human language.
 
-- classify text (spam, sentiment, topic)
-- extract entities (names, dates, places)
-- summarize content
-- answer questions
-- translate languages
+## Typical NLP tasks
+
+- Classification (spam, intent, sentiment)
+- Extraction (entities, key facts)
+- Translation
+- Summarization
+- Question answering
 
 ## NLP before and after LLMs
 
-Before: lots of task-specific pipelines.
-Now: LLMs handle many tasks with one model + prompt.
+Older NLP relied heavily on hand-engineered features and narrow models. Modern NLP increasingly uses transformer-based pretrained models, which improved quality and reduced task-specific engineering.
 
-But classic NLP is still useful for fast, controlled workflows.
+## Practical caveat
 
-## Quick mental model
+Great NLP outputs still depend on domain data, evaluation quality, and clear task framing.
 
-NLP is the domain.
-LLMs are one powerful approach inside that domain.
+## Actionable takeaway
+
+Start with the narrowest language task (classify, extract, summarize), define success metrics, then choose the simplest model that meets target quality.

@@ -1,0 +1,10 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='600' viewBox='0 0 1000 600'>
+<rect width='1000' height='600' fill='#0b1020'/>
+<text x='40' y='55' fill='#e2e8f0' font-size='34' font-family='Arial'>Model selection matrix</text>
+<text x='130' y='560' fill='#94a3b8' font-size='20' font-family='Arial'>Cost →</text>
+<text x='25' y='300' transform='rotate(-90 25 300)' fill='#94a3b8' font-size='20' font-family='Arial'>Capability →</text>
+<line x1='100' y1='500' x2='920' y2='500' stroke='#334155' stroke-width='2'/><line x1='100' y1='500' x2='100' y2='100' stroke='#334155' stroke-width='2'/>
+<circle cx='260' cy='260' r='34' fill='#60a5fa'/><text x='220' y='270' fill='#e2e8f0' font-size='18' font-family='Arial'>Fast</text>
+<circle cx='520' cy='220' r='34' fill='#34d399'/><text x='472' y='230' fill='#e2e8f0' font-size='18' font-family='Arial'>Balanced</text>
+<circle cx='780' cy='160' r='34' fill='#f59e0b'/><text x='742' y='170' fill='#e2e8f0' font-size='18' font-family='Arial'>Frontier</text>
+</svg>

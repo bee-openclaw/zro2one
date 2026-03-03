@@ -6,45 +6,40 @@ topic: ai-tools
 tags: [tools, chatgpt, claude, gemini, comparison]
 author: bee
 date: "2026-03-03"
-readTime: 10
+readTime: 4
 description: "A practical tool-selection guide: which model to use for writing, analysis, coding, and team workflows."
-related: []
+related: [start-using-ai-today,prompting-that-actually-works,chatgpt-vs-claude-vs-gemini-2026]
 ---
 
-There is no single “best” AI tool. There is only best-for-task.
+![Model selection matrix](/visuals/model-selection-matrix.svg)
 
-## Quick selection rule
+Picking one model for everything is the fastest way to burn time and money.
 
-- **Need broad ecosystem + integrations:** start with ChatGPT
-- **Need strong long-form writing/analysis:** test Claude first
-- **Need Google workspace proximity + multimodal workflows:** test Gemini
+## Quick positioning (2026 practical view)
 
-## For individuals
+- **ChatGPT**: best general workflow surface, strong tool ecosystem.
+- **Claude**: excellent long-form writing, careful reasoning, strong document handling.
+- **Gemini**: strong Google ecosystem integration and multimodal workflows.
 
-If you only want one paid tool, choose based on your highest-frequency workflow:
+## Scenario-based choice
 
-- Writing-heavy knowledge work → Claude
-- Mixed everyday tasks + plugins/tools → ChatGPT
-- Docs/Drive/Workspace-centric flow → Gemini
+- **Strategy memo + structured argument** → Claude first.
+- **Rapid prototyping with many tools/connectors** → ChatGPT.
+- **Workspace already lives in Google Docs/Drive/Meet** → Gemini.
 
-## For teams
+## Decision factors that matter
 
-Use a **two-model policy**:
+1. Context length you actually need.
+2. Reliability on your domain data.
+3. Total cost (tokens + engineering + switching overhead).
+4. Governance (privacy, admin controls, auditability).
 
-1. Primary model for default workflows
-2. Secondary model for fallback/verification
+## Common mistakes
 
-This reduces outages and weird single-model blind spots.
+- Benchmarking with only one prompt.
+- Ignoring latency and user patience.
+- Selecting by marketing launch notes, not workflow fit.
 
-## Evaluation checklist (use this before committing)
+## Actionable takeaway
 
-- Output quality on 10 real tasks
-- Failure behavior (does it bluff?)
-- Speed + latency consistency
-- Cost per useful output
-- Admin/security controls
-- Integration with your stack
-
-## Bottom line
-
-Pick tools like you hire teammates: based on role fit, reliability, and communication quality—not leaderboard drama.
+Run a 7-day bake-off with your real tasks and score each model on: quality, speed, cost, and edit effort after output. Choose by weighted score, not vibes.

@@ -1,0 +1,11 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='480' viewBox='0 0 1200 480'>
+<rect width='1200' height='480' fill='#0f172a'/>
+<text x='50' y='60' fill='#e2e8f0' font-size='38' font-family='Arial'>RAG pipeline (retrieval-augmented generation)</text>
+<rect x='50' y='140' width='180' height='80' rx='10' fill='#1e293b'/><text x='78' y='190' fill='#93c5fd' font-size='26' font-family='Arial'>Documents</text>
+<rect x='280' y='140' width='180' height='80' rx='10' fill='#1e293b'/><text x='326' y='190' fill='#93c5fd' font-size='26' font-family='Arial'>Chunks</text>
+<rect x='510' y='140' width='180' height='80' rx='10' fill='#1e293b'/><text x='535' y='190' fill='#93c5fd' font-size='26' font-family='Arial'>Embeddings</text>
+<rect x='740' y='140' width='180' height='80' rx='10' fill='#1e293b'/><text x='770' y='190' fill='#93c5fd' font-size='26' font-family='Arial'>Retriever</text>
+<rect x='970' y='140' width='180' height='80' rx='10' fill='#1e293b'/><text x='1025' y='190' fill='#93c5fd' font-size='26' font-family='Arial'>LLM</text>
+<path d='M230 180 L280 180 M460 180 L510 180 M690 180 L740 180 M920 180 L970 180' stroke='#38bdf8' stroke-width='4'/>
+<text x='50' y='320' fill='#cbd5e1' font-size='24' font-family='Arial'>Quality hinges on chunking, retrieval precision, and prompt grounding.</text>
+</svg>

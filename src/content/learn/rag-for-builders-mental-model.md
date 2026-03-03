@@ -6,54 +6,39 @@ topic: rag
 tags: [rag, retrieval, llm-systems, architecture]
 author: bee
 date: "2026-03-03"
-readTime: 14
+readTime: 4
 description: "A clear technical model for Retrieval-Augmented Generation: when to use it, where it fails, and what to measure."
-related: []
+related: [api-integration-patterns-for-llms,how-llms-work-technical,prompting-that-actually-works]
 ---
 
-RAG (Retrieval-Augmented Generation) is not a feature. It’s a system.
+![RAG pipeline](/visuals/rag-pipeline.svg)
 
-## Core pipeline
+RAG is not “attach vector DB and done.” It is a retrieval quality problem wrapped in an LLM UX problem.
 
-1. **Ingest** source documents
-2. **Chunk** into retrievable units
-3. **Embed** chunks into vector space
-4. **Retrieve** top-k chunks for a query
-5. **Generate** answer with those chunks as context
+## Mental model
 
-The model is only as good as the retrieval step.
+RAG quality = **retrieval quality × generation discipline**.
+If retrieval misses, generation cannot recover reliably.
 
-## Where teams fail first
+## Architecture pieces
 
-- Bad chunking (too long, no structure)
-- No metadata filtering (time, source, permissions)
-- No eval set (you can’t improve what you don’t measure)
-- Treating RAG like truth instead of evidence-backed guessing
+- Chunking strategy (semantic coherence > arbitrary size)
+- Embedding model and index configuration
+- Retriever (top-k, reranking, filtering)
+- Prompt grounding (force “answer from sources” behavior)
 
-## Practical defaults
+## Scenario
 
-- Chunk size: 300–800 tokens
-- Overlap: 10–20%
-- Retrieve: top 5–10, then rerank to top 3–5
-- Always return citations/snippets used in answer
+Internal policy assistant:
+- Bad chunking mixes unrelated policies → contradictory answers.
+- Better chunking by policy section + metadata filter by region → precision improves.
 
-## Metrics that matter
+## Mistakes
 
-Track at least:
+- Evaluating only generation quality, not retrieval recall.
+- Ignoring stale documents.
+- No citation requirement in outputs.
 
-- **Retrieval recall@k** for known-answer queries
-- **Groundedness** (does answer match retrieved text?)
-- **Answer usefulness** (human rating)
-- **Latency** and **cost per query**
+## Actionable metrics
 
-Without these, teams optimize vibes.
-
-## Decision rule: when RAG vs fine-tuning?
-
-Use RAG when knowledge changes frequently and must stay source-grounded.
-Use fine-tuning when behavior/style is the main issue and knowledge is relatively stable.
-Often the best stack is both: fine-tuned behavior + RAG for fresh facts.
-
-## Bottom line
-
-Think of RAG as a search-and-reasoning architecture. Your leverage is in data prep, retrieval quality, and evaluation discipline—not just model size.
+Track: retrieval hit rate, answer groundedness, citation correctness, unresolved query rate.

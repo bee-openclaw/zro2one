@@ -11,6 +11,9 @@ description: "The frontier of LLM research: scaling laws, emergent capabilities,
 related: [how-llms-work-essential, how-llms-work-applied, how-llms-work-technical]
 ---
 
+![Article visual](/visuals/llm-token-flow.svg)
+
+
 ## Beyond the architecture: what we still don't understand
 
 The transformer architecture is well-understood mechanically, but the *behavior* of large language models trained on this architecture raises deep questions that remain active areas of research. This piece covers the open problems, recent breakthroughs, and frontier directions as of early 2026.

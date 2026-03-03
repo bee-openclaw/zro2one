@@ -1,0 +1,8 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='520' viewBox='0 0 1100 520'>
+<rect width='1100' height='520' fill='#111827'/>
+<text x='40' y='60' fill='#e5e7eb' font-size='36' font-family='Arial'>LLM API guardrail stack</text>
+<rect x='80' y='110' width='940' height='60' fill='#1f2937' rx='8'/><text x='110' y='150' fill='#93c5fd' font-size='24' font-family='Arial'>1) Input validation + policy filter</text>
+<rect x='80' y='190' width='940' height='60' fill='#1f2937' rx='8'/><text x='110' y='230' fill='#93c5fd' font-size='24' font-family='Arial'>2) Prompt template + context controls</text>
+<rect x='80' y='270' width='940' height='60' fill='#1f2937' rx='8'/><text x='110' y='310' fill='#93c5fd' font-size='24' font-family='Arial'>3) Model call with retries + timeout + fallback</text>
+<rect x='80' y='350' width='940' height='60' fill='#1f2937' rx='8'/><text x='110' y='390' fill='#93c5fd' font-size='24' font-family='Arial'>4) Output checks (safety, schema, citations)</text>
+</svg>

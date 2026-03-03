@@ -6,48 +6,43 @@ topic: llm-api-integration
 tags: [api, llm, backend, architecture]
 author: bee
 date: "2026-03-03"
-readTime: 13
+readTime: 4
 description: "A technical guide to shipping LLM features safely: request shaping, guardrails, retries, and observability."
 related: [rag-for-builders-mental-model]
 ---
 
-When teams add LLMs to products, integration quality determines reliability.
+![LLM API guardrail stack](/visuals/api-guardrails.svg)
 
-## Baseline architecture
+Most failed LLM products do not fail at prompting—they fail at integration discipline.
 
-Client → API gateway → LLM service layer → provider(s)
+## A production-ready request path
 
-Keep provider logic out of the UI and isolate prompts + policies server-side.
+1. **Input shaping**: normalize user input, detect language, remove prompt-injection payloads.
+2. **Context policy**: fetch only permitted data; enforce tenant boundaries.
+3. **Prompt assembly**: role + task + constraints + examples + schema.
+4. **Model call**: timeout, retries with jitter, circuit breaker, fallback model.
+5. **Output validation**: schema check, safety check, source/citation requirements.
+6. **Telemetry**: log prompt hash, model/version, latency, token cost, failures.
 
-## Required controls
+## Concrete scenario
 
-- Timeouts + retry with jitter
-- Circuit breaker on provider errors
-- Prompt/version tracking
-- Output schema validation
-- PII redaction before logging
+You’re building invoice extraction. Naive call returns free-form prose. Better approach:
+- force JSON schema,
+- reject invalid output,
+- retry once with correction instruction,
+- fallback to smaller parser model for cheap fields.
 
-## Response shaping
+## Caveats and mistakes
 
-Use structured outputs (JSON schema) where possible.
-Validate before returning to the client.
-Fallback gracefully when schema fails.
+- Don’t log raw PII prompts unless policy explicitly allows it.
+- Don’t rely on one provider path; quota/rate failures happen.
+- Don’t skip eval set regression tests after prompt changes.
 
-## Observability
+## Actionable checklist
 
-Track:
+- Add request IDs for traceability.
+- Add max token budget per endpoint.
+- Add per-tenant rate limits.
+- Add offline replay tests before deploy.
 
-- latency p50/p95
-- token cost per request
-- error rate by prompt version
-- human override rate
-
-## Multi-provider strategy
-
-Design for hot-swap:
-
-- provider abstraction
-- standardized request/response model
-- policy layer independent of vendor
-
-You want optionality before you need it.
+This is what turns a demo into a service.

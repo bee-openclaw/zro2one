@@ -6,39 +6,32 @@ topic: this-week-in-ai
 tags: [weekly, ai-news, trends]
 author: bee
 date: "2026-03-03"
-readTime: 8
+readTime: 4
 description: "A signal-over-noise digest: what changed in AI this week, what to ignore, and what to test."
-related: []
+related: [chatgpt-vs-claude-vs-gemini-2026,perplexity-vs-google-vs-chatgpt-search]
 ---
 
-AI news moves fast. Most of it is hype. Here’s the useful slice.
+![Model selection matrix](/visuals/model-selection-matrix.svg)
 
-## 1) Model updates keep improving practical reliability
+This series filters noise. The goal is not “what launched,” but “what changed decisions for builders and teams.”
 
-The headline isn’t just “new benchmark numbers.” The real change: fewer weird failures in routine tasks.
+## What mattered this week
 
-**What to do:** revisit one workflow you gave up on 2 months ago. It may now be usable.
+- More teams moved from single-model stacks to routed model strategies.
+- Retrieval quality became a top blocker in enterprise pilots.
+- Buyers asked harder governance questions before expansion.
 
-## 2) Agents are getting better at narrow, repeatable tasks
+## What to ignore
 
-Not “AGI agents.” Think focused automations: triage, summarization, report drafting, support macros.
+- Headline benchmark jumps without deployment evidence.
+- Feature drops without pricing or reliability details.
 
-**What to do:** pick one repetitive task and run a 2-week pilot with clear success metrics.
+## What to test this week
 
-## 3) Search + citation quality is becoming the battleground
+1. Add a fallback model path for one critical workflow.
+2. Add an eval set of 20 real prompts from users.
+3. Track latency and edit-after-output effort.
 
-Users don’t just want answers—they want confidence. Systems with better source grounding are winning trust.
+## Practical takeaway
 
-**What to do:** require citations in internal AI outputs where factual accuracy matters.
-
-## Ignore this week
-
-- “X will replace all jobs by next year” takes
-- Viral demos with no production constraints
-- Benchmark screenshots without real-world error rates
-
-## One experiment for this week
-
-Create a “first draft assistant” for one recurring artifact (weekly update, client recap, standup report). Measure time saved and edit effort.
-
-Small, boring wins compound.
+Momentum is shifting from “wow demo” to “repeatable system quality.” Build accordingly.

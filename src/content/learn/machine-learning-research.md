@@ -11,6 +11,9 @@ description: "A research-level map of unresolved ML problems: generalization, ro
 related: [machine-learning-essential, machine-learning-applied, machine-learning-technical]
 ---
 
+![Article visual](/visuals/ml-flywheel.svg)
+
+
 Recent progress obscures a core reality: we still scale capability faster than understanding.
 
 This matters because deployment now happens in high-stakes systems.

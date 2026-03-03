@@ -6,34 +6,31 @@ topic: mllms
 tags: [mllm, multimodal, llm, vision, audio]
 author: bee
 date: "2026-03-03"
-readTime: 7
+readTime: 4
 description: "MLLMs explained: models that understand and generate across text, images, audio, and more." 
 related: [what-is-llm-essential, ai-map-how-ml-dl-llm-fit]
 ---
 
-An MLLM is a multimodal large language model.
+![AI map](/visuals/ai-map-stack.svg)
 
-It extends LLMs from just text to multiple data types (“modalities”), like:
+An MLLM is a multimodal large language model: it understands and generates across more than text (for example image + text, or audio + text).
 
-- text
-- images
-- audio
-- video (in some systems)
+## Why teams use MLLMs
 
-## Why this matters
+- Read screenshots/forms and answer questions
+- Explain charts or diagrams
+- Combine visual evidence with written reasoning
 
-Real-world work is multimodal.
-People share screenshots, PDFs, voice notes, charts, photos.
-MLLMs let one system reason across them.
+## Scenario
 
-## Example use cases
+Support agent uploads a photo of a damaged package. MLLM can describe damage, suggest claim category, and draft customer response.
 
-- explain a chart from an image
-- extract data from a photographed receipt
-- summarize a meeting from transcript + slides
-- answer questions about a diagram
+## Caveats
 
-## Simple mental model
+- Vision quality varies by domain (medical/legal needs stricter review).
+- Context windows can still limit large multimodal sessions.
+- Safety and privacy controls become more complex.
 
-LLM = language brain.
-MLLM = language brain + perception channels.
+## Actionable takeaway
+
+Use MLLMs when the task genuinely requires multiple data types. If text alone works, keep it simpler.

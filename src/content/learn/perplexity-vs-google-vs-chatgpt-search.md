@@ -6,21 +6,33 @@ topic: ai-tools
 tags: [tools, search, perplexity, google, chatgpt]
 author: bee
 date: "2026-03-03"
-readTime: 8
+readTime: 4
 description: "When to use each search mode for research, fact-checking, and decision-making without drowning in tabs."
 related: [chatgpt-vs-claude-vs-gemini-2026]
 ---
 
-Use different search tools for different jobs.
+![Search modes](/visuals/search-modes.svg)
 
-- **Google:** best for broad discovery and official sources
-- **Perplexity:** best for quick synthesis with citations
-- **ChatGPT Search:** best when search is part of a larger workflow (drafting, analysis, planning)
+Use one search mode for everything and you’ll waste hours.
 
-## Practical stack
+## Best use by mode
 
-1. Start with Google for source landscape
-2. Use Perplexity for concise synthesis + citation trail
-3. Use ChatGPT to transform findings into your deliverable
+- **Google**: widest web coverage and fastest path to fresh sources.
+- **Perplexity**: quick cited synthesis when you need “brief me now.”
+- **ChatGPT Search**: reasoning-heavy synthesis plus follow-up planning.
 
-Don’t pick one tool. Build a flow.
+## Practical workflow
+
+1. Start with Google for source discovery.
+2. Use Perplexity for fast citation-backed summary.
+3. Use ChatGPT to convert findings into decision options or action plan.
+
+## Caveats
+
+- Citation presence ≠ citation quality.
+- LLM summaries can flatten nuance.
+- Fresh events can outpace model/tool indexing.
+
+## Actionable takeaway
+
+Separate **finding sources** from **making decisions**. Different tools are optimized for different steps.

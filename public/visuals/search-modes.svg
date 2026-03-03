@@ -1,0 +1,10 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='500' viewBox='0 0 1100 500'>
+<rect width='1100' height='500' fill='#111827'/>
+<text x='40' y='60' fill='#e5e7eb' font-size='36' font-family='Arial'>Three search modes</text>
+<rect x='70' y='120' width='280' height='300' rx='12' fill='#1f2937'/><text x='170' y='170' fill='#93c5fd' font-size='30' font-family='Arial'>Google</text>
+<text x='95' y='215' fill='#cbd5e1' font-size='22' font-family='Arial'>Breadth & freshest web</text>
+<rect x='410' y='120' width='280' height='300' rx='12' fill='#1f2937'/><text x='488' y='170' fill='#93c5fd' font-size='30' font-family='Arial'>Perplexity</text>
+<text x='430' y='215' fill='#cbd5e1' font-size='22' font-family='Arial'>Cited synthesis fast</text>
+<rect x='750' y='120' width='280' height='300' rx='12' fill='#1f2937'/><text x='810' y='170' fill='#93c5fd' font-size='30' font-family='Arial'>ChatGPT</text>
+<text x='775' y='215' fill='#cbd5e1' font-size='22' font-family='Arial'>Reasoning + workflow</text>
+</svg>

@@ -11,6 +11,9 @@ description: "How teams actually use ML in products: use cases, rollout strategy
 related: [machine-learning-essential, machine-learning-technical, machine-learning-research]
 ---
 
+![Article visual](/visuals/ml-flywheel.svg)
+
+
 Most ML projects fail for boring reasons, not because the models are weak.
 
 This guide focuses on what works in production.

@@ -6,51 +6,39 @@ topic: ai-workflows
 tags: [workflow, automation, productivity]
 author: bee
 date: "2026-03-03"
-readTime: 10
+readTime: 4
 description: "A step-by-step playbook to turn one repetitive task into a reliable AI-assisted workflow in one hour."
 related: [prompting-that-actually-works]
 ---
 
-## Minute 0-10: pick the right task
+![AI workflow in 60 minutes](/visuals/ai-workflow-60-min.svg)
 
-Choose a task that is:
+If AI still feels abstract, this one-hour sprint fixes that.
 
-- repeated weekly
-- text-heavy
-- annoying but not high-risk
+## 0-10 min: pick one painful repetitive task
+Examples: weekly status summary, inbound lead triage, meeting-note cleanup.
 
-Examples: status updates, recap emails, first-pass research briefs.
+## 10-25 min: define input and output
+- Input source: docs, CRM, transcript, email.
+- Output shape: bullet summary, JSON, draft email, ticket fields.
 
-## Minute 10-25: define input + output
+## 25-40 min: write first prompt + test on 3 real examples
+Look for consistency, not perfection.
 
-Write down:
+## 40-55 min: add guardrails
+- Required sections
+- “If missing data, say unknown”
+- Max length + tone constraints
 
-- Inputs you always have
-- Output format you always need
-- Quality bar (tone, audience, constraints)
+## 55-60 min: deploy lightweight routine
+Use template + checklist. Track time saved this week.
 
-## Minute 25-40: build v1 prompt
+## Common mistakes
 
-Use the 4-part structure (role, task, context, output).
-Run it on 3 real examples.
+- Automating a task nobody values.
+- Testing on toy data only.
+- Skipping post-output review for customer-facing content.
 
-## Minute 40-50: create a review checklist
+## Actionable takeaway
 
-Add 5 checks before sending output:
-
-- factual correctness
-- missing context
-- tone fit
-- formatting
-- action clarity
-
-## Minute 50-60: operationalize
-
-Save prompt in shared doc.
-Name owner.
-Track two metrics for one week:
-
-- time saved
-- edit effort
-
-That’s a real workflow.
+A useful workflow beats a clever prompt. Optimize the loop, not just the wording.
