@@ -6,58 +6,39 @@ topic: this-week-in-ai
 tags: [weekly, productivity, ai-news]
 author: bee
 date: "2026-03-03"
-readTime: 4
+readTime: 8
 description: "Week two of the digest: where AI is creating real leverage and where teams are still wasting cycles."
 related: [this-week-in-ai-001]
 ---
 
-## Scenario: where this matters in real work
-Imagine you are leading a team and someone asks, "Can we use this this week to reduce rework?" This guide solves that exact problem for **This Week in AI #002: The Productivity Reality Check**: turning a fuzzy concept into a repeatable decision.
+The useful question this week is not “What model launched?” It’s “What shipped in real workflows?”
 
-Right after the scenario below, the visual shows the operating model. Read it as a map of **sequence and responsibilities** (not decoration).
+## 1) AI copilots are strongest in draft-heavy work
 
-![This Week in AI #002: The Productivity Reality Check visual](/visuals/workflow-design-board.svg)
+Teams are seeing the biggest gains in first drafts: docs, briefs, summaries, support replies.
 
-The visual above is useful only if you can point to where your team usually gets stuck. In this article, each section maps to one failure point and one corrective action.
+**Action:** standardize prompts + review checklists for your top three document types.
 
-## Worked example (input -> process -> output)
-**Input:** A messy, real-world request from a manager: "We need better quality and faster delivery this quarter."
+## 2) Search quality and verification are now table stakes
 
-**Process:**
-1. Translate the request into a narrow job to be done.
-2. Pick one method and one quality rubric.
-3. Run a small test batch with review notes.
-4. Capture failures and adjust instructions or architecture.
+Users increasingly expect source-backed answers. Uncited outputs erode trust quickly.
 
-**Output:** A production-ready mini playbook: scope, prompt/spec, review checklist, and metric target for week one.
+**Action:** for factual tasks, require “claim + source + confidence” formatting.
 
-That input/process/output pattern is the core operating loop throughout this guide.
+## 3) Context windows are large, but context quality still wins
 
+Bigger context helps, but dumping unstructured text still degrades output.
 
-## How to use this guide
-Use this as an operating guide, not a theory page. For each section, ask: what decision does this improve, and how will we know?
+**Action:** curate context with section headers and explicit priorities before sending to the model.
 
-## Decision checkpoint
-Before implementation, confirm three things: the business owner exists, the baseline is measured, and the output will be consumed by a real workflow.
+## Where teams still lose time
 
+- Rewriting prompts from scratch every session
+- No versioning for prompt templates
+- No postmortems on AI failures
 
-## What to do Monday morning
-- Pick one workflow with clear business value and measurable quality.
-- Write a one-page spec: owner, inputs, expected outputs, error budget.
-- Run 10 real examples; label pass/fail reasons.
-- Fix the top two recurring failures before expanding scope.
+## One experiment for this week
 
-## Pitfalls and failure modes (and how to avoid them)
-- **Vague objective:** "Use AI" without a decision target. **Fix:** Define one decision and one measurable outcome.
-- **Toy-data success:** Looks great on curated examples, fails in production. **Fix:** Test with messy historical samples.
-- **No review protocol:** Different reviewers grade differently. **Fix:** Add explicit acceptance criteria and examples of good/bad outputs.
-- **Premature scale:** Team automates before reliability stabilizes. **Fix:** Use staged rollout (shadow -> assist -> partial automation).
+Create a shared prompt library with 5 templates your team already uses. Track adoption and revision quality for one week.
 
-## Key terms in context
-- **Input** means the exact evidence you provide (document, transcript, ticket, or API payload).
-- **Process** means the transformation steps (retrieval, prompting, validation, human review).
-- **Output** means the artifact another person or system can act on (email draft, JSON record, priority score).
-- **Quality bar** means the minimum threshold for shipping without rework.
-
-## Related reading path
-Use the related links in the frontmatter as your next-step path: foundation first, then applied setup, then technical hardening.
+Better systems beat better prompts.

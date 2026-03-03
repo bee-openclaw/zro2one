@@ -6,69 +6,54 @@ topic: rag
 tags: [rag, retrieval, llm-systems, architecture]
 author: bee
 date: "2026-03-03"
-readTime: 4
+readTime: 14
 description: "A clear technical model for Retrieval-Augmented Generation: when to use it, where it fails, and what to measure."
-related: [api-integration-patterns-for-llms,how-llms-work-technical,prompting-that-actually-works]
+related: []
 ---
 
-## Scenario: where this matters in real work
-Imagine you are leading a team and someone asks, "Can we use this this week to reduce rework?" This guide solves that exact problem for **RAG for Builders: The Mental Model You Actually Need**: turning a fuzzy concept into a repeatable decision.
+RAG (Retrieval-Augmented Generation) is not a feature. It’s a system.
 
-Right after the scenario below, the visual shows the operating model. Read it as a map of **sequence and responsibilities** (not decoration).
+## Core pipeline
 
-![RAG for Builders: The Mental Model You Actually Need visual](/visuals/rag-pipeline.svg)
+1. **Ingest** source documents
+2. **Chunk** into retrievable units
+3. **Embed** chunks into vector space
+4. **Retrieve** top-k chunks for a query
+5. **Generate** answer with those chunks as context
 
-The visual above is useful only if you can point to where your team usually gets stuck. In this article, each section maps to one failure point and one corrective action.
+The model is only as good as the retrieval step.
 
-## Worked example (input -> process -> output)
-**Input:** A messy, real-world request from a manager: "We need better quality and faster delivery this quarter."
+## Where teams fail first
 
-**Process:**
-1. Translate the request into a narrow job to be done.
-2. Pick one method and one quality rubric.
-3. Run a small test batch with review notes.
-4. Capture failures and adjust instructions or architecture.
+- Bad chunking (too long, no structure)
+- No metadata filtering (time, source, permissions)
+- No eval set (you can’t improve what you don’t measure)
+- Treating RAG like truth instead of evidence-backed guessing
 
-**Output:** A production-ready mini playbook: scope, prompt/spec, review checklist, and metric target for week one.
+## Practical defaults
 
-That input/process/output pattern is the core operating loop throughout this guide.
+- Chunk size: 300–800 tokens
+- Overlap: 10–20%
+- Retrieve: top 5–10, then rerank to top 3–5
+- Always return citations/snippets used in answer
 
+## Metrics that matter
 
-## RAG mental model
-RAG reliability equals retrieval quality multiplied by generation discipline. If retrieval misses key policy text, generation cannot recover truthfully.
+Track at least:
 
-## Practical architecture sequence
-1. Chunk by semantic unit, not arbitrary length.
-2. Add metadata filters (region, product line, policy date).
-3. Retrieve top-k and rerank for answerability.
-4. Force citation-linked output schema.
-5. Reject responses with missing evidence.
+- **Retrieval recall@k** for known-answer queries
+- **Groundedness** (does answer match retrieved text?)
+- **Answer usefulness** (human rating)
+- **Latency** and **cost per query**
 
-## Worked example
-**Input:** Employee asks, "Can contractors access production dashboards?"
+Without these, teams optimize vibes.
 
-**Process:** Retrieve access-policy chunks filtered by region and system; rerank by policy recency; generate answer with citations.
+## Decision rule: when RAG vs fine-tuning?
 
-**Output:** A yes/no decision with policy clause references, exception path, and escalation owner.
+Use RAG when knowledge changes frequently and must stay source-grounded.
+Use fine-tuning when behavior/style is the main issue and knowledge is relatively stable.
+Often the best stack is both: fine-tuned behavior + RAG for fresh facts.
 
+## Bottom line
 
-## What to do Monday morning
-- Pick one workflow with clear business value and measurable quality.
-- Write a one-page spec: owner, inputs, expected outputs, error budget.
-- Run 10 real examples; label pass/fail reasons.
-- Fix the top two recurring failures before expanding scope.
-
-## Pitfalls and failure modes (and how to avoid them)
-- **Vague objective:** "Use AI" without a decision target. **Fix:** Define one decision and one measurable outcome.
-- **Toy-data success:** Looks great on curated examples, fails in production. **Fix:** Test with messy historical samples.
-- **No review protocol:** Different reviewers grade differently. **Fix:** Add explicit acceptance criteria and examples of good/bad outputs.
-- **Premature scale:** Team automates before reliability stabilizes. **Fix:** Use staged rollout (shadow -> assist -> partial automation).
-
-## Key terms in context
-- **Input** means the exact evidence you provide (document, transcript, ticket, or API payload).
-- **Process** means the transformation steps (retrieval, prompting, validation, human review).
-- **Output** means the artifact another person or system can act on (email draft, JSON record, priority score).
-- **Quality bar** means the minimum threshold for shipping without rework.
-
-## Related reading path
-Use the related links in the frontmatter as your next-step path: foundation first, then applied setup, then technical hardening.
+Think of RAG as a search-and-reasoning architecture. Your leverage is in data prep, retrieval quality, and evaluation discipline—not just model size.

@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "qa:content": "node scripts/content-qa.mjs",
+    "build": "npm run qa:content && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro"
   },
