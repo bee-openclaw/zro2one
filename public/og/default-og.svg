@@ -1,14 +1,11 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0F172A"/>
-      <stop offset="1" stop-color="#1D4ED8"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <circle cx="1000" cy="120" r="180" fill="#60A5FA" fill-opacity="0.2"/>
-  <circle cx="180" cy="560" r="220" fill="#38BDF8" fill-opacity="0.2"/>
+  <rect width="1200" height="630" fill="#0F172A"/>
+  <rect x="880" y="-60" width="420" height="420" rx="60" fill="#22c55e" fill-opacity="0.07"/>
+  <rect x="60" y="400" width="320" height="320" rx="50" fill="#22c55e" fill-opacity="0.05"/>
+  <rect x="90" y="52" width="64" height="64" rx="12" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+  <text x="122" y="96" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-1">Z<tspan fill="#22c55e">1</tspan></text>
   <text x="90" y="270" fill="white" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="800">Zro2One</text>
-  <text x="90" y="350" fill="#BFDBFE" font-family="Inter, Arial, sans-serif" font-size="46" font-weight="500">AI education from zero to one</text>
+  <text x="90" y="350" fill="#86efac" font-family="Inter, Arial, sans-serif" font-size="46" font-weight="500">AI education from zero to one</text>
   <text x="90" y="430" fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-size="34">Essential → Applied → Technical → Research</text>
+  <rect x="90" y="390" width="60" height="4" rx="2" fill="#22c55e"/>
 </svg>

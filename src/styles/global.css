@@ -45,9 +45,9 @@
 .prose li { @apply mb-2; }
 .prose ul li { @apply list-disc; }
 .prose ol li { @apply list-decimal; }
-.prose a { @apply text-zro-blue hover:text-zro-blue-dark underline; }
+.prose a { @apply text-zro-green-dark hover:text-zro-green underline; }
 .prose blockquote {
-  @apply border-l-4 border-zro-blue pl-6 italic text-gray-600 my-6;
+  @apply border-l-4 border-zro-green pl-6 italic text-gray-600 my-6;
 }
 .prose code {
   @apply bg-gray-100 rounded px-1.5 py-0.5 text-sm font-mono;

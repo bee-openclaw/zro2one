@@ -11,9 +11,15 @@ const links = [
 
 <header class="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
   <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-    <a href="/" class="flex items-center gap-2 group">
-      <span class="text-2xl font-black tracking-tighter">
-        <span class="text-zro-dark">Zro</span><span class="bg-gradient-to-r from-zro-green via-zro-blue to-zro-purple bg-clip-text text-transparent">2</span><span class="text-zro-dark">One</span>
+    <a href="/" class="flex items-center gap-2.5 group">
+      <!-- Z1 logo mark -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32" aria-hidden="true">
+        <rect width="48" height="48" rx="10" fill="#0f172a"/>
+        <text x="24" y="35" font-family="system-ui, -apple-system, Arial, sans-serif" font-size="26" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-1">Z<tspan fill="#22c55e">1</tspan></text>
+      </svg>
+      <!-- Wordmark -->
+      <span class="text-xl font-black tracking-tight text-zro-dark">
+        Zro<span class="text-zro-green">2</span>One
       </span>
     </a>
 
@@ -25,7 +31,7 @@ const links = [
           class:list={[
             "text-sm font-medium transition-colors",
             currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-              ? "text-zro-blue"
+              ? "text-zro-green"
               : "text-zro-gray hover:text-zro-dark"
           ]}
         >
@@ -51,7 +57,7 @@ const links = [
           class:list={[
             "block text-sm font-medium py-2",
             currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href))
-              ? "text-zro-blue"
+              ? "text-zro-green"
               : "text-zro-gray"
           ]}
         >

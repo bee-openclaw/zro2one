@@ -7,9 +7,15 @@ const year = new Date().getFullYear();
     <div class="grid md:grid-cols-3 gap-12">
       <!-- Brand -->
       <div>
-        <span class="text-2xl font-black tracking-tighter text-white">
-          Zro<span class="bg-gradient-to-r from-zro-green via-zro-blue to-zro-purple bg-clip-text text-transparent">2</span>One
-        </span>
+        <a href="/" class="inline-flex items-center gap-2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="32" height="32" aria-hidden="true">
+            <rect width="48" height="48" rx="10" fill="#1e293b"/>
+            <text x="24" y="35" font-family="system-ui, -apple-system, Arial, sans-serif" font-size="26" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-1">Z<tspan fill="#22c55e">1</tspan></text>
+          </svg>
+          <span class="text-xl font-black tracking-tight text-white">
+            Zro<span class="text-zro-green">2</span>One
+          </span>
+        </a>
         <p class="mt-4 text-sm text-gray-400 leading-relaxed">
           AI education for everyone. From curious beginner to frontier researcher.
         </p>
@@ -50,11 +56,11 @@ const year = new Date().getFullYear();
             name="email"
             placeholder="your@email.com"
             required
-            class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-zro-blue focus:ring-1 focus:ring-zro-blue"
+            class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-zro-green focus:ring-1 focus:ring-zro-green"
           />
           <button
             type="submit"
-            class="bg-zro-blue hover:bg-zro-blue-dark text-white text-sm font-medium rounded-lg px-4 py-2.5 transition-colors"
+            class="bg-zro-green hover:bg-zro-green-dark text-white text-sm font-medium rounded-lg px-4 py-2.5 transition-colors"
           >
             Subscribe
           </button>
