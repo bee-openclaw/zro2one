@@ -9,6 +9,11 @@ const articles = await getCollection('learn', ({ data }) => !data.draft);
 const featured = articles
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .slice(0, 6);
+
+const latestAINews = articles
+  .filter((a) => a.data.topic === 'this-week-in-ai')
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3);
 ---
 
 <Layout title="Zro2One — AI Education for Everyone">
@@ -77,6 +82,61 @@ const featured = articles
       </a>
     </div>
   </section>
+
+  <!-- Latest in AI News -->
+  {latestAINews.length > 0 && (
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="inline-flex items-center gap-1.5 bg-zro-red/10 text-zro-red-dark text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              🔴 Live Coverage
+            </span>
+          </div>
+          <h2 class="text-3xl font-bold text-zro-dark">Latest in AI</h2>
+          <p class="text-zro-gray mt-1">Weekly signal-over-noise digest — what actually matters in AI right now.</p>
+        </div>
+        <a href="/this-week-in-ai" class="hidden sm:block text-sm font-medium text-zro-blue hover:text-zro-blue-dark transition-colors">
+          All issues →
+        </a>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-5">
+        {latestAINews.map((article, i) => (
+          <a
+            href={`/learn/${article.id}`}
+            class={`group relative block rounded-2xl p-6 border-2 transition-all hover:shadow-lg hover:-translate-y-0.5 ${
+              i === 0
+                ? 'border-zro-red/40 bg-gradient-to-br from-zro-red/5 to-transparent hover:border-zro-red'
+                : 'border-gray-200 bg-white hover:border-zro-red/30'
+            }`}
+          >
+            {i === 0 && (
+              <span class="absolute top-4 right-4 text-xs font-bold text-zro-red-dark bg-zro-red/10 px-2 py-0.5 rounded-full">
+                Latest
+              </span>
+            )}
+            <div class="text-2xl mb-3">📡</div>
+            <h3 class="font-bold text-zro-dark text-lg leading-snug group-hover:text-zro-red-dark transition-colors">
+              {article.data.title}
+            </h3>
+            <p class="text-sm text-zro-gray mt-2 line-clamp-2">
+              {article.data.description}
+            </p>
+            <div class="mt-4 flex items-center gap-3 text-xs text-zro-gray">
+              <span>{article.data.readTime} min read</span>
+              <span>·</span>
+              <span>{new Date(article.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="mt-4 sm:hidden text-center">
+        <a href="/this-week-in-ai" class="text-sm font-medium text-zro-blue hover:text-zro-blue-dark transition-colors">
+          All issues →
+        </a>
+      </div>
+    </section>
+  )}
 
   <!-- Featured Content -->
   {featured.length > 0 && (
