@@ -11,28 +11,53 @@ description: "When to use each search mode for research, fact-checking, and deci
 related: [chatgpt-vs-claude-vs-gemini-2026]
 ---
 
-![Search modes](/visuals/search-modes.svg)
+## Scenario: where this matters in real work
+Imagine you are leading a team and someone asks, "Can we use this this week to reduce rework?" This guide solves that exact problem for **Perplexity vs Google vs ChatGPT Search: Fast Guide**: turning a fuzzy concept into a repeatable decision.
 
-Use one search mode for everything and you’ll waste hours.
+Right after the scenario below, the visual shows the operating model. Read it as a map of **sequence and responsibilities** (not decoration).
 
-## Best use by mode
+![Perplexity vs Google vs ChatGPT Search: Fast Guide visual](/visuals/search-modes.svg)
 
-- **Google**: widest web coverage and fastest path to fresh sources.
-- **Perplexity**: quick cited synthesis when you need “brief me now.”
-- **ChatGPT Search**: reasoning-heavy synthesis plus follow-up planning.
+The visual above is useful only if you can point to where your team usually gets stuck. In this article, each section maps to one failure point and one corrective action.
 
-## Practical workflow
+## Worked example (input -> process -> output)
+**Input:** A messy, real-world request from a manager: "We need better quality and faster delivery this quarter."
 
-1. Start with Google for source discovery.
-2. Use Perplexity for fast citation-backed summary.
-3. Use ChatGPT to convert findings into decision options or action plan.
+**Process:**
+1. Translate the request into a narrow job to be done.
+2. Pick one method and one quality rubric.
+3. Run a small test batch with review notes.
+4. Capture failures and adjust instructions or architecture.
 
-## Caveats
+**Output:** A production-ready mini playbook: scope, prompt/spec, review checklist, and metric target for week one.
 
-- Citation presence ≠ citation quality.
-- LLM summaries can flatten nuance.
-- Fresh events can outpace model/tool indexing.
+That input/process/output pattern is the core operating loop throughout this guide.
 
-## Actionable takeaway
 
-Separate **finding sources** from **making decisions**. Different tools are optimized for different steps.
+## How to use this guide
+Use this as an operating guide, not a theory page. For each section, ask: what decision does this improve, and how will we know?
+
+## Decision checkpoint
+Before implementation, confirm three things: the business owner exists, the baseline is measured, and the output will be consumed by a real workflow.
+
+
+## What to do Monday morning
+- Pick one workflow with clear business value and measurable quality.
+- Write a one-page spec: owner, inputs, expected outputs, error budget.
+- Run 10 real examples; label pass/fail reasons.
+- Fix the top two recurring failures before expanding scope.
+
+## Pitfalls and failure modes (and how to avoid them)
+- **Vague objective:** "Use AI" without a decision target. **Fix:** Define one decision and one measurable outcome.
+- **Toy-data success:** Looks great on curated examples, fails in production. **Fix:** Test with messy historical samples.
+- **No review protocol:** Different reviewers grade differently. **Fix:** Add explicit acceptance criteria and examples of good/bad outputs.
+- **Premature scale:** Team automates before reliability stabilizes. **Fix:** Use staged rollout (shadow -> assist -> partial automation).
+
+## Key terms in context
+- **Input** means the exact evidence you provide (document, transcript, ticket, or API payload).
+- **Process** means the transformation steps (retrieval, prompting, validation, human review).
+- **Output** means the artifact another person or system can act on (email draft, JSON record, priority score).
+- **Quality bar** means the minimum threshold for shipping without rework.
+
+## Related reading path
+Use the related links in the frontmatter as your next-step path: foundation first, then applied setup, then technical hardening.

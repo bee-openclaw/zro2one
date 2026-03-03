@@ -1,0 +1,43 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI workflow design board showing input, processing stages, and outputs">
+  <rect width="1200" height="700" fill="#0b1020"/>
+  <text x="60" y="70" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="700">AI Workflow Design Board</text>
+  <text x="60" y="105" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="20">From raw inputs to validated output in one repeatable loop</text>
+
+  <rect x="60" y="160" width="250" height="430" rx="18" fill="#111827" stroke="#334155"/>
+  <text x="85" y="205" fill="#93c5fd" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600">1) Inputs</text>
+  <text x="85" y="250" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• Transcript</text>
+  <text x="85" y="285" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• CRM Notes</text>
+  <text x="85" y="320" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• Email Thread</text>
+  <text x="85" y="375" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16">Contract:</text>
+  <text x="85" y="402" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="16">required fields, source</text>
+  <text x="85" y="427" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="16">timestamps, owner</text>
+
+  <rect x="350" y="160" width="500" height="430" rx="18" fill="#111827" stroke="#334155"/>
+  <text x="375" y="205" fill="#86efac" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600">2) Process</text>
+  <rect x="385" y="235" width="430" height="80" rx="12" fill="#1e293b" stroke="#475569"/>
+  <text x="410" y="283" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="20">Prompt spec (goal + constraints)</text>
+  <rect x="385" y="335" width="430" height="80" rx="12" fill="#1e293b" stroke="#475569"/>
+  <text x="410" y="383" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="20">Generation + schema validation</text>
+  <rect x="385" y="435" width="430" height="80" rx="12" fill="#1e293b" stroke="#475569"/>
+  <text x="410" y="483" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="20">Human review + error tagging</text>
+
+  <rect x="890" y="160" width="250" height="430" rx="18" fill="#111827" stroke="#334155"/>
+  <text x="915" y="205" fill="#fca5a5" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="600">3) Outputs</text>
+  <text x="915" y="250" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• Weekly summary</text>
+  <text x="915" y="285" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• Risk list + owners</text>
+  <text x="915" y="320" fill="#e2e8f0" font-family="Inter, Arial, sans-serif" font-size="18">• Follow-up email</text>
+  <text x="915" y="375" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="16">Acceptance:</text>
+  <text x="915" y="402" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="16">factual, concise,</text>
+  <text x="915" y="427" fill="#cbd5e1" font-family="Inter, Arial, sans-serif" font-size="16">actionable</text>
+
+  <path d="M310 375 L350 375" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M850 375 L890 375" stroke="#64748b" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1015 590 C1015 650, 180 650, 180 590" stroke="#f59e0b" stroke-width="4" fill="none" marker-end="url(#arrow)"/>
+  <text x="500" y="675" fill="#fbbf24" font-family="Inter, Arial, sans-serif" font-size="18">Feedback loop: failures update prompt + review checklist</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+</svg>
