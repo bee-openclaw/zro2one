@@ -68,5 +68,104 @@ const canonicalUrl = canonical
       import { inject } from '@vercel/analytics';
       inject();
     </script>
+
+    <!-- New-content toast: checks /version.json on load and every 60s -->
+    <div id="version-toast" style="display:none;" aria-live="polite" role="status">
+      <span>New articles just published — refresh to see them.</span>
+      <button id="version-toast-refresh">Refresh</button>
+      <button id="version-toast-dismiss" aria-label="Dismiss">✕</button>
+    </div>
+    <style>
+      #version-toast {
+        position: fixed;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #f1f5f9;
+        font-size: 0.875rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        z-index: 9999;
+        white-space: nowrap;
+        animation: toast-in 0.25s ease;
+      }
+      @keyframes toast-in {
+        from { opacity: 0; transform: translateX(-50%) translateY(0.5rem); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+      #version-toast-refresh {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 0.35rem 0.9rem;
+        border-radius: 0.25rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      #version-toast-refresh:hover { background: #16a34a; }
+      #version-toast-dismiss {
+        background: none;
+        border: none;
+        color: rgba(241,245,249,0.5);
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        padding: 0;
+        transition: color 0.15s;
+      }
+      #version-toast-dismiss:hover { color: #f1f5f9; }
+    </style>
+    <script>
+      (function () {
+        const STORAGE_KEY = 'zro2one_version';
+        const toast = document.getElementById('version-toast');
+        const refreshBtn = document.getElementById('version-toast-refresh');
+        const dismissBtn = document.getElementById('version-toast-dismiss');
+        let dismissTimer = null;
+
+        function showToast() {
+          if (!toast) return;
+          toast.style.display = 'flex';
+          dismissTimer = setTimeout(hideToast, 30000);
+        }
+
+        function hideToast() {
+          if (!toast) return;
+          toast.style.display = 'none';
+          if (dismissTimer) clearTimeout(dismissTimer);
+        }
+
+        refreshBtn?.addEventListener('click', () => window.location.reload());
+        dismissBtn?.addEventListener('click', hideToast);
+
+        async function checkVersion() {
+          try {
+            const res = await fetch('/version.json?_=' + Date.now(), { cache: 'no-store' });
+            if (!res.ok) return;
+            const { version } = await res.json();
+            const stored = sessionStorage.getItem(STORAGE_KEY);
+            if (!stored) {
+              // First visit — store the version, no toast
+              sessionStorage.setItem(STORAGE_KEY, version);
+            } else if (stored !== version) {
+              // Version changed since page load — show toast
+              showToast();
+            }
+          } catch {}
+        }
+
+        // Check immediately on load, then every 60s
+        checkVersion();
+        setInterval(checkVersion, 60000);
+      })();
+    </script>
   </body>
 </html>

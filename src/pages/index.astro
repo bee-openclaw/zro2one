@@ -18,28 +18,38 @@ const latestAINews = articles
 
 <Layout title="Zro2One — AI Education for Everyone">
   <!-- Hero -->
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-zro-green/5 via-zro-blue/5 to-zro-purple/5"></div>
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 relative">
-      <div class="max-w-3xl">
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-zro-dark leading-[1.1]">
-          AI literacy for<br />
-          <span class="bg-gradient-to-r from-zro-green via-zro-blue to-zro-purple bg-clip-text text-transparent">
-            all of humanity
-          </span>
-        </h1>
-        <p class="mt-6 text-xl text-zro-gray leading-relaxed max-w-2xl">
-          From "what is AI?" to frontier research — learn at the depth that's right for you. 
-          No gatekeeping, no jargon walls. Just clear, practical AI education.
-        </p>
-        <div class="mt-8 flex flex-col sm:flex-row gap-4">
-          <a href="/learn" class="inline-flex items-center justify-center bg-zro-dark hover:bg-gray-800 text-white font-semibold rounded-lg px-6 py-3 transition-colors">
-            Start Learning →
-          </a>
-          <a href="/about" class="inline-flex items-center justify-center border border-gray-300 hover:border-zro-dark text-zro-dark font-semibold rounded-lg px-6 py-3 transition-colors">
-            Why Zro2One?
-          </a>
-        </div>
+  <section class="relative overflow-hidden bg-zro-dark">
+    <!-- Typographic background element: faint "0→1" -->
+    <div class="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none select-none overflow-hidden" aria-hidden="true">
+      <span class="font-black leading-none text-white" style="font-size: clamp(12rem, 30vw, 28rem); opacity: 0.03; transform: translateX(8%);">0→1</span>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-36 relative">
+      <!-- Kicker label -->
+      <p class="font-mono text-zro-green text-xs sm:text-sm uppercase tracking-[0.2em] mb-6">AI Education · Free · No jargon</p>
+
+      <!-- Headline -->
+      <h1 class="font-black tracking-tight text-white leading-[0.92]" style="font-size: clamp(2.8rem, 8vw, 6.5rem);">
+        From zero<br />
+        to one<br />
+        <span class="text-zro-green">in AI.</span>
+      </h1>
+
+      <!-- Accent rule -->
+      <div class="mt-8 h-[3px] w-16 bg-zro-green"></div>
+
+      <p class="mt-6 text-base sm:text-lg text-white/60 leading-relaxed max-w-xl">
+        Every AI concept — from first principles to frontier research — explained at the depth that's right for you. 
+        No gatekeeping, no jargon walls.
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row gap-3">
+        <a href="/learn" class="inline-flex items-center justify-center bg-zro-green hover:bg-zro-green-dark text-white font-bold px-8 py-4 transition-colors" style="border-radius: 0;">
+          Start Learning →
+        </a>
+        <a href="/about" class="inline-flex items-center justify-center border border-white/20 hover:border-white/60 text-white font-semibold px-8 py-4 transition-colors" style="border-radius: 0;">
+          Why Zro2One?
+        </a>
       </div>
     </div>
   </section>
