@@ -1,63 +1,48 @@
 # Zro2One
 
-> AI education for everyone. Every AI concept — from first principles to frontier research — explained at the depth that's right for you. No gatekeeping, no jargon walls.
-
-Zro2One (zro2.one) is a free AI education site that explains every major AI concept at four depth levels: Essential (plain English, no prerequisites), Applied (practical use for professionals), Technical (architecture and code for builders), and Research (frontier concepts for experts). The site covers foundational AI, machine learning, large language models, deep learning, NLP, and more.
-
-## Main Sections
-
-- [Home](https://zro2.one/): Overview of the platform and learning paths
-- [Learn](https://zro2.one/learn/): Full article catalog with depth filtering by topic
-- [Search](https://zro2.one/search/): Full-text search across all content (powered by Pagefind)
-- [About](https://zro2.one/about/): Mission, approach, and depth level explanation
-- [This Week in AI](https://zro2.one/learn/topic/this-week-in-ai/): Weekly AI news digest
-- [Newsletter](https://zro2.one/newsletter/): Weekly AI insights by email
-
-## Beginner Path (Start Here)
-
-- [What is AI? (And What It Isn't)](https://zro2.one/learn/what-is-ai/): Clear, honest explanation of what artificial intelligence actually is and isn't — no hype, no jargon. 6 min read.
-- [The AI Glossary: Every Term You Actually Need to Know](https://zro2.one/learn/ai-glossary/): Plain-English definitions of every AI term you'll encounter, organized by how likely you are to encounter them. 8 min read.
-- [How to Start Using AI Today — A Practical Guide](https://zro2.one/learn/start-using-ai-today/): Concrete steps to actually try AI tools, pick the right one, and build AI into your daily workflow starting now. 7 min read.
+> AI education for everyone — from essential to research depth.
 
 ## AI Foundations
 
-- [AI Map — How ML, Deep Learning, NLP, LLMs, and MLLMs Fit Together](https://zro2.one/learn/ai-map-how-ml-dl-llm-fit/): A visual and conceptual map showing how every branch of AI relates to each other.
-- [Machine Learning — The Plain-English Guide](https://zro2.one/learn/machine-learning-essential/): What machine learning is, what it is not, and why it works — explained with zero jargon.
-- [Machine Learning in the Real World — A Practical Playbook](https://zro2.one/learn/machine-learning-applied/): How teams actually use ML in products: use cases, rollout strategy, metrics, and common failure modes.
-- [Machine Learning for Builders — Architecture, Trade-offs, and Deployment](https://zro2.one/learn/machine-learning-technical/): A technical deep dive into the ML system lifecycle: data design, training, evaluation, serving, and reliability.
-- [Machine Learning Frontier — Open Problems That Actually Matter](https://zro2.one/learn/machine-learning-research/): A research-level map of unresolved ML problems: generalization, robustness, data efficiency, causality, and alignment.
-- [What is Deep Learning? (Without the Hype)](https://zro2.one/learn/what-is-deep-learning-essential/): Deep learning explained clearly: what it is, why it works, and where it fits.
-- [What is NLP? (Natural Language Processing)](https://zro2.one/learn/what-is-nlp-essential/): How computers work with human language — explained simply.
-- [What is an LLM?](https://zro2.one/learn/what-is-llm-essential/): A simple explanation of large language models and what they are actually doing.
-- [What is an MLLM? (Multimodal LLM)](https://zro2.one/learn/what-is-mllm-essential/): Models that understand and generate across text, images, audio, and more — explained clearly.
+- [AI Map — How ML, Deep Learning, NLP, LLMs, and MLLMs Fit Together](https://zro2.one/learn/ai-map-how-ml-dl-llm-fit): A clear visual map of AI and where ML, DL, NLP, LLMs, and MLLMs sit inside it.
+- [Audio AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/audio-ai-research): A research-level map of where audio AI actually stands: speech synthesis, recognition robustness, music generation, audio understanding, and the hard problems that remain.
+- [Image AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/image-ai-research): Where image AI research actually stands: diffusion model frontiers, computer vision robustness, generative limits, evaluation methodology, and the hardest remaining problems.
+- [Machine Learning — The Plain-English Guide](https://zro2.one/learn/machine-learning-essential): What machine learning is, what it is not, and why it works — explained with zero jargon.
+- [Video AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/video-ai-research): A research-level examination of video AI: generation frontiers, understanding challenges, temporal modeling limits, and why video is harder than images in ways that matter.
+- [What is Deep Learning? (Without the Hype)](https://zro2.one/learn/what-is-deep-learning-essential): Deep learning explained clearly: what it is, why it works, and where it fits.
+- [What is an LLM?](https://zro2.one/learn/what-is-llm-essential): A simple explanation of large language models and what they are actually doing.
+- [What is an MLLM? (Multimodal LLM)](https://zro2.one/learn/what-is-mllm-essential): MLLMs explained: models that understand and generate across text, images, audio, and more.
+- [What is NLP? (Natural Language Processing)](https://zro2.one/learn/what-is-nlp-essential): NLP explained simply: how computers work with human language.
+- [The AI Glossary: Every Term You Actually Need to Know](https://zro2.one/learn/ai-glossary): AI has a jargon problem. Here's every term you'll encounter — defined in plain English, with context for why it matters.
+- [How LLMs Work — What It Means for How You Use Them](https://zro2.one/learn/how-llms-work-applied): Understanding how LLMs work under the hood makes you dramatically better at using them. Here's what every professional needs to know.
+- [How LLMs Work — The Plain English Version](https://zro2.one/learn/how-llms-work-essential): Large language models power ChatGPT, Claude, and Gemini. Here's how they actually work — no jargon, no math, just clear explanations.
+- [How LLMs Work — Open Problems and Frontier Research](https://zro2.one/learn/how-llms-work-research): The frontier of LLM research: scaling laws, emergent capabilities, mechanistic interpretability, reasoning limitations, and where the field is heading.
+- [How LLMs Work — The Transformer Architecture Explained](https://zro2.one/learn/how-llms-work-technical): A technical deep-dive into transformer architecture, attention mechanisms, training pipelines, and the engineering decisions that make modern LLMs work.
+- [What is AI? (And What It Isn't)](https://zro2.one/learn/what-is-ai): AI is everywhere, but most explanations are either hype or jargon. Here's a clear, honest explanation of what artificial intelligence actually is — and isn't.
 
-## How LLMs Work (4 Depths — Same Topic)
+## This Week in AI
 
-- [How LLMs Work — The Plain English Version](https://zro2.one/learn/how-llms-work-essential/): Large language models explained with no jargon, no math, just clear analogies. 5 min read.
-- [How LLMs Work — What It Means for How You Use Them](https://zro2.one/learn/how-llms-work-applied/): How LLMs work under the hood and what it means for getting better results from them. 10 min read.
-- [How LLMs Work — The Transformer Architecture Explained](https://zro2.one/learn/how-llms-work-technical/): Transformer architecture, attention mechanisms, training pipelines, and engineering decisions. 15 min read.
-- [How LLMs Work — Open Problems and Frontier Research](https://zro2.one/learn/how-llms-work-research/): Scaling laws, emergent capabilities, mechanistic interpretability, reasoning limitations, and where the field is heading. 20 min read.
+- [This Week in AI](https://zro2.one/learn/this-week-in-ai-001): A signal-over-noise digest: what changed in AI this week, what to ignore, and what to test.
+- [This Week in AI](https://zro2.one/learn/this-week-in-ai-002): Week two of the digest: where AI is creating real leverage and where teams are still wasting cycles.
+- [This Week in AI](https://zro2.one/learn/this-week-in-ai-003): AI went to war — literally. This week's digest covers the Anthropic-Pentagon crisis, OpenAI's military deal, a new model update, and what it all means for the industry.
 
-## Practical AI Guides
+## Practice & Tools
 
-- [Prompting That Actually Works (Without Overthinking It)](https://zro2.one/learn/prompting-that-actually-works/): A practical prompting workflow for better answers, fewer retries, and less AI frustration. 9 min read.
-- [How to Build Your First AI Workflow in 60 Minutes](https://zro2.one/learn/how-to-build-ai-workflow-in-60-min/): Step-by-step playbook to turn one repetitive task into a reliable AI-assisted workflow. 10 min read.
-- [RAG for Builders: The Mental Model You Actually Need](https://zro2.one/learn/rag-for-builders-mental-model/): Retrieval-Augmented Generation explained: when to use it, where it fails, and what to measure.
-- [API Integration Patterns for LLM Features](https://zro2.one/learn/api-integration-patterns-for-llms/): How to ship LLM features safely: request shaping, guardrails, retries, and observability. 13 min read.
+- [ChatGPT vs Claude vs Gemini (2026): Which One for What?](https://zro2.one/learn/chatgpt-vs-claude-vs-gemini-2026): A practical tool-selection guide: which model to use for writing, analysis, coding, and team workflows.
+- [How to Build Your First AI Workflow in 60 Minutes](https://zro2.one/learn/how-to-build-ai-workflow-in-60-min): A step-by-step playbook to turn one repetitive task into a reliable AI-assisted workflow in one hour.
+- [Machine Learning in the Real World — A Practical Playbook](https://zro2.one/learn/machine-learning-applied): How teams actually use ML in products: use cases, rollout strategy, metrics, and common failure modes.
+- [Notion AI vs Coda AI vs Slite AI: Team Knowledge Tool Comparison](https://zro2.one/learn/notion-ai-vs-coda-ai-vs-slite-ai): Which AI-enabled knowledge tool is best for your team docs, collaboration style, and operating cadence.
+- [Perplexity vs Google vs ChatGPT Search: Fast Guide](https://zro2.one/learn/perplexity-vs-google-vs-chatgpt-search): When to use each search mode for research, fact-checking, and decision-making without drowning in tabs.
+- [Prompting That Actually Works (Without Overthinking It)](https://zro2.one/learn/prompting-that-actually-works): A practical prompting workflow you can use today for better answers, fewer retries, and less AI frustration.
+- [How to Start Using AI Today — A Practical Guide](https://zro2.one/learn/start-using-ai-today): Ready to actually use AI? Here's exactly where to start, what to try first, and how to build AI into your daily life — starting today.
 
-## AI Tool Comparisons
+## Building with AI
 
-- [ChatGPT vs Claude vs Gemini (2026): Which One for What?](https://zro2.one/learn/chatgpt-vs-claude-vs-gemini-2026/): Practical guide to which AI model to use for writing, analysis, coding, and team workflows. 10 min read.
-- [Notion AI vs Coda AI vs Slite AI: Team Knowledge Tool Comparison](https://zro2.one/learn/notion-ai-vs-coda-ai-vs-slite-ai/): Which AI-enabled knowledge tool is best for your team docs, collaboration style, and operating cadence. 9 min read.
-- [Perplexity vs Google vs ChatGPT Search: Fast Guide](https://zro2.one/learn/perplexity-vs-google-vs-chatgpt-search/): When to use each search mode for research, fact-checking, and decision-making. 8 min read.
+- [API Integration Patterns for LLM Features](https://zro2.one/learn/api-integration-patterns-for-llms): A technical guide to shipping LLM features safely: request shaping, guardrails, retries, and observability.
+- [Machine Learning for Builders — Architecture, Trade-offs, and Deployment](https://zro2.one/learn/machine-learning-technical): A technical deep dive into the ML system lifecycle: data design, training, evaluation, serving, and reliability.
+- [RAG for Builders: The Mental Model You Actually Need](https://zro2.one/learn/rag-for-builders-mental-model): A clear technical model for Retrieval-Augmented Generation: when to use it, where it fails, and what to measure.
 
-## This Week in AI (Weekly Digest)
+## Futures & Research
 
-- [This Week in AI #003: The Military AI Reckoning](https://zro2.one/learn/this-week-in-ai-003/): AI went to war — literally. The Anthropic-Pentagon crisis, OpenAI's military deal, and what it means for the industry. 9 min read.
-- [This Week in AI #002: The Productivity Reality Check](https://zro2.one/learn/this-week-in-ai-002/): Where AI is creating real leverage and where teams are still wasting cycles. 8 min read.
-- [This Week in AI #001: What Actually Matters](https://zro2.one/learn/this-week-in-ai-001/): What changed in AI this week, what to ignore, and what to test. 8 min read.
-
-## Feeds & Discovery
-
-- [RSS Feed](https://zro2.one/rss.xml): Full article feed in RSS/XML format
-- [Sitemap](https://zro2.one/sitemap-index.xml): XML sitemap of all pages
+- [Machine Learning Frontier — Open Problems That Actually Matter](https://zro2.one/learn/machine-learning-research): A research-level map of unresolved ML problems: generalization, robustness, data efficiency, causality, and alignment.
+- [Multimodal AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/multimodal-ai-research): The frontier of multimodal AI research: cross-modal alignment, grounding, emergent capabilities, compositional reasoning, evaluation methodology, and why integrating modalities is harder than it looks.

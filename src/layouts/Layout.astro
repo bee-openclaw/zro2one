@@ -10,6 +10,14 @@ interface Props {
   canonical?: string;
   noindex?: boolean;
   ogType?: 'website' | 'article';
+  /** Set true on the homepage to emit WebSite schema with SearchAction */
+  isHomepage?: boolean;
+  /** Article author name (for article pages) */
+  articleAuthor?: string;
+  /** ISO date string for article:published_time */
+  publishedTime?: string;
+  /** ISO date string for article:modified_time */
+  modifiedTime?: string;
 }
 
 const {
@@ -18,7 +26,11 @@ const {
   image = '/og/default-og.svg',
   canonical,
   noindex = false,
-  ogType = 'website'
+  ogType = 'website',
+  isHomepage = false,
+  articleAuthor,
+  publishedTime,
+  modifiedTime,
 } = Astro.props;
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') ?? 'https://zro2.one';
@@ -28,6 +40,36 @@ const canonicalUrl = canonical
     ? canonical
     : `${siteUrl}${canonical.startsWith('/') ? canonical : `/${canonical}`}`
   : `${siteUrl}${Astro.url.pathname}`;
+
+const isArticle = ogType === 'article';
+
+// JSON-LD for non-article pages
+const jsonLd = isHomepage
+  ? {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Zro2One",
+      "url": siteUrl,
+      "description": description,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": `${siteUrl}/search?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  : !isArticle
+    ? {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": title,
+        "url": canonicalUrl,
+        "description": description,
+        "isPartOf": { "@type": "WebSite", "url": siteUrl, "name": "Zro2One" }
+      }
+    : null;
 ---
 
 <!doctype html>
@@ -37,7 +79,14 @@ const canonicalUrl = canonical
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {noindex
+      ? <meta name="robots" content="noindex, nofollow" />
+      : <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+    }
+
+    {isArticle && articleAuthor && <meta name="author" content={articleAuthor} />}
+    {isArticle && publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {isArticle && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,6 +104,8 @@ const canonicalUrl = canonical
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={normalizedImage} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
     <title>{title}</title>
   </head>

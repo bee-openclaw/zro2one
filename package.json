@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "qa:content": "node scripts/content-qa.mjs",
-    "build": "node scripts/write-version.mjs && npm run qa:content && astro build && pagefind --site dist",
+    "build": "npm run qa:content && node scripts/generate-llms-txt.mjs && astro build && pagefind --site dist && node scripts/write-version.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

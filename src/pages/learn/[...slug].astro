@@ -26,7 +26,15 @@ const nextDepth = currentDepthIndex >= 0 && currentDepthIndex < sortedTopic.leng
 const relatedFromFrontmatter = allArticles.filter((a) => article.data.related?.includes(a.id));
 ---
 
-<Layout title={`${article.data.title} — Zro2One`} description={article.data.description} canonical={`/learn/${article.id}`} ogType="article">
+<Layout
+  title={`${article.data.title} — Zro2One`}
+  description={article.data.description}
+  canonical={`/learn/${article.id}`}
+  ogType="article"
+  articleAuthor="Bee"
+  publishedTime={article.data.date}
+  modifiedTime={article.data.updated ?? article.data.date}
+>
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Article",
@@ -34,7 +42,7 @@ const relatedFromFrontmatter = allArticles.filter((a) => article.data.related?.i
     "description": article.data.description,
     "datePublished": article.data.date,
     "dateModified": article.data.updated ?? article.data.date,
-    "author": { "@type": "Organization", "name": "Zro2One", "url": "https://zro2.one" },
+    "author": { "@type": "Person", "name": "Bee" },
     "publisher": { "@type": "Organization", "name": "Zro2One", "url": "https://zro2.one", "logo": { "@type": "ImageObject", "url": "https://zro2.one/favicon.svg" } },
     "url": `https://zro2.one/learn/${article.id}/`,
     "mainEntityOfPage": `https://zro2.one/learn/${article.id}/`,
