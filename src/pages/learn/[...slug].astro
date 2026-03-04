@@ -27,6 +27,22 @@ const relatedFromFrontmatter = allArticles.filter((a) => article.data.related?.i
 ---
 
 <Layout title={`${article.data.title} — Zro2One`} description={article.data.description} canonical={`/learn/${article.id}`} ogType="article">
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.data.title,
+    "description": article.data.description,
+    "datePublished": article.data.date,
+    "dateModified": article.data.updated ?? article.data.date,
+    "author": { "@type": "Organization", "name": "Zro2One", "url": "https://zro2.one" },
+    "publisher": { "@type": "Organization", "name": "Zro2One", "url": "https://zro2.one", "logo": { "@type": "ImageObject", "url": "https://zro2.one/favicon.svg" } },
+    "url": `https://zro2.one/learn/${article.id}/`,
+    "mainEntityOfPage": `https://zro2.one/learn/${article.id}/`,
+    "keywords": article.data.tags.join(", "),
+    "articleSection": article.data.pillar,
+    "educationalLevel": article.data.depth,
+    "timeRequired": `PT${article.data.readTime}M`
+  })} />
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
     <header class="mb-12">
       <div class="flex items-center gap-4 mb-6">

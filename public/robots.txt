@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 
 Sitemap: https://zro2.one/sitemap-index.xml
+
+# LLM content discovery
+# See https://zro2.one/llms.txt for a structured index of all content
