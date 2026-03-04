@@ -177,10 +177,12 @@ const jsonLd = isHomepage
     <script>
       (function () {
         const STORAGE_KEY = 'zro2one_version';
+        const DISMISSED_KEY = 'zro2one_version_dismissed';
         const toast = document.getElementById('version-toast');
         const refreshBtn = document.getElementById('version-toast-refresh');
         const dismissBtn = document.getElementById('version-toast-dismiss');
         let dismissTimer = null;
+        let latestVersion = null;
 
         function showToast() {
           if (!toast) return;
@@ -194,21 +196,39 @@ const jsonLd = isHomepage
           if (dismissTimer) clearTimeout(dismissTimer);
         }
 
-        refreshBtn?.addEventListener('click', () => window.location.reload());
-        dismissBtn?.addEventListener('click', hideToast);
+        refreshBtn?.addEventListener('click', () => {
+          // Update baseline to the new version so the reloaded page doesn't re-trigger the toast
+          if (latestVersion) {
+            sessionStorage.setItem(STORAGE_KEY, latestVersion);
+            sessionStorage.removeItem(DISMISSED_KEY);
+          }
+          window.location.reload();
+        });
+
+        dismissBtn?.addEventListener('click', () => {
+          hideToast();
+          // Remember which version was dismissed so toast won't reappear this session
+          if (latestVersion) {
+            sessionStorage.setItem(DISMISSED_KEY, latestVersion);
+          }
+        });
 
         async function checkVersion() {
           try {
             const res = await fetch('/version.json?_=' + Date.now(), { cache: 'no-store' });
             if (!res.ok) return;
             const { version } = await res.json();
+            latestVersion = version;
             const stored = sessionStorage.getItem(STORAGE_KEY);
             if (!stored) {
-              // First visit — store the version, no toast
+              // First page load — baseline the version, never show toast
               sessionStorage.setItem(STORAGE_KEY, version);
             } else if (stored !== version) {
-              // Version changed since page load — show toast
-              showToast();
+              // Version changed AFTER page was loaded — show toast (unless already dismissed for this version)
+              const dismissed = sessionStorage.getItem(DISMISSED_KEY);
+              if (dismissed !== version) {
+                showToast();
+              }
             }
           } catch {}
         }
