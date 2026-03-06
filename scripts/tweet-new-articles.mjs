@@ -129,11 +129,18 @@ const DEPTH_EMOJI = {
 function composeTweet(article) {
   const emoji   = DEPTH_EMOJI[article.depth] ?? '📖';
   const url     = `${SITE_URL}/learn/${article.slug}`;
-  const tags    = (article.tags ?? []).slice(0, 2).map(t => `#${t.replace(/\s+/g, '')}`).join(' ');
+  const rawTags = Array.isArray(article.tags)
+    ? article.tags
+    : typeof article.tags === 'string'
+      ? article.tags.replace(/[\[\]]/g, '').split(',').map(t => t.trim()).filter(Boolean)
+      : [];
+  const tags    = rawTags.slice(0, 2).map(t => `#${t.replace(/\s+/g, '')}`).join(' ');
   // Stay well under 280 chars — URL is t.co-shortened to 23 chars by Twitter
   const title   = article.title.length > 100 ? article.title.slice(0, 97) + '…' : article.title;
 
-  return `${emoji} New article: ${title}\n\n${article.description?.slice(0, 120) ?? ''}\n\n${url}\n\n${tags} #AI #LearnAI`.trim();
+  // Note: when posting via browser, dismiss the link preview card before posting
+  // so readers click the article link, not the card thumbnail.
+  return `${emoji} New article: ${title}\n\n${article.description?.slice(0, 120) ?? ''}\n\n${tags} #AI #LearnAI\n\n${url}`.trim();
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
