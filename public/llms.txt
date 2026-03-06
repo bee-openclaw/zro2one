@@ -4,6 +4,12 @@
 
 ## AI Foundations
 
+- [Neural Networks: The Architecture That Powers Modern AI](https://zro2.one/learn/ai-foundations-neural-networks): Neural networks are the engine behind virtually every AI breakthrough of the past decade. Here's how they work, why they work, and what makes them so powerful — explained without the math.
+- [AI Glossary: Advanced Terms — From Attention to Zero-Shot](https://zro2.one/learn/ai-glossary-advanced): A comprehensive reference for intermediate-to-advanced AI terminology. Covers attention mechanisms, fine-tuning types, evaluation metrics, agentic AI, alignment concepts, and more.
+- [How Neural Networks Actually Learn: Backpropagation Explained](https://zro2.one/learn/deep-learning-backpropagation): Backpropagation is the algorithm that makes deep learning work. Here's a clear technical explanation of how gradients flow backward through a network, why it works, and what actually happens during training.
+- [Vision-Language Models: How MLLMs Understand Images and Text Together](https://zro2.one/learn/mllms-vision-language-models): A technical deep dive into multimodal large language models (MLLMs) — how vision encoders connect to language models, what architectural choices matter, and how capability limits manifest in practice.
+- [Modern NLP: How Language Understanding Works in 2026](https://zro2.one/learn/nlp-modern-landscape): A technical survey of modern NLP — from foundational tasks and pre-transformer approaches to the transformer revolution, current SOTA, and where the field is heading in 2026.
+- [What Is AI in 2026? The Definitive Guide for Right Now](https://zro2.one/learn/what-is-ai-2026-update): The AI landscape changes fast. Here's a clear, current picture of what AI is, what it can do in 2026, and what actually matters for understanding where things stand right now.
 - [AI Map — How ML, Deep Learning, NLP, LLMs, and MLLMs Fit Together](https://zro2.one/learn/ai-map-how-ml-dl-llm-fit): A clear visual map of AI and where ML, DL, NLP, LLMs, and MLLMs sit inside it.
 - [Audio AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/audio-ai-research): A research-level map of where audio AI actually stands: speech synthesis, recognition robustness, music generation, audio understanding, and the hard problems that remain.
 - [Image AI — Frontier Research and Unresolved Problems](https://zro2.one/learn/image-ai-research): Where image AI research actually stands: diffusion model frontiers, computer vision robustness, generative limits, evaluation methodology, and the hardest remaining problems.
@@ -22,12 +28,22 @@
 
 ## This Week in AI
 
+- [This Week in AI](https://zro2.one/learn/this-week-in-ai-004): This week: the reasoning model race heats up, open source closes the gap faster than anyone expected, and the US government finally starts asking serious governance questions. Here's what happened and why it matters.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-001): A signal-over-noise digest: what changed in AI this week, what to ignore, and what to test.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-002): Week two of the digest: where AI is creating real leverage and where teams are still wasting cycles.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-003): AI went to war — literally. This week's digest covers the Anthropic-Pentagon crisis, OpenAI's military deal, a new model update, and what it all means for the industry.
 
 ## Practice & Tools
 
+- [The Best AI Writing Tools in 2026: An Honest Guide](https://zro2.one/learn/ai-tools-for-writing-2026): Not all AI writing tools are created equal. Here's a no-hype breakdown of the best options in 2026 — what they're actually good at, where they fall short, and how to choose.
+- [How to Build an AI Content Workflow (That Actually Saves Time)](https://zro2.one/learn/ai-workflows-content-team): A practical, step-by-step guide to building an AI-powered content workflow — from research through publishing. Real tools, real process, real time savings.
+- [Audio AI in 2026: What It Can Do, What's Changed, and What to Use](https://zro2.one/learn/audio-ai-guide-2026): Audio AI has moved from novelty to essential tool. A comprehensive guide to what's possible in 2026: transcription, voice synthesis, music generation, and what to use for each.
+- [30 Days to Actually Using AI: A Practical Learning Plan](https://zro2.one/learn/getting-started-ai-30-days): A structured 30-day plan for going from AI-curious to AI-capable. One small habit at a time. No tech background required.
+- [Image AI in 2026: A Practical Guide for Creators and Builders](https://zro2.one/learn/image-ai-practical-guide): From zero to productive with image AI in 2026. What the tools can do, how to prompt effectively, which tool to use when, and what's still genuinely hard.
+- [Context Windows Explained: Why LLMs Forget — And What to Do About It](https://zro2.one/learn/llms-context-windows-explained): Everything you send to an LLM fits inside a context window. Learn what that means, why it matters, and practical strategies for working within — and around — these limits.
+- [Multimodal AI: What You Can Build When AI Sees, Hears, and Reads](https://zro2.one/learn/multimodal-ai-practical): AI that handles text, images, audio, and video simultaneously is changing what's buildable. A practical guide to multimodal AI use cases, tools, and workflows for 2026.
+- [Advanced Prompting Techniques That Actually Work in 2026](https://zro2.one/learn/prompting-advanced-techniques): Move beyond basic prompting. A practical guide to chain-of-thought, few-shot learning, structured output, persona design, and meta-prompting — with real examples that produce measurably better results.
+- [Video AI in 2026: What's Real, What's Useful, What's Coming](https://zro2.one/learn/video-ai-2026-guide): Video generation AI went from technically impressive to practically useful in 2025-2026. A grounded guide to what you can actually do, what the tools are, and where to start.
 - [ChatGPT vs Claude vs Gemini (2026): Which One for What?](https://zro2.one/learn/chatgpt-vs-claude-vs-gemini-2026): A practical tool-selection guide: which model to use for writing, analysis, coding, and team workflows.
 - [How to Build Your First AI Workflow in 60 Minutes](https://zro2.one/learn/how-to-build-ai-workflow-in-60-min): A step-by-step playbook to turn one repetitive task into a reliable AI-assisted workflow in one hour.
 - [Machine Learning in the Real World — A Practical Playbook](https://zro2.one/learn/machine-learning-applied): How teams actually use ML in products: use cases, rollout strategy, metrics, and common failure modes.
@@ -38,6 +54,9 @@
 
 ## Building with AI
 
+- [LLM API Integration: A Complete Developer Guide](https://zro2.one/learn/llm-api-integration-guide): Everything you need to integrate LLM APIs into real applications: authentication, request patterns, streaming, error handling, cost management, and production best practices.
+- [Feature Engineering: The Craft That Makes ML Models Actually Work](https://zro2.one/learn/machine-learning-feature-engineering): Better features beat better algorithms almost every time. A deep dive into feature engineering — the underrated craft at the heart of practical machine learning.
+- [RAG in Production: Architecture Decisions That Actually Matter](https://zro2.one/learn/rag-production-architecture): Building a RAG system that works in production is harder than the demos suggest. A deep dive into the architecture decisions, failure modes, and engineering tradeoffs that determine whether your RAG actually works.
 - [API Integration Patterns for LLM Features](https://zro2.one/learn/api-integration-patterns-for-llms): A technical guide to shipping LLM features safely: request shaping, guardrails, retries, and observability.
 - [Machine Learning for Builders — Architecture, Trade-offs, and Deployment](https://zro2.one/learn/machine-learning-technical): A technical deep dive into the ML system lifecycle: data design, training, evaluation, serving, and reliability.
 - [RAG for Builders: The Mental Model You Actually Need](https://zro2.one/learn/rag-for-builders-mental-model): A clear technical model for Retrieval-Augmented Generation: when to use it, where it fails, and what to measure.

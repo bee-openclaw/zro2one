@@ -101,9 +101,12 @@ const jsonLd = isHomepage
     <meta property="og:site_name" content="Zro2One" />
 
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@zro2one" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={normalizedImage} />
+
+    <link rel="alternate" type="application/rss+xml" title="Zro2One — Learn AI" href="/rss.xml" />
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 

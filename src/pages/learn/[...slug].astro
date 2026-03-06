@@ -51,6 +51,15 @@ const relatedFromFrontmatter = allArticles.filter((a) => article.data.related?.i
     "educationalLevel": article.data.depth,
     "timeRequired": `PT${article.data.readTime}M`
   })} />
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://zro2.one/" },
+      { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://zro2.one/learn/" },
+      { "@type": "ListItem", "position": 3, "name": article.data.title, "item": `https://zro2.one/learn/${article.id}/` }
+    ]
+  })} />
   <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
     <header class="mb-12">
       <div class="flex items-center gap-4 mb-6">
