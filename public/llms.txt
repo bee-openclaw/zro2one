@@ -4,6 +4,12 @@
 
 ## AI Foundations
 
+- [Attention Mechanisms: The Core of Modern AI](https://zro2.one/learn/ai-foundations-attention-mechanisms): Attention is the single most important idea in modern AI. This guide explains how it works, why it was a breakthrough, and what it enables that previous approaches couldn't.
+- [From RNNs to Transformers: The Architecture Shift That Changed AI](https://zro2.one/learn/deep-learning-rnns-and-transformers): Why did transformers replace RNNs so completely? Understanding the problems with recurrent architectures reveals exactly why attention-based transformers were such a breakthrough.
+- [Ensemble Methods Explained: Bagging, Boosting, and Random Forests](https://zro2.one/learn/machine-learning-ensemble-methods): Ensemble methods combine multiple models to produce better predictions than any single model. Here's how bagging, boosting, and random forests actually work.
+- [Audio-Visual Multimodal Models: How They Work and What They Can Do](https://zro2.one/learn/mllms-audio-visual-models): The next frontier for MLLMs isn't just text + images — it's audio and video. Here's how audio-visual models work and what capabilities they enable.
+- [Named Entity Recognition: From Rules to Neural Networks](https://zro2.one/learn/nlp-named-entity-recognition): Named entity recognition is one of NLP's fundamental tasks. This guide covers how NER evolved, how modern neural approaches work, and how to use it in practice.
+- [AI Safety: What It Is and Why It Matters](https://zro2.one/learn/what-is-ai-safety): AI safety is one of the most discussed and least understood topics in AI. Here's a clear explanation of what it actually means, why researchers take it seriously, and what's being done about it.
 - [AI Foundations: Bias–Variance Tradeoff Without the Math Panic](https://zro2.one/learn/ai-foundations-bias-variance-intuition): A plain-language explanation of bias, variance, and why model quality depends on balancing both.
 - [AI Glossary for Operators — 35 Terms You’ll See in Real Deployments](https://zro2.one/learn/ai-glossary-operators-edition): An operator-focused glossary of practical AI terms across models, infrastructure, evaluation, and governance.
 - [Getting Started with AI — A 7-Day Plan That Builds Real Skill](https://zro2.one/learn/getting-started-ai-first-7-days-plan): A beginner-friendly one-week AI learning plan focused on practical outcomes, not theory overload.
@@ -41,6 +47,7 @@
 
 ## This Week in AI
 
+- [This Week in AI](https://zro2.one/learn/this-week-in-ai-007): This week: AI agents move from demos to production deployments, the cost curve keeps falling, and the open-source ecosystem closes the gap with frontier models.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-006): A practical weekly briefing on what mattered most in AI: reliability tooling, model economics, and enterprise deployment patterns.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-005): Week 5: Agentic AI hits real-world friction at scale, the frontier model race accelerates with a surprise entrant, and AI in K-12 education becomes a genuine policy flashpoint.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-004): This week: the reasoning model race heats up, open source closes the gap faster than anyone expected, and the US government finally starts asking serious governance questions. Here's what happened and why it matters.
@@ -50,6 +57,14 @@
 
 ## Practice & Tools
 
+- [AI Note-Taking and Knowledge Management Tools in 2026](https://zro2.one/learn/ai-tools-knowledge-management-2026): The AI note-taking landscape has matured. Here's what's actually useful, what's hype, and how to build a knowledge system that works with AI instead of around it.
+- [AI-Assisted Customer Support: A Practical Workflow Guide](https://zro2.one/learn/ai-workflows-customer-support): Customer support is one of the most mature AI deployment domains. Here's how high-performing teams structure their AI workflows — including the parts that are easy to get wrong.
+- [AI Music Generation in 2026: Tools, Techniques, and Honest Limits](https://zro2.one/learn/audio-ai-music-generation-2026): AI music generation has matured into a genuine creative tool. Here's what it can do, where it still struggles, and how to actually get good results.
+- [Your First AI Project: A Step-by-Step Guide](https://zro2.one/learn/getting-started-first-ai-project): Stop reading about AI and start building something. Here's a practical guide to choosing and completing your first AI project — with real suggestions, not vague advice.
+- [AI Image Editing: Tools and Techniques That Actually Work](https://zro2.one/learn/image-ai-editing-tools-2026): AI image editing has matured beyond gimmicks. Here's what's actually useful in 2026: the tools, the techniques, and the workflows that integrate into real creative work.
+- [Fine-Tuning vs. Prompting: Which Should You Use?](https://zro2.one/learn/llms-fine-tuning-vs-prompting): Before you invest in fine-tuning, make sure you actually need it. This guide breaks down when prompting is enough and when fine-tuning is the right call.
+- [Few-Shot Prompting: Teaching Models with Examples](https://zro2.one/learn/prompting-few-shot-guide): Few-shot prompting is one of the most reliable techniques for getting consistent, high-quality LLM outputs. Here's how to use it effectively.
+- [AI Video Understanding: Transcription, Summarization, and Analysis](https://zro2.one/learn/video-ai-understanding-and-analysis): AI can now extract meaningful information from video at scale. Here's what's practical in 2026: transcription pipelines, video summarization, content analysis, and the tools to build them.
 - [Deep Learning Optimization in Practice — Getting Models to Train Faster and Better](https://zro2.one/learn/deep-learning-optimization-practical-guide): Practical techniques for stable deep learning training: optimizers, schedules, normalization, and debugging loss curves.
 - [LLM Agents vs Chatbots — What Actually Changes in Product Design](https://zro2.one/learn/llms-agents-vs-chatbots-2026): A practical framework for deciding when a simple chatbot is enough and when you need an agentic architecture.
 - [Data-Centric Machine Learning — A Playbook for Better Models Without Bigger Models](https://zro2.one/learn/machine-learning-data-centric-playbook-2026): How to improve ML performance by upgrading labels, coverage, and feedback loops before changing model architecture.
@@ -81,6 +96,10 @@
 
 ## Building with AI
 
+- [AI Glossary: Builder's Edition](https://zro2.one/learn/ai-glossary-builders-edition): The terms you actually need when building AI-powered products: from inference basics to deployment patterns, defined plainly for people who ship things.
+- [LLM Function Calling and Tool Use: A Developer's Guide](https://zro2.one/learn/llm-api-function-calling-guide): Function calling lets LLMs trigger real actions instead of just generating text. Here's how it works across major APIs, patterns that work, and pitfalls to avoid.
+- [Multimodal Search: Finding Content Across Text, Images, and Audio](https://zro2.one/learn/multimodal-ai-search): Multimodal search lets you find images with text queries, match audio to descriptions, and bridge modalities. Here's how it works and how to build it.
+- [Hybrid Search for RAG: Combining Dense and Sparse Retrieval](https://zro2.one/learn/rag-hybrid-search-guide): Pure semantic search often underperforms in production RAG systems. Hybrid search — combining dense embeddings with sparse retrieval — is the more reliable approach.
 - [Designing Human-in-the-Loop AI Workflows That Scale](https://zro2.one/learn/ai-workflows-human-in-the-loop-design): Architecture patterns for AI workflows where humans review the right steps without becoming a bottleneck.
 - [Audio AI Production Pipeline — From Raw Audio to Searchable Intelligence](https://zro2.one/learn/audio-ai-production-pipeline-guide): A practical architecture for speech transcription, speaker separation, summarization, and quality monitoring at scale.
 - [Image AI Evaluation Guide — How Teams Measure Quality Beyond “Looks Good”](https://zro2.one/learn/image-ai-evaluation-guide-for-teams): A structured framework for evaluating image generation and vision systems with task-level metrics and review workflows.

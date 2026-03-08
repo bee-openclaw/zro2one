@@ -5,6 +5,888 @@
 
 ## AI Foundations
 
+### [Attention Mechanisms: The Core of Modern AI](https://zro2.one/learn/ai-foundations-attention-mechanisms)
+> Attention is the single most important idea in modern AI. This guide explains how it works, why it was a breakthrough, and what it enables that previous approaches couldn't.
+
+If you want to understand modern AI — LLMs, image generators, multimodal models — there is one concept you cannot skip: **attention**.
+
+Attention is the mechanism that made transformers possible, and transformers made the current AI era possible. It's not an add-on or an optimization; it's the core architectural idea that changed everything.
+
+## The problem attention solved
+
+Before transformers, the dominant architecture for sequence processing was the **recurrent neural network (RNN)** and its variants (LSTMs, GRUs). These processed text one token at a time, left to right, maintaining a "hidden state" that accumulated information from everything seen so far.
+
+RNNs had fundamental limitations:
+
+**The vanishing gradient problem.** When you backpropagate through many time steps, gradients shrink exponentially. Information from early in the sequence barely influences the final output. A model reading a 500-word document struggles to connect the last paragraph to the first.
+
+**Sequential computation.** You can't process token 10 until you've processed tokens 1-9. This makes training slow — you can't parallelize across the sequence length.
+
+**Fixed context bottleneck.** The entire past is compressed into a single hidden state vector. There's a hard limit to how much information can be preserved.
+
+Researchers knew these were fundamental problems, not engineering details to be optimized around.
+
+## The attention intuition
+
+Here's the core idea: when processing a word, instead of relying on a compressed summary of everything that came before, **let the model directly look at any part of the sequence and decide how much to weight each part.**
+
+Imagine you're reading this sentence: *"The animal didn't cross the street because it was too tired."*
+
+When you read "it," you immediately look back to resolve what "it" refers to. You attend to "animal" because context makes that the likely referent. You don't need to hold every word in a compressed summary — you directly access the relevant earlier content.
+
+This is what attention does mathematically: for each position in a sequence, it computes a **weighted sum over all other positions**, where the weights represent relevance.
+
+## Queries, keys, and values
+
+Attention is usually explained through three learned projections:
+
+**Query (Q):** "What am I looking for?" Each position generates a query vector representing what information it needs.
+
+**Key (K):** "What do I contain?" Each position also generates a key vector representing what information it offers.
+
+**Value (V):** "What do I contribute?" Each position generates a value vector — the actual information to be passed along if attended to.
+
+The attention computation:
+
+1. Compute dot product of query with every key: **Q · Kᵀ**. High dot product = high similarity = high relevance.
+2. Scale by √(dimension) to prevent extremely large values that push gradients into saturation.
+3. Apply softmax to convert to probabilities (weights that sum to 1).
+4. Multiply by value vectors: each position gets a weighted combination of all value vectors.
+
+Mathematically:
+
+```
+Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V
+```
+
+This is the entire attention formula. Everything else in transformers is built around it.
+
+## Self-attention: the key innovation
+
+What makes transformers special is **self-attention** — where queries, keys, and values all come from the *same* sequence.
+
+In self-attention, every word in a sentence attends to every other word (including itself). The model learns which words are relevant to which other words through training. This is computed in parallel across the entire sequence — no recurrence, no sequential dependency.
+
+This solves the three RNN problems:
+- **Vanishing gradients:** Direct connections between any two positions; gradient flows freely.
+- **Sequential computation:** Every position can be computed simultaneously.
+- **Context bottleneck:** Every position has direct access to every other position, with learned relevance weights.
+
+## Multi-head attention
+
+Transformers use **multi-head attention** — running attention multiple times in parallel with different learned projections, then concatenating the results.
+
+Why? Because a single attention head can only capture one type of relationship. Multi-head attention lets different heads specialize:
+- One head might learn to track syntactic relationships (subject-verb agreement)
+- Another might track semantic relationships (co-reference)
+- Another might track positional patterns
+
+With h heads and dimension d, each head uses dimension d/h. The outputs are concatenated and linearly projected. This gives the model representational richness without exponentially increasing computation.
+
+## Cross-attention: attending across sequences
+
+Self-attention is attention within a sequence. **Cross-attention** is attention *between* sequences — and it's crucial for many applications.
+
+In the original encoder-decoder transformer (used for translation), the decoder attends to the encoder's output via cross-attention. The query comes from the decoder's current position; the keys and values come from the encoder's output. This allows the decoder to focus on the most relevant part of the input when generating each output token.
+
+Cross-attention is also the mechanism in:
+- **Multimodal models:** Text attends to image features (or vice versa)
+- **RAG systems:** The generation model attends to retrieved document chunks
+- **Instruction following:** The response generator attends to the full instruction context
+
+## Attention patterns and what they reveal
+
+Researchers have studied what different attention heads learn, and the patterns are interpretable:
+
+- **Positional heads:** Attend strongly to nearby tokens; capture local syntax
+- **Syntactic heads:** Track grammatical dependencies (verb-object, adjective-noun)
+- **Coreference heads:** Track entity references across long distances
+- **Copy heads:** Attend to identical or highly similar tokens (useful for repetition or format following)
+
+Visualization tools like BertViz make these patterns visible. If you've never explored attention visualizations, it's a revealing exercise — the model's "focus" often aligns surprisingly well with what a human reader would attend to.
+
+## Computational challenges: the quadratic problem
+
+Attention has a fundamental scaling issue: computing attention between all pairs of positions requires **O(n²) computation and memory** for sequence length n.
+
+For a 1,000-token sequence, that's 1,000,000 attention pairs. For a 100,000-token context window — 10 billion. This is why extending context windows is so computationally expensive.
+
+Various approaches try to reduce this:
+- **Sparse attention:** Only attend to a subset of positions (local windows, strided patterns)
+- **Linear attention:** Approximate full attention with O(n) computation
+- **Flash Attention:** Not an architectural change but an I/O-optimized implementation that dramatically reduces memory usage without approximation — crucial for long contexts in practice
+- **Sliding window attention (Mistral):** Fixed-size local attention windows with some global tokens
+
+Flash Attention in particular became a standard optimization — most frontier models use it.
+
+## Where attention is going
+
+Attention has proven extraordinarily general. It started as a mechanism for sequence-to-sequence models, then became the core of language models, then image generation (where patches of images are treated as tokens), then video and audio processing.
+
+The "token" abstraction is the key — once you can represent any data type as sequences of tokens, attention provides a general mechanism for modeling relationships between them. This is why the same architectural pattern underlies models that process text, images, code, protein sequences, and genomic data.
+
+Current research directions include:
+- **More efficient attention** for very long contexts (millions of tokens)
+- **State space models** (Mamba, etc.) as attention alternatives that scale better with length
+- **Hybrid architectures** combining attention with other mechanisms
+
+Understanding attention is essential for understanding any of these developments. It's the foundation from which everything else branches.
+
+---
+
+### [From RNNs to Transformers: The Architecture Shift That Changed AI](https://zro2.one/learn/deep-learning-rnns-and-transformers)
+> Why did transformers replace RNNs so completely? Understanding the problems with recurrent architectures reveals exactly why attention-based transformers were such a breakthrough.
+
+The history of sequence modeling in deep learning is essentially a story about one problem — **how do you represent and reason over long-range dependencies in sequential data?** — and the progression of increasingly better answers.
+
+Understanding why RNNs existed, what problems they solved, and why they ultimately couldn't scale reveals exactly why transformers were such a fundamental breakthrough rather than an incremental improvement.
+
+## What recurrent networks were trying to do
+
+Before deep learning, sequence modeling relied on probabilistic models (HMMs, n-gram language models) that had severe limitations: n-grams could only look back N steps; HMMs required discrete latent states that couldn't represent rich meaning.
+
+Deep learning offered something more powerful: **learned representations**. Instead of hand-crafting features, a network could learn to represent the relevant information from data.
+
+For sequences, the challenge is that the right interpretation of any element often depends on context that came before. The word "bank" means something different in "river bank" vs. "savings bank." Processing words independently misses this.
+
+The recurrent neural network solution: process the sequence one element at a time, maintaining a **hidden state** that's updated at each step. The hidden state accumulates information from the sequence so far.
+
+```
+h_t = f(W_h · h_{t-1} + W_x · x_t + b)
+```
+
+At each time step t, the new hidden state h_t is computed from:
+- The previous hidden state h_{t-1} (what we remember)
+- The current input x_t (what we see now)
+- Learned weight matrices W_h and W_x, and bias b
+- A nonlinear activation function f (typically tanh)
+
+This is recurrence: the network "recurs" over the sequence, updating its memory state at each step.
+
+## What RNNs could actually do
+
+RNNs were genuinely powerful for their time. They enabled:
+
+- **Language modeling:** Predict the next word given all previous words. Trained on text, they captured surprisingly rich patterns — they "knew" that opening brackets should close, that sentences have grammatical structure, that subject-verb agreement matters.
+
+- **Machine translation:** Encoder-decoder architectures used one RNN to read a source sentence into a fixed-size vector, then another to decode that into the target language.
+
+- **Speech recognition:** Sequence-to-sequence mapping of audio frames to phonemes.
+
+- **Time series prediction:** Stock prices, sensor readings, any sequential numeric data.
+
+For moderate sequence lengths, they worked reasonably well. The hidden state compressed the relevant history, and the model could use it to condition future predictions.
+
+## The fundamental problems
+
+But as researchers pushed to handle longer sequences and more complex tasks, fundamental limitations appeared.
+
+### The vanishing gradient problem
+
+Backpropagation through time (BPTT) — the algorithm used to train RNNs — requires computing gradients through the entire sequence. For each time step back in the sequence, the gradient is multiplied by the weight matrix W_h.
+
+If W_h has eigenvalues less than 1 (which they typically are, to prevent exploding gradients), this multiplication shrinks the gradient exponentially. By the time you're computing how the output depends on the input from 50 steps ago, the gradient has vanished to near zero.
+
+The practical consequence: **RNNs couldn't learn long-range dependencies.** They'd forget information after roughly 20-30 steps. For a model reading a paragraph or a document, the beginning was effectively invisible to the output.
+
+### Exploding gradients
+
+The opposite problem: if eigenvalues are greater than 1, gradients explode exponentially. This is handled with gradient clipping (cap the gradient norm), but it's an inelegant fix to a structural problem.
+
+### Sequential computation
+
+RNNs compute one time step at a time. You can't compute h_10 without h_9, which requires h_8, and so on. This is inherently sequential — it can't be parallelized.
+
+During training, this was the binding constraint on scale. GPU hardware is massively parallel; RNNs couldn't leverage it. Training on long sequences was slow, and training on very long documents was infeasible.
+
+### The information bottleneck
+
+In encoder-decoder translation models, the entire meaning of the source sentence had to be compressed into a single fixed-size hidden state vector. This bottleneck severely limited translation quality on long sentences — the model simply couldn't fit all relevant information.
+
+## The LSTM: solving some problems, not others
+
+**Long Short-Term Memory (LSTM)** networks, proposed by Hochreiter and Schmidhuber in 1997, addressed the vanishing gradient problem with a clever architectural fix: the **cell state**.
+
+The LSTM introduces a cell state c_t — a "conveyor belt" that runs through the sequence with relatively few, mostly additive operations. Information can be added to or removed from the cell state, but the cell state itself doesn't get squished through repeated nonlinear transformations.
+
+Three learned gates control information flow:
+
+**Forget gate:** "What fraction of the previous cell state should I forget?"
+```
+f_t = σ(W_f · [h_{t-1}, x_t] + b_f)
+```
+
+**Input gate:** "What new information should I add to the cell state?"
+```
+i_t = σ(W_i · [h_{t-1}, x_t] + b_i)
+c̃_t = tanh(W_c · [h_{t-1}, x_t] + b_c)
+c_t = f_t ⊙ c_{t-1} + i_t ⊙ c̃_t
+```
+
+**Output gate:** "What should I output based on the cell state?"
+```
+o_t = σ(W_o · [h_{t-1}, x_t] + b_o)
+h_t = o_t ⊙ tanh(c_t)
+```
+
+The additive cell state update means gradients can flow backward more easily — they're not squeezed through repeated multiplicative operations.
+
+LSTMs were a real improvement: they could handle dependencies of hundreds of steps rather than tens. They dominated NLP benchmarks for years. GRUs (Gated Recurrent Units) offered a simplified version with similar performance and fewer parameters.
+
+But LSTMs still had the sequential computation problem — they were still recurrent, still one-step-at-a-time. And for very long documents, even LSTMs struggled.
+
+## Attention: the key insight
+
+The breakthrough that eventually displaced RNNs didn't come from better recurrence. It came from questioning whether recurrence was necessary at all.
+
+**The attention mechanism** (Bahdanau et al., 2015, originally applied to encoder-decoder translation) attacked the information bottleneck problem differently. Instead of compressing the entire source sentence into one vector, let the decoder directly access all encoder hidden states, with learned relevance weights.
+
+At each decoding step, compute a weighted average of all encoder states:
+- High weight on states most relevant to generating the current output word
+- Near-zero weight on less relevant states
+
+This immediately improved translation quality: the decoder could "look at" the relevant part of the source sentence at each step, rather than hoping it survived compression into a single vector.
+
+More importantly, it introduced a key idea: **direct connections between any two positions, with learned relevance weights.** No information bottleneck. No sequential dependency for accessing information.
+
+## The transformer: attention without recurrence
+
+The 2017 paper "Attention Is All You Need" (Vaswani et al.) made the radical move: **remove recurrence entirely.** Build a model entirely on attention.
+
+Self-attention lets every position in a sequence attend to every other position directly. Process all positions in parallel. No sequential dependency. No hidden state to maintain.
+
+This solved the remaining problems:
+- **Vanishing gradients:** Direct connections mean gradients can flow from output directly to any input position
+- **Parallelization:** All positions computed simultaneously — perfect for GPU/TPU acceleration
+- **Long-range dependencies:** Position 1 and position 512 have a direct connection of the same "distance" as positions 1 and 2
+
+The transformer also introduced positional encoding (since without recurrence there's no inherent sense of order) and multi-head attention (multiple attention patterns learned simultaneously).
+
+## Why the switch was so complete
+
+When transformers arrived, researchers expected them to improve on RNNs — to be better. What nobody expected was how completely they would displace the previous paradigm.
+
+This happened for three reasons:
+
+**Scaling:** Transformers could be scaled to vastly more parameters and data because of parallel computation. RNNs couldn't use the GPU compute available; transformers could. This meant transformer improvements from scale were available in ways that LSTM improvements were not.
+
+**Pre-training:** Self-supervised pre-training on massive text corpora (BERT, GPT) was enabled by transformers. The parallel processing made training on billions of tokens feasible. This pre-training + fine-tuning paradigm defined modern NLP.
+
+**Generality:** Attention is a general mechanism. The same architecture works for text, images (ViT), audio, protein sequences, graphs. RNNs were inherently sequence-linear; transformers are inherently relational.
+
+## What RNNs are still used for
+
+RNNs and LSTMs haven't entirely disappeared. They still appear in:
+- **Edge/embedded systems** where transformer inference costs are too high
+- **Streaming applications** requiring true online, step-by-step processing
+- **Certain time series tasks** where the sequential inductive bias is helpful
+- **Legacy systems** where the cost of migration outweighs the benefit
+
+But for any task where scale and compute are available, transformers have won. BERT was the first to clearly demonstrate it in NLP (2018); GPT-2 (2019) and GPT-3 (2020) scaled it to language modeling; ViT (2020) proved the same for vision.
+
+## The lesson
+
+The RNN-to-transformer transition is a case study in how architectural constraints limit what's possible. RNNs weren't bad; they were limited by recurrence in ways that prevented them from scaling. Removing that constraint — not just optimizing it — unlocked the current era of AI.
+
+When you see fundamental limitations in current architectures, that's often where the next breakthrough will come from: not optimization, but redesign.
+
+---
+
+### [Ensemble Methods Explained: Bagging, Boosting, and Random Forests](https://zro2.one/learn/machine-learning-ensemble-methods)
+> Ensemble methods combine multiple models to produce better predictions than any single model. Here's how bagging, boosting, and random forests actually work.
+
+There's a reliable principle in machine learning: a committee of mediocre models usually beats one brilliant model. This is the core insight behind ensemble methods — and it shows up in competition-winning solutions, production ML systems, and some of the most robust algorithms in the field.
+
+## Why ensembles work
+
+To understand ensembles, you need to understand the bias-variance tradeoff. Every model makes two kinds of errors:
+
+- **Bias:** Systematic errors from wrong assumptions. A linear model trying to fit a curved dataset has high bias — it's consistently wrong in the same direction.
+- **Variance:** Sensitivity to small changes in the training data. A very deep decision tree might fit the training set perfectly but wildly overfit to noise.
+
+Different models fail in different ways. If you combine models that fail *independently*, their errors tend to cancel out. A prediction that's correct in 70% of models will beat a single model that's randomly right or wrong.
+
+This only works if the models make *diverse* errors. Ensembling three identical models gives you nothing. Ensembling three models trained differently — on different data subsets, with different hyperparameters, or using different algorithms — can be powerful.
+
+## Bagging: variance reduction through sampling
+
+**Bagging** (Bootstrap AGGregating) is the simplest ensemble strategy. The idea:
+
+1. From your training dataset of N examples, create B bootstrap samples — each is a random sample of N examples drawn **with replacement**. This means some examples appear multiple times; some don't appear at all.
+2. Train a separate model on each bootstrap sample.
+3. At prediction time, average the predictions (for regression) or take a majority vote (for classification).
+
+Why does this help? Because each model sees a slightly different training set, it makes different errors. Averaging across them reduces variance without meaningfully increasing bias.
+
+Bagging works best with **high-variance, low-bias** base models — like fully-grown decision trees. A single deep decision tree overfits badly; bagging many of them smooths out the noise.
+
+### Random Forests: bagging with extra randomness
+
+Random Forests are the most famous bagging variant. They add one crucial modification on top of bagging:
+
+**At each split in each tree, only consider a random subset of features** (typically √p features for p total features).
+
+Why? Because without this, all your trees will tend to look similar — they'll all use the strongest features at the top, leading to correlated errors. The random feature selection forces trees to find diverse solutions, producing genuinely different trees that fail differently.
+
+The result is remarkably robust:
+- Handles missing data reasonably well
+- Naturally provides feature importance scores (features used more at the top of trees matter more)
+- Parallelizes easily (each tree is independent)
+- Rarely catastrophically wrong — the averaging makes outlier predictions rare
+
+Random Forests remain one of the most reliable go-to algorithms for tabular data. Even in 2026, many production ML systems use Random Forests for parts of their pipeline because they're interpretable, fast to train, and hard to break.
+
+## Boosting: bias reduction through sequential learning
+
+Boosting takes the opposite approach. Instead of training models in parallel on random samples, it trains models **sequentially** — each one explicitly trying to fix what the previous models got wrong.
+
+The general algorithm:
+
+1. Train a simple base model (often a "weak learner" — a model only slightly better than random).
+2. Look at the training examples it got wrong or predicted with high error.
+3. Train the next model with more emphasis on those hard examples.
+4. Repeat. Combine all models with learned weights.
+
+This process *reduces bias* — each round, the ensemble gets better at the hard cases. The risk is overfitting if you run too many rounds on noisy data.
+
+### AdaBoost: the original
+
+AdaBoost (Adaptive Boosting) implements this directly: each misclassified example gets higher weight in the next training round. Models that perform well get higher weight in the final vote.
+
+AdaBoost was revolutionary when introduced in 1997 and is still used today, though it's been largely superseded by gradient boosting.
+
+### Gradient Boosting: the modern standard
+
+Gradient Boosting reframes boosting as a gradient descent problem. Instead of reweighting examples, each new tree is trained to predict the **residual errors** (more precisely, the negative gradient of the loss function) of the current ensemble.
+
+At each step you add a small tree that "fills in" what the current model is getting wrong. With a low learning rate and many rounds, this process can squeeze extraordinary performance out of tabular data.
+
+**XGBoost, LightGBM, and CatBoost** are the dominant gradient boosting libraries. They add:
+- Regularization to prevent overfitting
+- Efficient handling of sparse data
+- Built-in cross-validation
+- GPU acceleration
+- Native categorical feature handling (CatBoost)
+
+Gradient boosting consistently wins tabular data competitions (Kaggle, etc.) and is widely used in production for structured data: credit scoring, fraud detection, recommendation ranking, ad click prediction.
+
+## Stacking: ensembling the ensembles
+
+Stacking goes a level further. Instead of averaging predictions, you train a **meta-model** to combine the outputs of multiple base models.
+
+The setup:
+1. Train several diverse base models (could be anything: Random Forest, XGBoost, SVM, neural network, linear regression)
+2. Use cross-validation to generate out-of-fold predictions from each base model
+3. Use those predictions as features to train a meta-model (often a simple logistic regression or a linear model)
+4. At test time, each base model predicts; the meta-model combines those predictions into the final output
+
+Stacking can extract value from genuinely different model types. A Random Forest and a neural network fail in completely different ways — a meta-model can learn to trust each in different regions of the feature space.
+
+The cost: significant complexity, longer training pipelines, and much harder to explain to stakeholders.
+
+## Practical guidance
+
+**For tabular data:**
+- Start with Random Forests for quick baselines — they're fast, robust, and need minimal tuning
+- Move to gradient boosting (LightGBM is usually fastest) when you need to squeeze more performance
+- Use stacking only if you're in a competition or the performance gain justifies the complexity
+
+**For time series:**
+- Gradient boosting with time-aware features often wins
+- Be careful with bagging — random sampling can break temporal structure
+
+**Hyperparameters that matter most:**
+- For Random Forests: `n_estimators`, `max_features`, `max_depth`
+- For gradient boosting: `learning_rate`, `n_estimators`, `max_depth`, `subsample`
+
+**The key interaction:** learning rate and n_estimators trade off — a lower learning rate needs more trees to converge, but usually generalizes better. A common approach: set a small learning rate (0.01–0.05) and use early stopping to find the right number of trees.
+
+## When not to use ensembles
+
+- When you need interpretability. A single decision tree is explainable; 500 trees are not.
+- When inference speed is critical and you can't afford the compute.
+- When you have very little data — the variance benefits of bagging require enough data for diverse training subsets to be meaningful.
+- When you're working with image, text, or audio at scale — deep learning dominates there, and the ensemble logic gets baked into the architecture differently.
+
+## The bottom line
+
+Ensemble methods are one of the most reliable tools in the ML practitioner's toolkit. Random Forests for quick, robust baselines. Gradient boosting for performance on structured data. Stacking when you have the time and infrastructure to make it worthwhile.
+
+If you're working on a tabular prediction problem and haven't tried gradient boosting, that's your next step.
+
+---
+
+### [Audio-Visual Multimodal Models: How They Work and What They Can Do](https://zro2.one/learn/mllms-audio-visual-models)
+> The next frontier for MLLMs isn't just text + images — it's audio and video. Here's how audio-visual models work and what capabilities they enable.
+
+The progression of multimodal large language models has followed a clear pattern: text-only → text + images → text + images + audio → native video understanding. Each step expands what these models can perceive and reason about — and opens up genuinely new application categories.
+
+Audio-visual MLLMs are the current frontier. Understanding how they work and what they can do is increasingly essential for AI practitioners.
+
+## The architecture challenge
+
+Extending language models to handle audio and video isn't just a matter of adding another input modality. Each modality has different:
+
+- **Dimensionality:** Audio is 1D (waveforms), images are 2D (pixels), video is 3D (frames over time), text is discrete tokens
+- **Temporal structure:** Audio and video are time-indexed; images and text have different notions of sequence
+- **Information density:** A 10-minute video contains vastly more raw data than any text transcript
+- **Semantic content:** The same event carries different information in its visual, auditory, and linguistic channels
+
+The fundamental technical challenge: how do you get a language model — whose native vocabulary is text tokens — to process and reason across all these modalities?
+
+## How audio is encoded for language models
+
+Audio cannot be directly processed by a language model. It must be converted into a representation the model can handle. Two main approaches:
+
+### Discrete audio tokens
+
+Convert audio into a sequence of discrete tokens, similar to text. Audio codec models (like EnCodec, DAC) learn to compress audio into sequences of integer codes that can be reconstructed. These codes are then treated like tokens and processed by the language model.
+
+Advantages:
+- Audio is in the same representation space as text — the model can generate audio by predicting token sequences
+- True end-to-end audio processing and generation (Moshi, the real-time voice model, uses this approach)
+
+Disadvantages:
+- Vocabulary explosion (audio requires many more distinct tokens than text)
+- High sequence length (1 second of audio → many tokens)
+- Lossy compression introduces artifacts
+
+### Continuous audio embeddings
+
+Pass audio through a dedicated audio encoder (like Whisper, wav2vec, or a custom model), extract continuous embeddings, project them into the language model's representation space via a linear or MLP adapter.
+
+This is the approach used in most current multimodal models (Gemini, GPT-4o). The audio encoder handles the perceptual processing; the language model handles reasoning.
+
+Advantages:
+- Leverages strong pre-trained audio encoders
+- More efficient (audio compressed to fewer embedding vectors than discrete tokens)
+- Separates audio perception from reasoning
+
+Disadvantages:
+- Model cannot directly generate audio (only process it); separate audio decoder needed for output
+- Adapter introduces an additional component to train and align
+
+## How video is handled
+
+Video is the most challenging modality for MLLMs because of its sheer data volume. A 60-minute video at 24fps and standard resolution is billions of pixels of data — feeding this raw is completely infeasible.
+
+Current approaches to video understanding:
+
+### Frame sampling
+
+Sample N frames from the video at uniform or adaptive intervals, process each frame as an image (standard vision encoder), concatenate the frame embeddings, and provide them to the language model along with any text/audio.
+
+This is simple and works well for:
+- Answering questions about what's in a video
+- Summarizing video content
+- Identifying scenes and objects
+
+Limitations: Misses temporal dynamics. Fast motion, brief events, and timing-specific queries are poorly handled by uniform sampling.
+
+### Temporal encoders
+
+Specialized video encoders (Video-LLaMA, ViViT, TimeSformer) designed to model temporal relationships between frames. Temporal attention mechanisms consider how features change across time, not just what appears in each frame.
+
+This improves performance on:
+- Action recognition ("What is the person doing?")
+- Event timing ("When does X happen?")
+- Causality reasoning ("Why did X happen?")
+
+### Efficient compression for long video
+
+For long-form video understanding (lectures, films, extended meetings), the frame volume is too large for any naive approach. Current techniques:
+- **Hierarchical processing:** Summarize short clips, then summarize summaries
+- **Event detection + sparse sampling:** Detect scene changes or activity spikes, sample more densely around them
+- **Memory-augmented processing:** Use external memory to accumulate long-range context
+
+Full-length video understanding at high quality is still an active research problem.
+
+## Omni-modal models: handling all modalities natively
+
+The most ambitious direction is models that natively handle arbitrary combinations of text, images, audio, and video as input *and* output.
+
+**GPT-4o** (the "omni" in the name) was an early step: real-time audio input and output with visual understanding. The architecture keeps audio in a native representation rather than converting to text first — enabling the lower latency and more natural voice conversation that makes it feel different from previous voice interfaces.
+
+**Gemini 1.5/2.0** was designed from the ground up to be natively multimodal. Its architecture processes interleaved sequences of text, image, audio, and video tokens. It holds the record for longest context window (1M+ tokens), which when applied to video means it can reason over very long video content.
+
+**Moshi** (from Mistral/Kyutai) is the most sophisticated real-time audio-language model: it processes audio input and generates audio output natively, enabling full-duplex conversation (talking and listening simultaneously) with interruption handling — something previous voice assistants couldn't do.
+
+## Key capabilities enabled by audio-visual MLLMs
+
+### Real-time voice assistants with visual context
+
+"Look at this circuit board — why isn't it working?" The model sees what you're showing it, hears your question, and responds by voice. No transcription step, no mode switching.
+
+This is the direction voice assistants are evolving. The camera + mic as a continuous context channel rather than discrete query-response.
+
+### Automated video analysis
+
+- Meeting recordings → structured summaries with speaker attribution, action items by speaker, timeline of topics discussed
+- Training video → automated quiz generation, knowledge gap identification
+- Surveillance or monitoring video → event detection and structured logging
+- Medical imaging video (endoscopy, ultrasound) → real-time analysis and flagging
+
+### Cross-modal search
+
+Find moments in video by describing them in text or audio. "Find the part where she mentions Q3 projections." "Show me all frames where someone is writing on a whiteboard."
+
+This requires models that can bridge semantic understanding across modalities — understanding that a text query and a visual or audio event represent the same concept.
+
+### Audio-conditioned image and video generation
+
+"Generate a music video that matches the mood of this track" — the model analyzes the audio's tempo, key, mood, and instrumentation, then guides visual generation accordingly. Or more directly: generate animation that is synchronized to beat and dynamics.
+
+### Real-time scene description for accessibility
+
+A live feed of visual and audio information → narration for visually impaired users. The model needs to track what's new, what's changed, what's relevant — continuous understanding rather than single-shot captioning.
+
+## Current limitations
+
+**Temporal resolution:** Current models sample video sparsely. Events that happen in less than a second are often missed or described incorrectly.
+
+**Audio-visual synchronization understanding:** Catching that the footsteps on screen don't match the sound (indicating editing), or that lip sync is off, requires precise temporal alignment models don't always maintain.
+
+**Long-form coherence:** Understanding a 2-hour film requires reasoning about plot arcs, character development, and callbacks across many thousands of frames. Current models handle this inconsistently.
+
+**Real-time processing:** Processing video in real time at high quality still requires significant compute — not yet practical on consumer hardware without quantization and optimization.
+
+**Native audio generation quality:** When models generate audio, quality (especially for music or rich sound design) lags behind specialized audio generation models.
+
+## Where this is heading
+
+The trajectory is toward models that are genuinely perceptually present — able to see, hear, and understand the world more fully over extended time periods. The architectural innovations enabling this (efficient long-context processing, better temporal modeling, native audio representation) are all advancing rapidly.
+
+The near-term impact: better real-time voice interfaces, automated analysis of video and audio content at scale, and accessibility tools that provide genuinely useful real-world scene understanding. The longer-term: AI systems that can participate in video calls, watch presentations, review recorded content, and reason across extended audiovisual contexts with the same fluency they currently bring to text.
+
+---
+
+### [Named Entity Recognition: From Rules to Neural Networks](https://zro2.one/learn/nlp-named-entity-recognition)
+> Named entity recognition is one of NLP's fundamental tasks. This guide covers how NER evolved, how modern neural approaches work, and how to use it in practice.
+
+Named entity recognition (NER) is the task of identifying and classifying mentions of real-world entities in text — people, organizations, locations, dates, quantities, and other categories. It's one of the foundational tasks in NLP, and understanding how it works gives you insight into how information extraction has evolved from brittle rules to robust neural systems.
+
+"**Apple** announced that **Tim Cook** will visit **Cupertino** on **March 15th**."
+
+NER should identify: Apple (ORG), Tim Cook (PER), Cupertino (LOC), March 15th (DATE).
+
+## Why NER is harder than it looks
+
+The challenge isn't recognizing clearly unique entities like "Tim Cook." The challenge is:
+
+**Ambiguity:** "Apple" is a company, a fruit, and someone's last name. "Jordan" is a country, a river, and a very common given name. Context determines the correct interpretation.
+
+**Boundary detection:** Where does an entity start and end? "New York City Police Department" is one entity. "United States Secretary of State" is one entity. NER systems need to correctly span multi-token entities.
+
+**Novel entities:** Training data covers known entities, but real text contains entities the system has never seen. A model that only memorizes known entities fails badly on new people, new companies, new places.
+
+**Nested entities:** "Bank of America CEO Brian Moynihan" contains "Bank of America" (ORG) nested within a larger phrase that includes "Brian Moynihan" (PER). Some NER formulations handle nesting; many don't.
+
+**Domain specificity:** General-purpose NER models trained on news articles perform poorly on biomedical text (genes, proteins, diseases), legal documents, or social media. Domain shift is a constant challenge.
+
+## The rule-based era
+
+Early NER systems were rule-based: hand-written patterns using regular expressions, gazetteers (curated lists of known entities), and hand-crafted linguistic rules.
+
+A simple rule: "A capitalized word following Mr./Mrs./Dr. is likely a person."
+
+More complex rules: patterns for recognizing date formats, phone numbers, money amounts. Gazetteers: lists of known cities, countries, company names, common given names.
+
+Rule-based systems were:
+- **Transparent:** You could read the rules and understand why the system made each decision
+- **Easy to fix:** If it missed a pattern, add a rule
+- **Brittle:** Rules that worked for news text failed on informal text; new domains required new rules
+- **Expensive to build:** Curating rule sets was a significant manual effort
+
+For well-defined, closed-domain problems (extracting dates and monetary amounts from financial contracts), rule-based approaches are still sometimes the right answer — predictable, auditable, fast.
+
+## Statistical NER: sequence labeling
+
+The next generation reframed NER as a sequence labeling problem. Every token in a sentence gets a label:
+
+Using IOB (Inside-Outside-Beginning) encoding:
+```
+Apple   → B-ORG  (Beginning of an ORG entity)
+Inc.    → I-ORG  (Inside an ORG entity)
+said    → O      (Outside any entity)
+Tim     → B-PER  (Beginning of a PER entity)
+Cook    → I-PER  (Inside a PER entity)
+```
+
+With this encoding, NER becomes: for each token, predict its IOB tag.
+
+**Conditional Random Fields (CRFs)** were the dominant model for sequence labeling: a discriminative probabilistic model that conditions on the full observation sequence and learns label transition probabilities ("a B-PER label is likely followed by I-PER, not I-ORG").
+
+Features for CRF-based NER:
+- Word shape: "Tim" → "Xxx", "IBM" → "AAA"
+- POS tag of the word and neighbors
+- Gazetteer membership (is this word in the person name list?)
+- Prefix/suffix patterns
+- Capitalization, digit presence
+
+CRF-based NER was a major advance: generalized much better than rule systems, required less manual engineering. But feature engineering was still substantial and domain-specific.
+
+## Neural NER: learned features
+
+Neural networks changed NER by *learning* the features rather than hand-crafting them.
+
+### BiLSTM-CRF: the pre-transformer workhorse
+
+The architecture that dominated NER from roughly 2016-2019:
+
+1. **Character-level embeddings:** Use a CNN or LSTM to build a representation of each word from its characters. This captures morphological information (suffixes like "-tion" suggest certain entity types) and handles out-of-vocabulary words.
+
+2. **Word embeddings:** Pre-trained word vectors (GloVe, Word2Vec) provide semantic context.
+
+3. **Bidirectional LSTM:** Process the sequence of word+character embeddings both forward (left→right) and backward (right→left). Each token's representation incorporates context from both directions.
+
+4. **CRF decoding:** A CRF layer on top of the BiLSTM ensures globally consistent label sequences (enforces that I-PER can't follow B-ORG, etc.).
+
+BiLSTM-CRF was a significant quality improvement over CRF with hand-crafted features, requiring much less feature engineering. It became the standard approach.
+
+### Transformer-based NER
+
+BERT (2018) transformed NER as it transformed most NLP tasks. Key advantages:
+
+**Contextual embeddings:** BERT produces a different embedding for the same word in different contexts. "Apple" in "Apple announced earnings" gets a different embedding than "Apple" in "I ate an apple." This directly addresses the ambiguity problem.
+
+**Pre-training on massive text:** BERT was exposed to enormous amounts of text, giving it broad world knowledge and linguistic understanding before any NER-specific training.
+
+**Fine-tuning:** You take a pre-trained BERT model and fine-tune it on your NER dataset (just a few thousand labeled examples). The pre-trained knowledge transfers.
+
+The architecture is simpler than BiLSTM-CRF:
+1. Tokenize the input with BERT's tokenizer
+2. Pass through BERT to get contextual embeddings for each token
+3. Linear classification layer predicts IOB labels for each token
+4. (Optional) CRF layer for globally consistent predictions
+
+```python
+from transformers import AutoTokenizer, AutoModelForTokenClassification
+import torch
+
+model_name = "dslim/bert-base-NER"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForTokenClassification.from_pretrained(model_name)
+
+text = "Apple announced that Tim Cook will visit Cupertino."
+inputs = tokenizer(text, return_tensors="pt", return_offsets_mapping=True)
+outputs = model(**{k: v for k, v in inputs.items() if k != 'offset_mapping'})
+
+predictions = torch.argmax(outputs.logits, dim=-1)[0]
+labels = [model.config.id2label[p.item()] for p in predictions]
+tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
+```
+
+## Modern NER: LLMs as entity extractors
+
+In 2024-2026, large language models have become competitive NER tools for many use cases — especially when using function calling for structured output:
+
+```python
+import anthropic
+import json
+
+client = anthropic.Anthropic()
+
+def extract_entities(text: str) -> dict:
+    response = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=1024,
+        tools=[{
+            "name": "extract_entities",
+            "description": "Extract named entities from text",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "persons": {"type": "array", "items": {"type": "string"}},
+                    "organizations": {"type": "array", "items": {"type": "string"}},
+                    "locations": {"type": "array", "items": {"type": "string"}},
+                    "dates": {"type": "array", "items": {"type": "string"}}
+                }
+            }
+        }],
+        tool_choice={"type": "function", "function": {"name": "extract_entities"}},
+        messages=[{"role": "user", "content": f"Extract named entities from: {text}"}]
+    )
+    return json.loads(response.content[0].input)
+```
+
+LLM-based NER advantages:
+- Zero-shot capability (no labeled examples needed)
+- Handles ambiguity better with world knowledge
+- Easily extended to custom entity types by describing them
+- Handles nested and overlapping entities more naturally
+
+LLM-based NER limitations:
+- Slower and more expensive than smaller models for high-volume processing
+- Less consistent on exact span boundaries
+- Harder to guarantee format consistency without structured outputs
+- Can make confident mistakes on entities from obscure domains
+
+## Practical tool choices
+
+**spaCy:** The most practical library for production NER. Pre-trained models for many languages. Fast inference. Easy fine-tuning on custom datasets. Good for high-volume processing where latency matters.
+
+```python
+import spacy
+nlp = spacy.load("en_core_web_trf")  # Transformer-based model
+doc = nlp("Apple announced that Tim Cook will visit Cupertino.")
+for ent in doc.ents:
+    print(f"{ent.text} → {ent.label_}")
+```
+
+**Hugging Face Transformers:** Access to many pre-trained NER models for general and domain-specific use. Best for fine-tuning on custom data.
+
+**Flair:** Strong contextual string embeddings, competitive NER performance. Good for multilingual NER.
+
+**LLM APIs:** For low-volume extraction with custom entity types, or when LLM accuracy is necessary.
+
+## Domain-specific NER
+
+Standard NER models (trained on news and web text) fail significantly on specialized domains:
+
+**Biomedical NER:** Entities like gene names (BRCA1), proteins (p53), diseases (glioblastoma multiforme), drugs (carboplatin). Models: BioBERT, PubMedBERT fine-tuned on biomedical corpora.
+
+**Legal NER:** Jurisdiction names, statute references, party names, legal concepts. Requires legal-domain models.
+
+**Financial NER:** Ticker symbols, financial metrics, regulatory references. Standard models miss many financial entities.
+
+**Clinical NER:** Diagnoses, medications, procedures, lab values — often abbreviated and domain-specific.
+
+For any specialized domain, you have two options: fine-tune a general model on domain-labeled examples, or use an LLM with a detailed system prompt defining your entity types.
+
+## When to use NER and when not to
+
+NER is the right tool when you need to:
+- Extract structured entity information from unstructured text at scale
+- Build a knowledge graph from text corpora
+- Power downstream tasks that need entities as inputs (relation extraction, event detection)
+- Anonymize text (identify and redact personal information)
+
+It's not the right tool when you need:
+- Complete information extraction (relations between entities, events, sentiment) — NER is just the first step
+- Semantic understanding (what entities *mean* in context) — NER identifies, it doesn't interpret
+- Extremely high precision on novel domains without domain adaptation
+
+NER is one of the most well-understood NLP tasks with mature tooling. Start with spaCy for standard entity types in English; go to domain-specific fine-tuning when the standard models aren't good enough.
+
+---
+
+### [AI Safety: What It Is and Why It Matters](https://zro2.one/learn/what-is-ai-safety)
+> AI safety is one of the most discussed and least understood topics in AI. Here's a clear explanation of what it actually means, why researchers take it seriously, and what's being done about it.
+
+"AI safety" appears in headlines ranging from tech policy debates to science fiction. The term gets used for everything from making sure chatbots don't say harmful things to concerns about existential risks from superintelligent systems. This range creates confusion about what AI safety actually is and whether it deserves the seriousness researchers and companies attribute to it.
+
+This guide explains AI safety plainly — what the term covers, why people who build these systems take it seriously, and what's being done.
+
+## What AI safety actually means
+
+AI safety is the field of research and practice concerned with making sure AI systems do what we actually intend, behave reliably, and don't cause unintended harm.
+
+It breaks into several distinct concerns that are worth separating:
+
+**Near-term safety:** AI systems deployed today causing harm through errors, misuse, or unexpected behavior. This is concrete, measurable, and already being addressed.
+
+**Medium-term safety:** AI systems that are more capable but not fundamentally different from today's — risks from deployment at scale, from systems being used in high-stakes decisions, from concentration of power enabled by AI.
+
+**Long-term safety:** The challenge of ensuring that AI systems much more capable than today's remain beneficial and under human control. This is more speculative but motivates significant research.
+
+These aren't entirely separate — research on making today's AI more reliable often also addresses long-term challenges. But they involve different levels of certainty and urgency.
+
+## Near-term safety: the concrete stuff
+
+The safety concerns most relevant to AI you interact with today:
+
+### Reliability and accuracy
+
+AI systems make mistakes. Sometimes these mistakes are harmless (a chatbot getting a trivia question wrong). Sometimes they're not (an AI medical assistant giving wrong dosage information, an AI-assisted hiring tool screening out qualified candidates, a navigation AI routing someone dangerously).
+
+Making AI systems reliable — knowing when they're confident vs. uncertain, reducing confident errors, building appropriate human oversight into high-stakes applications — is the core of near-term AI safety work.
+
+### Bias and fairness
+
+AI systems learn from historical data, which often encodes historical biases. A loan application model trained on historical approval data may perpetuate discriminatory patterns. A face recognition system trained predominantly on light-skinned faces has higher error rates on darker-skinned faces.
+
+AI safety in this context means auditing for and addressing systematic unfairness in how systems perform across different groups.
+
+### Misuse
+
+Capable AI systems can be used for harmful purposes: generating disinformation at scale, creating non-consensual intimate imagery, automating fraud, writing more convincing phishing emails.
+
+Safety work here involves designing systems to be less useful for harmful purposes (content filtering, usage policies, monitoring) without making them less useful for legitimate ones.
+
+### Privacy and data handling
+
+AI systems trained on personal data can memorize and potentially reproduce that data. AI applications handling user data create new attack surfaces. Privacy-preserving AI development is increasingly a safety concern.
+
+## The alignment problem: why researchers worry
+
+The more interesting and contested part of AI safety involves a conceptual challenge: **how do you make sure an AI system does what you actually want, not just what you literally told it?**
+
+This sounds like a programming problem, but it's subtler. When you specify a goal for an AI system, you have to specify it precisely enough that the system doesn't find unintended ways to achieve it.
+
+A classic example: imagine an AI tasked with "maximize the number of paperclips." Given enough capability, such a system might convert available matter into paperclips — including matter you'd prefer it left alone. The goal was specified, but not the *values* that should constrain how the goal is pursued.
+
+This is obviously a toy example, but the underlying issue — that precisely specifying what we want from AI systems is harder than it sounds — is a real one that shows up in practice:
+
+- A recommendation system optimized to "maximize engagement" may find that outrage and controversy drive more engagement than quality content
+- An AI assistant told to "complete the task efficiently" might find shortcuts that technically complete it but not in the spirit intended
+- A content moderation AI that "minimizes policy violations" might do so by avoiding content categories entirely rather than applying nuanced judgment
+
+These failures happen with today's systems. As AI systems become more capable and are given more autonomy, the specification problem becomes more consequential.
+
+## The control problem
+
+A related concern: how do you maintain meaningful oversight and control over AI systems as they become more capable?
+
+Current AI systems are tools under human control. You can turn them off, inspect their outputs, override their decisions, update or retrain them. These control mechanisms are crucial safety features.
+
+But some future AI scenarios raise the question: what happens if an AI system becomes capable enough to influence its own training, resist modification, or take actions faster and at larger scale than human oversight can track? The ability to maintain meaningful human oversight over increasingly capable systems is what safety researchers call the "control problem."
+
+This motivates research on interpretability (understanding what AI systems are actually doing internally), corrigibility (designing systems that accept and support correction), and oversight mechanisms that scale with system capability.
+
+## What's being done: alignment research
+
+Several research programs at frontier AI companies and academic institutions work on these challenges:
+
+**RLHF and preference learning:** Techniques for training models to behave in ways humans prefer, using human feedback on outputs. This is how models like Claude and GPT are trained to be helpful and harmless — imperfect, but meaningfully better than naive training.
+
+**Constitutional AI:** Anthropic's approach where models are trained with a written set of principles, then use those principles to self-critique and refine their outputs. Reduces reliance on direct human feedback for every decision.
+
+**Scalable oversight:** Research on how to maintain meaningful human supervision as AI systems become more capable — including using AI systems to help humans evaluate other AI systems on tasks too complex for unaided human judgment.
+
+**Interpretability:** Research into understanding the internal workings of neural networks — what computations they perform, what concepts they represent, how they make decisions. Understanding the mechanism is a prerequisite for reliably controlling it.
+
+**Red-teaming and evaluation:** Systematic attempts to find failure modes and vulnerabilities in AI systems before deployment. AI companies now employ teams whose job is to try to make their models behave badly, to find problems before they're exploited at scale.
+
+## The disagreements
+
+AI safety is not a field with complete consensus. The major disagreements:
+
+**How serious is the long-term risk?** Some researchers believe advanced AI poses existential risks and that safety work is urgently important for civilization. Others believe these risks are speculative and that near-term harms deserve more focus. Many hold positions between these poles.
+
+**What's the right approach?** Some believe technical alignment research is the key. Others emphasize governance (regulations, standards, international agreements). Many think both matter.
+
+**How fast is progress?** Estimates vary dramatically about how capable AI systems will become and how quickly. The urgency of safety research depends partly on these estimates.
+
+**Who should control AI development?** Safety arguments are sometimes used to argue that AI development should slow, or that only certain organizations should develop advanced AI. These are policy and power questions as much as technical ones.
+
+## Why it matters even if you're skeptical
+
+Even setting aside contested long-term questions, the near-term case for AI safety is clear:
+
+AI systems are already making decisions that affect real people — hiring, loan applications, medical triage, content moderation, legal risk assessment. Getting these systems more reliable, less biased, and better calibrated is important work with concrete stakes.
+
+The infrastructure of habits, practices, and institutions we build now for the AI systems we have will shape how we handle more capable future systems. Building good practices early is easier than trying to retrofit them later.
+
+Understanding AI safety helps you be a better builder, evaluator, and citizen in an AI-shaped world — regardless of where you land on the more contested questions.
+
+## A useful frame
+
+Think of AI safety the way you think about safety engineering in other fields. Civil engineers don't build bridges without accounting for stress loads and failure modes. Medical researchers don't release drugs without clinical trials. Software engineers don't ship banking applications without security audits.
+
+AI safety is the equivalent discipline for AI: systematic thinking about how things can go wrong, and building systems to be robust to those failure modes. The field is young and some questions are open, but the basic orientation — take failure seriously, build in oversight, test before you trust — is just good engineering applied to a powerful new technology.
+
+---
+
 ### [AI Foundations: Bias–Variance Tradeoff Without the Math Panic](https://zro2.one/learn/ai-foundations-bias-variance-intuition)
 > A plain-language explanation of bias, variance, and why model quality depends on balancing both.
 
@@ -4554,6 +5436,74 @@ Welcome to your AI education. Let's go from zero to one. 🚀
 
 ## This Week in AI
 
+### [This Week in AI](https://zro2.one/learn/this-week-in-ai-007)
+> This week: AI agents move from demos to production deployments, the cost curve keeps falling, and the open-source ecosystem closes the gap with frontier models.
+
+Week of March 8, 2026. Here's what mattered.
+
+## 1) Agent deployments are becoming boring — in the best way
+
+The conversation around AI agents has shifted. Six months ago, every agent demo was about impressive, novel capabilities. This week's signal: teams are shipping **boring** agent deployments that do specific things reliably.
+
+What's working:
+- **Document processing agents** that extract, classify, and route structured data from PDFs, invoices, and forms. Not glamorous. Extremely valuable.
+- **Code review agents** integrated into CI pipelines that flag issues without blocking PRs. Teams are calibrating these carefully — aggressive flagging creates alert fatigue; useful flagging creates trust.
+- **Customer support triage agents** that handle Tier 0 and Tier 1 queries and escalate gracefully. The key word: *gracefully*. The teams succeeding here obsessed over the handoff to humans.
+
+The maturation pattern: agent use cases go from "demo-worthy" to "infrastructure." That's the signal that something is real.
+
+## 2) Inference costs fell again
+
+Inference cost per million tokens continues its steep decline. The practical effect: use cases that were borderline economical at end of 2025 are now clearly viable.
+
+What this unlocks:
+- Running heavier prompts (more context, more examples) without meaningful cost penalty
+- Agents that call models more frequently for intermediate reasoning steps
+- Real-time AI on data types (streaming, high-volume logs) that were previously too expensive
+
+The cost frontier is still moving fast enough that if you dismissed a use case on cost grounds 6 months ago, it's worth revisiting the numbers.
+
+## 3) Open-source models close the practical gap
+
+Several open-source releases this week are worth tracking. The key observation: open-source models are now competitive with frontier commercial models on *specific* task categories — particularly:
+- Coding and code review
+- Structured data extraction
+- Domain-specific inference with fine-tuned variants
+
+Where the gap remains: general reasoning, complex multi-step instruction following, and creative tasks at the highest capability tier. But for production use cases with clear task definitions, the open-source options are increasingly viable — especially when privacy, latency, or cost-at-scale are factors.
+
+## 4) Evaluation frameworks get serious adoption
+
+Companies that deployed AI systems in 2024-2025 are now discovering they need robust evaluation infrastructure. This week saw announcements from several evaluation tooling vendors, and engineering blog posts from teams describing their eval setups.
+
+What's driving this: teams can't tell if their AI systems are getting better or worse after changes. Without evals, every model update is a gamble.
+
+The community is converging on some shared practices:
+- Task-specific evals grounded in production data (not synthetic benchmarks)
+- LLM-as-judge pipelines for open-ended quality assessment
+- Regression tracking over model and prompt changes
+- Human review workflows for the long tail of failures
+
+If you're deploying AI and don't have evals: this is your warning. It catches up with you.
+
+## 5) Multimodal is default, not special
+
+A quiet shift: the expectation of multimodal capability has moved from "premium feature" to "table stakes." New deployments routinely handle mixed text + image inputs. Voice is increasingly common in interfaces.
+
+The implication: if your AI system is text-only and users interact with images regularly, you're already behind. Migration to multimodal APIs is straightforward for most use cases; the value is often immediate.
+
+## Three things to watch next week
+
+1. **Agent frameworks:** Several competing frameworks are crystallizing into patterns. Which ones get real adoption vs. staying demo tools?
+2. **Regulation updates:** The EU AI Act's technical standards are in active development. Watch for guidance on high-risk AI system requirements.
+3. **Inference hardware:** Next-generation chips shipping to hyperscalers will accelerate the cost decline further. Track the deployment timelines.
+
+---
+
+*This Week in AI is a practical briefing, not a news aggregator. We focus on what's changing how people actually build and deploy AI systems.*
+
+---
+
 ### [This Week in AI](https://zro2.one/learn/this-week-in-ai-006)
 > A practical weekly briefing on what mattered most in AI: reliability tooling, model economics, and enterprise deployment patterns.
 
@@ -5086,6 +6036,1168 @@ More next week.
 ---
 
 ## Practice & Tools
+
+### [AI Note-Taking and Knowledge Management Tools in 2026](https://zro2.one/learn/ai-tools-knowledge-management-2026)
+> The AI note-taking landscape has matured. Here's what's actually useful, what's hype, and how to build a knowledge system that works with AI instead of around it.
+
+A year ago, every notes app was racing to add AI. Now we're past the novelty phase. The tools that have survived the hype cycle are the ones that figured out *where* AI actually belongs in the knowledge management workflow — and more importantly, where it doesn't.
+
+This is a practical look at what's worth using in 2026.
+
+## What "AI for notes" actually means
+
+Let's be clear about the different things AI can do in a knowledge management context, because tools bundle these very differently:
+
+**Capture:** Automatically extract and structure information from meetings, voice memos, web pages, or documents. Turn raw input into something organized.
+
+**Retrieval:** Find relevant notes, surface connections, answer questions over your personal knowledge base.
+
+**Synthesis:** Summarize, combine, or analyze across multiple notes. Turn scattered observations into structured insights.
+
+**Writing assistance:** Help draft, expand, or refine notes themselves.
+
+The strongest tools pick one or two of these and do them well. Tools that try to do all four often do none of them particularly well.
+
+## The current landscape
+
+### Notion AI: capable, embedded, convenient
+
+Notion AI has become the default for teams already using Notion. The integration is seamless — AI operates directly on your pages and databases without mode-switching.
+
+What it's good at:
+- Summarizing long pages or meeting notes
+- Drafting new content in the style of existing pages
+- Answering questions grounded in your workspace
+
+What it struggles with:
+- Retrieval across very large workspaces (it still loses context in huge databases)
+- Being a thinking tool — it's better at producing than reasoning
+
+Best for: teams that live in Notion and want AI that just works without configuration.
+
+### Obsidian + AI plugins: powerful, complex, yours
+
+Obsidian's approach is fundamentally different: it's a local-first, plain text system where you own your data. AI capabilities come through community plugins.
+
+The most useful plugin combinations:
+- **Smart Connections:** Semantic search over your vault. Surfaces notes you didn't know were related. Actually useful.
+- **Copilot for Obsidian:** Chat interface grounded in your vault content. Decent for retrieval; answers citing specific notes.
+- **Whisper transcription plugins:** Voice-to-note workflows.
+
+What Obsidian does better than any hosted tool: it's yours, forever, in plain text. AI can assist, but your knowledge isn't locked in a proprietary system.
+
+The tradeoff: setup takes real effort. You're piecing together a system from plugins rather than using a polished product.
+
+Best for: individuals who want full control and are willing to invest in setup.
+
+### NotebookLM: the best dedicated research tool
+
+Google's NotebookLM has evolved into the strongest dedicated tool for working with a specific set of source documents. The model: you upload sources (PDFs, docs, Google Docs), and it creates a personalized AI that can answer questions, generate summaries, and surface connections — grounded strictly in those sources.
+
+What makes it different: it's not trying to be your general notes app. It's a focused research workspace.
+
+Use it for: literature reviews, report research, working through a specific book or set of papers, pre-meeting prep from a document set.
+
+Don't use it as your permanent knowledge base — it's not designed for that.
+
+### Mem: the bet on automatic organization
+
+Mem took a different approach: throw everything in, let AI organize it. No folders, no manual tagging — the AI handles retrieval.
+
+The concept is appealing. The reality is mixed. For some workflows it genuinely works (especially for people who hate organizing things). For others, the lack of structure becomes a problem as the knowledge base grows.
+
+Worth trying if you're a "throw it all in" type who wants AI to handle the rest.
+
+### Reflect: AI for thinking, not filing
+
+Reflect is the most thought-forward option — it positions itself as a thinking tool rather than a storage tool. The AI is oriented toward helping you develop ideas: suggesting connections, asking follow-up questions, pushing back on your reasoning.
+
+If your goal is to use your notes as a thinking environment rather than a document archive, Reflect is worth evaluating.
+
+## What actually works: the patterns
+
+After watching teams use these tools, a few patterns consistently produce value:
+
+### 1. Meeting notes → structured summary pipeline
+
+Audio recording → automatic transcription → AI-structured notes with action items. This works well across most tools, and the ROI is immediate and obvious. Every hour-long meeting producing two minutes of cleanup is a win.
+
+Tools that do this well: Notion AI (with meeting recording integration), Fireflies/Otter (dedicated), Obsidian with Whisper plugins.
+
+### 2. Research synthesis
+
+Upload a set of sources and ask questions. NotebookLM is the strongest here, but the workflow works in any tool with grounded retrieval. The key is keeping the source set focused — 5-15 documents is the sweet spot; 50+ starts to degrade quality.
+
+### 3. Semantic search over personal notes
+
+This is underrated. Having AI that can answer "what did I think about X six months ago?" or "which of my notes are relevant to this problem?" changes how you work over time. Smart Connections for Obsidian, Notion AI search, and Mem all do versions of this. Test this on your actual knowledge base — quality varies significantly by tool and content type.
+
+### 4. Writing from templates
+
+AI drafting from your existing templates + context works reliably. The pattern: create a well-structured template for recurring note types (project plans, meeting notes, decision records), then have AI fill it from context. Structured outputs are AI's strongest suit.
+
+## What doesn't work yet
+
+**AI as your primary organization system.** The promise of "throw everything in, AI handles retrieval" is still aspirational for most use cases. Large, heterogeneous knowledge bases still benefit from intentional structure.
+
+**Cross-tool AI.** If you use five different apps, there's no AI layer that meaningfully works across all of them. Your knowledge is fragmented; AI can't bridge that.
+
+**Deep reasoning over your notes.** Current AI systems are good at retrieval and synthesis of explicit information. They're much weaker at noticing contradictions in your thinking, tracking belief changes over time, or genuinely helping you reason through complex problems. This is the hard part of PKM, and AI hasn't solved it.
+
+## A practical setup for 2026
+
+If you're starting fresh:
+
+- **Solo knowledge worker:** Obsidian + Smart Connections + local LLM via Ollama if you want privacy, or Obsidian + Copilot plugin using an API key. Full control, highly capable.
+- **Team in Notion:** Lean into Notion AI for summaries and retrieval. Pair with NotebookLM for research projects.
+- **Researcher or analyst:** NotebookLM for per-project source analysis. A personal notes tool (anything) for ongoing notes and ideas.
+- **High meeting load:** Dedicated transcription tool (Otter, Fireflies) that integrates with wherever you store notes. Don't fight the workflow — make the capture automatic.
+
+## The honest take
+
+AI hasn't transformed knowledge management yet. But it has made specific parts of the workflow meaningfully better: capture, summarization, and retrieval. The teams getting real value are the ones who've identified the specific friction point AI can reduce — not the ones looking for AI to "organize everything" or "make me smarter."
+
+Pick one pain point, pick a tool, and test it for 30 days. That's still the fastest path to knowing what actually works for you.
+
+---
+
+### [AI-Assisted Customer Support: A Practical Workflow Guide](https://zro2.one/learn/ai-workflows-customer-support)
+> Customer support is one of the most mature AI deployment domains. Here's how high-performing teams structure their AI workflows — including the parts that are easy to get wrong.
+
+Customer support is one of the highest-ROI AI deployment areas, and it's also one of the most unforgiving. Get it wrong and you've publicly frustrated the people who most need to trust you. Get it right and you've made both your customers and your support team's lives materially better.
+
+Here's what the workflow looks like when done well.
+
+## The tiered model that actually works
+
+The fundamental structure of AI-assisted support is a tier model with clear handoffs:
+
+**Tier 0 — Automated self-service:** FAQ, documentation search, simple account lookups. No AI needed for most of this — well-organized knowledge bases and searchable help centers handle it. AI can improve search quality here.
+
+**Tier 1 — AI-assisted resolution:** Common questions that require some interpretation but have clear answers. Password resets, order status, basic troubleshooting, policy questions. This is where LLM-powered support agents operate effectively.
+
+**Tier 2 — Human-assisted (AI-augmented):** Complex or ambiguous issues that need human judgment. But the human sees AI-generated context, relevant knowledge base articles, and suggested responses. AI as a copilot.
+
+**Tier 3 — Human specialist:** Escalations, complaints, legal issues, edge cases. AI should not be in the response loop here — it provides research support.
+
+The key design question: where is the tier 1 / tier 2 boundary? Set it too broadly and you create frustrating, circular AI conversations. Set it too narrowly and you underuse AI and overwhelm human agents.
+
+## What makes Tier 1 AI actually work
+
+The teams with successful Tier 1 AI deployments share a set of practices that are less obvious than they appear:
+
+### 1. Ground every response in your knowledge base
+
+A general LLM answering customer questions will fabricate — confidently giving answers that don't match your actual policies. The solution is RAG (retrieval-augmented generation): before generating a response, retrieve the relevant sections of your documentation, policies, and FAQs, and use those as the basis for the answer.
+
+This requires:
+- A well-maintained, current knowledge base (AI can't compensate for outdated docs)
+- Good chunking and embedding of that knowledge base
+- Retrieval quality monitoring (are the right docs being retrieved?)
+
+Don't skip this. It's the difference between a system that occasionally hallucinates policy details and one that's actually reliable.
+
+### 2. Design the escalation path before you design the AI
+
+The most common mistake: teams design the AI experience first and treat escalation as an afterthought. The opposite is right.
+
+Before you build anything, define:
+- What triggers escalation? (Specific words? Negative sentiment? Multiple failed resolution attempts? Customer request?)
+- What information gets handed off? (Full conversation, account context, issue category?)
+- Who gets the escalation? (Specialized teams by issue type, or round-robin?)
+- What's the SLA for handoff? (How quickly does a human need to respond?)
+
+When customers hit a wall with an AI and escalation is slow or loses context, that's your worst outcome. Nail this first.
+
+### 3. Intent classification is worth the investment
+
+Before routing any customer message to an AI responder, classify the intent. Is this a question about an order? A complaint? A technical issue? A refund request?
+
+Intent classification lets you:
+- Route different intents to specialized prompts or knowledge bases
+- Immediately escalate intent categories where AI shouldn't respond (legal threats, complaints about specific staff)
+- Track volume and trends by intent (your product team wants this data)
+- Calibrate confidence thresholds by category (auto-respond on high-confidence simple intents; require human review on complex ones)
+
+This can be done with a lightweight model or even a simple classifier — it doesn't need to be expensive.
+
+### 4. Track deflection rate and CSAT separately
+
+Many teams optimize for deflection rate (percentage of tickets resolved without human intervention). This is a mistake if you're not also tracking customer satisfaction on AI-resolved tickets.
+
+A system that deflects 80% of tickets but frustrates customers in those interactions is worse than one that deflects 50% with high satisfaction. Measure:
+- **Deflection rate:** What percentage of tickets are resolved by AI without escalation?
+- **AI CSAT:** How do customers rate interactions resolved by AI?
+- **Re-contact rate:** After AI resolution, how many customers contact support again within N days? High re-contact suggests the AI resolved incorrectly.
+- **Escalation recovery:** When escalated, how quickly do human agents resolve? Context quality from the AI handoff directly affects this.
+
+## The AI copilot for human agents
+
+Even when a human is handling a ticket, AI can dramatically increase their efficiency:
+
+**Auto-suggested responses:** AI drafts a response based on the ticket and knowledge base. Human reviews, edits if needed, sends. Reduces time-to-response significantly for standard issue types.
+
+**Knowledge search:** Surface relevant help articles and policy documents based on the ticket content. Agents don't need to search manually.
+
+**Customer history summarization:** For returning customers, summarize previous interactions in a few sentences. Agents understand the context immediately.
+
+**Sentiment detection:** Flag tickets with negative sentiment for prioritized handling or manager review.
+
+**Response quality checking:** Before sending, check that the response doesn't contain tone issues, policy violations, or factual inconsistencies with the knowledge base.
+
+This tier is often more immediately impactful than full automation because it applies to every ticket a human touches, without the risk of unsupervised AI decisions.
+
+## The knowledge base as the real asset
+
+Here's something teams underestimate: **the quality of your AI support is limited by the quality of your knowledge base.**
+
+AI can retrieve and synthesize, but it can't compensate for documentation that is:
+- Out of date (describes policies that changed six months ago)
+- Inconsistent (multiple articles that contradict each other)
+- Incomplete (covers 80% of cases but not the edge cases that generate the most support volume)
+- Ambiguously written (AI interprets vague language differently than experts would)
+
+The unsexy work of building and maintaining good documentation pays off enormously here. Teams that invest in this as part of their AI rollout see better results than teams that have the most sophisticated AI on top of a mediocre knowledge base.
+
+## Common failure patterns
+
+**The endless loop:** AI can't resolve the issue, customer asks to speak to a human, AI keeps trying. Fix: implement a clear "I'm not able to help with this, let me connect you to a specialist" path triggered after N failed resolution attempts or on explicit customer request.
+
+**Context loss on escalation:** Customer explains the problem to the AI, gets escalated, explains it again to the human. Fix: pass the full AI conversation transcript and a structured summary to the human agent.
+
+**Hallucinated policies:** AI confidently states a policy that doesn't exist or is wrong. Fix: RAG with reliable source documents; add a fact-checking layer before responses are sent.
+
+**Tone mismatch:** AI uses generic, corporate language when the customer is clearly upset. Fix: sentiment-aware prompting; escalate immediately when customer messages are highly negative; have different prompt templates for complaints vs. information requests.
+
+**Scope creep:** AI attempts to handle issues it wasn't designed for. Fix: intent classification with routing; narrow the AI's scope explicitly in the system prompt.
+
+## A simple implementation roadmap
+
+1. **Month 1:** Deploy AI-assisted search on your help center. Surface relevant articles better. Low risk, measurable impact.
+2. **Month 2-3:** Build the AI copilot for human agents — auto-suggested responses and knowledge retrieval. Improve agent efficiency before removing humans from the loop.
+3. **Month 3-4:** Pilot Tier 1 automation on 2-3 high-volume, high-confidence intent categories (order status, password reset, simple billing questions).
+4. **Month 5+:** Measure, iterate, expand scope carefully. Track all four metrics above.
+
+The teams that succeed do this incrementally, with clear measurement at each stage. The teams that struggle try to automate everything at once and discover the failure modes at scale with real customers.
+
+## The bottom line
+
+Good AI support is mostly about good product thinking: clear scope, excellent escalation, reliable knowledge, and obsessive measurement. The AI technology itself is the easy part. The workflow design is where it lives or dies.
+
+---
+
+### [AI Music Generation in 2026: Tools, Techniques, and Honest Limits](https://zro2.one/learn/audio-ai-music-generation-2026)
+> AI music generation has matured into a genuine creative tool. Here's what it can do, where it still struggles, and how to actually get good results.
+
+Two years ago, AI music generation produced novelty tracks — recognizable as music but clearly synthetic, useful mainly for demos and experimentation. Today, the output quality has crossed a threshold that matters: in the right genres and contexts, AI-generated music is usable in production.
+
+That's not a claim about replacing human musicians. It's a claim about the practical utility of the tools, which have genuinely changed.
+
+## The current tool landscape
+
+### Suno: the mainstream entry point
+
+Suno remains the most accessible tool for text-to-music generation. You describe what you want — genre, mood, instrumentation, energy — and get a complete track in seconds.
+
+What it does well:
+- Pop, hip-hop, folk, indie rock — genres with clear genre conventions it learned extensively
+- Vocal generation with real melodic sense (not just text-to-speech put to a beat)
+- Lyrics writing and fitting to tracks
+- Quick iteration for mood and style exploration
+
+Where it shows limits:
+- Complex jazz harmony and improvisation still sound mechanical
+- Classical orchestral work lacks dynamic expression
+- Unusual genre fusions can produce incoherent results
+- Stems/separates are not natively supported, limiting post-production control
+
+Suno is best for: content creators who need background music, marketers building demo videos, and anyone exploring what AI music can do.
+
+### Udio: more control, higher ceiling
+
+Udio takes a slightly more technical approach with more control over generation parameters. The output quality on instrumentation and production value tends to be higher for certain genres, though the learning curve is steeper.
+
+Notable advantages over Suno:
+- More consistent instrumental quality without vocals
+- Better handling of genre-specific production styles (trap hi-hat patterns, jazz brush percussion)
+- More control over structure and section generation
+
+The tradeoff: less "just describe it and go," more parameter tuning.
+
+### Stable Audio and open-source alternatives
+
+Stability AI's Stable Audio (and the open-source models built on similar foundations) gives technically sophisticated users more control and local execution capability.
+
+For producers who want to run generation locally, experiment with different model checkpoints, or integrate generation into custom pipelines: the open ecosystem is worth exploring. The barrier is real (GPU requirements, setup complexity), but so is the benefit of not being constrained by commercial API limitations.
+
+### Specialized tools: stem generation, mastering, remixing
+
+Beyond full-track generation:
+
+**Stem generation:** Tools that generate individual layers (drums, bass, melody, chord progression) separately, giving producers components to work with rather than a finished track.
+
+**AI-assisted mastering:** Matchering, LANDR, and similar tools apply mastering processes using ML. These have been around longer and are genuinely useful in quick-turnaround workflows.
+
+**Style transfer:** Transforming an existing track's production style (applying a genre aesthetic to an uploaded melody). Useful for rapid style exploration.
+
+**Continuation and variation:** Given an existing clip, generate continuations or variations. Useful for extending content you like.
+
+## What actually produces good results
+
+### Specificity over vagueness
+
+"Upbeat background music" will give you generic output. Be specific about what you want:
+
+*"Lo-fi hip hop, 80 BPM, Rhodes piano melody, vinyl crackle, warm bass, late night study session vibe, no vocals"*
+
+The more specific you are, the more the model can pattern-match to its training data and produce something coherent.
+
+### Genre grounding before mood
+
+Start with a clear genre anchor, then add mood. Genres carry implicit information about instrumentation, rhythm patterns, chord conventions, and production style that guides the model. "Cinematic" is a mood; "Hans Zimmer-style orchestral cinematic" is a genre+mood that produces much more consistent output.
+
+### Iterate on structure, not just prompt
+
+Most tools let you regenerate sections or continue existing clips. Use this:
+1. Generate a clip that gets the feel right
+2. Edit the prompt to refine the section you want to keep
+3. Generate variations and continue sections that work
+4. Build a structure iteratively rather than hoping one prompt nails everything
+
+This is closer to how producers work with samples — iterate and compose.
+
+### Use AI for inspiration, stems for production
+
+If you're integrating AI music into real production workflows, the most practical approach is: use AI to find a direction quickly, extract usable elements (a melody idea, a rhythm pattern, a chord progression), and rebuild with real instruments or higher-quality samples. This maintains quality control and avoids licensing ambiguity.
+
+## The quality ceiling and where it still breaks
+
+AI music generation is impressive in aggregate but inconsistent in specifics. Current limits that matter in practice:
+
+**Melodic memory:** AI-generated tracks often lack the kind of melodic development that makes music feel intentional. Motifs don't return and develop; themes don't build. Long tracks can feel like a mood maintained, not a piece of music that goes somewhere.
+
+**Dynamic expression:** Classical and jazz in particular require nuanced dynamic expression — players responding to each other, phrases that breathe. AI still produces a more mechanical version, with expression that feels generated rather than felt.
+
+**Lyrics coherence:** The lyrics AI generates can be evocative but are often semantically thin — the words feel like they fit the genre without saying anything specific. For background tracks this doesn't matter; for meaningful songs it does.
+
+**Stems and control:** Most generation tools produce a mixed final output, not separable stems. This limits post-production control. You can't adjust the drum level, mute the hi-hats, or boost specific elements.
+
+**Licensing clarity:** The copyright landscape for AI-generated music is still evolving. Commercial use varies by tool and jurisdiction. Check the terms of the specific tool you're using before releasing commercially.
+
+## The practical use cases right now
+
+Where AI music generation is genuinely useful today:
+
+- **YouTube and social video background music:** Low-stakes, high-volume need, style matters more than depth
+- **Demo and prototype soundtracks:** Get a feel for what a scene or product needs before committing budget
+- **Podcast intro and transition music:** Short-form, consistent-mood, high-volume production
+- **Game audio prototyping:** Rapid exploration of soundtrack directions before composer engagement
+- **Personal creative projects:** Experimenting with songwriting ideas, producing home recordings
+
+Where it's not ready to replace professional musicians:
+- Any context where emotional depth and intentional artistry matter to the final product
+- High-profile commercial use where licensing clarity is essential
+- Music that needs to feel genuinely composed, not generated
+
+## The honest summary
+
+AI music generation in 2026 is a real tool that produces genuinely usable output in the right contexts. It's not a composer replacement and it's not magic. It's a fast, cheap way to generate musical material in specific genres and contexts — best understood as a production accelerator and ideation tool, not a finished creative product.
+
+The people getting the most from these tools are using them the same way producers use sample packs: as raw material to react to, build from, and transform. The ones who are disappointed are treating "text to music" as a complete creative pipeline.
+
+---
+
+### [Your First AI Project: A Step-by-Step Guide](https://zro2.one/learn/getting-started-first-ai-project)
+> Stop reading about AI and start building something. Here's a practical guide to choosing and completing your first AI project — with real suggestions, not vague advice.
+
+The hardest part of getting started with AI isn't understanding it — it's committing to a first project and finishing it. Most people cycle through reading articles, watching tutorials, and "exploring tools" for weeks without building anything.
+
+This guide exists to break that loop.
+
+## Why a project matters
+
+You can learn more from completing one small AI project than from reading ten articles about AI. Projects force concrete decisions: Which tool? What data? What counts as success? And they surface the actual challenges — rate limits, unclear outputs, edge cases — that no tutorial mentions because they're specific to your situation.
+
+Pick something small, somewhat useful, and completable in a weekend. Don't pick something important or complex for your first one.
+
+## Five genuinely good first projects
+
+These are real, completable projects with clear success criteria. Pick the one that fits your background.
+
+### 1. A personal Q&A bot over your own documents
+
+**What it is:** Upload a folder of documents (PDFs, text files, notes) and build a system that can answer questions based on them.
+
+**Why it's good:** This is the RAG (retrieval-augmented generation) pattern — one of the most practically useful AI skills. You'll touch document loading, text chunking, embeddings, vector search, and LLM prompting.
+
+**Tools:** LlamaIndex or LangChain, OpenAI API (or Ollama for local), a simple vector store.
+
+**Success criteria:** You can ask "What did the document say about X?" and get an accurate, sourced answer.
+
+**Realistic time:** 4-6 hours with some Python experience; a weekend if you're newer to coding.
+
+### 2. An automated email or message summarizer
+
+**What it is:** A script that reads your emails (or any long text), summarizes them, and surfaces what needs a response.
+
+**Why it's good:** Concise, useful, uses the AI directly on your own workflow. Forces you to work on prompt design for consistent output formats.
+
+**Tools:** OpenAI or Anthropic API, Python, the Gmail API or a folder of text files.
+
+**Success criteria:** Running the script on a batch of emails produces useful summaries you'd actually read.
+
+**Realistic time:** 2-4 hours if you use a folder of saved emails to start; more if you connect to a live inbox.
+
+### 3. A content transformer (article → tweet thread, meeting notes → action items, etc.)
+
+**What it is:** A simple tool that takes one format of text and transforms it into another using an LLM.
+
+**Why it's good:** Forces you to think about prompting — how do you get consistent, high-quality output? Also immediately useful.
+
+**Tools:** OpenAI or Anthropic API, simple Python or JavaScript, optionally a basic web UI (Streamlit or a simple HTML form).
+
+**Success criteria:** You can paste in a piece of text and get a consistent, usable transformation.
+
+**Realistic time:** 2-3 hours for the core; more if you add a UI.
+
+### 4. A chatbot for a topic you know well
+
+**What it is:** A chat interface backed by an LLM, system-prompted with detailed instructions about a topic you understand deeply (your industry, a hobby, a topic you're expert in).
+
+**Why it's good:** Forces you to write a good system prompt, test it against your own expertise, and iterate. You'll discover how much system prompt quality matters.
+
+**Tools:** OpenAI or Anthropic API, a simple Python script with conversation loop, optionally Streamlit for a basic UI.
+
+**Success criteria:** When you ask questions in your domain of expertise, the bot's responses pass your own quality bar.
+
+**Realistic time:** 3-5 hours including iteration on the system prompt.
+
+### 5. An image analysis pipeline
+
+**What it is:** A script that takes a folder of images and generates structured descriptions, captions, or categorizations using a vision model.
+
+**Why it's good:** Introduces multimodal AI, structured output generation, and batch processing — all practical skills.
+
+**Tools:** OpenAI GPT-4o API or Anthropic Claude (both support images), Python.
+
+**Success criteria:** The script runs on 20 images and produces useful, consistent descriptions that you could actually use.
+
+**Realistic time:** 3-4 hours.
+
+## The setup you'll need (almost all projects)
+
+Regardless of which project you pick, you'll need:
+
+**An API key:** Create accounts at [platform.openai.com](https://platform.openai.com) or [console.anthropic.com](https://console.anthropic.com). Add $5-20 of credits. Most beginner projects cost pennies.
+
+**Python (or JavaScript):** Python is the standard for AI work. If you're new, install it via [python.org](https://python.org) and use VS Code.
+
+**A virtual environment:** `python -m venv venv` in your project folder, then `source venv/bin/activate`. This keeps dependencies clean.
+
+**The library:** `pip install openai` or `pip install anthropic`. That's it for most projects.
+
+**Environment variables:** Store your API key in a `.env` file, not in your code. `pip install python-dotenv` and use `load_dotenv()`.
+
+## The three hours that matter most
+
+If your project isn't working, it's usually one of these things:
+
+**Your prompt isn't specific enough.** LLMs are powerful but they need direction. "Summarize this" produces generic output. "Summarize this email in 3 bullet points: what action is requested, what's the deadline, and what context I need" produces something usable. Write prompts as if writing instructions for a capable new employee.
+
+**You're not looking at the actual output.** Print everything. Inspect the raw API response. If the model's output is weird, reading it carefully usually tells you why. Add logging early.
+
+**The API isn't doing what you think.** Read the API docs for the specific endpoint you're using. Message role semantics (system, user, assistant) matter. Parameter defaults matter. Spend 20 minutes on the actual documentation for your endpoint.
+
+## What done looks like
+
+A completed first project has:
+- A working script you can run and shows results
+- A README with one paragraph explaining what it does and how to run it
+- A clear sense of what worked, what surprised you, and what you'd do differently
+
+The README and reflection matter. Writing them forces clarity and gives future-you something to build on.
+
+## After you finish
+
+Once you've completed one project:
+- Post it somewhere (GitHub, a Discord, a community forum). The act of sharing forces quality and gets feedback.
+- Notice what you'd want to improve. That's your next project.
+- The second project takes half the time because you already have the environment, the API patterns, and the prompting intuition.
+
+The first project is about proving to yourself that you can finish something. The second one is about doing something more useful. The tenth is when you've developed real intuition.
+
+Start with number one.
+
+---
+
+### [AI Image Editing: Tools and Techniques That Actually Work](https://zro2.one/learn/image-ai-editing-tools-2026)
+> AI image editing has matured beyond gimmicks. Here's what's actually useful in 2026: the tools, the techniques, and the workflows that integrate into real creative work.
+
+AI image editing is different from AI image generation. Generation creates new images from text prompts. Editing modifies existing images — removing objects, changing lighting, extending backgrounds, swapping elements, retouching. Both matter, but editing is where most professional creative work happens.
+
+The state of AI editing tools in 2026 is substantially more useful than it was eighteen months ago. The technology has moved from impressive demos to genuinely reliable production tools.
+
+## The core AI editing capabilities
+
+### Generative fill and inpainting
+
+**What it is:** Select a region of an image, describe what you want there, and AI generates new content that blends with the existing image.
+
+**What it's good for:** Removing unwanted elements (people walking through the background, distracting objects), filling in gaps when an image is cropped awkwardly, adding or changing elements in product photos, extending scenes.
+
+**Where it works best:** Photorealistic scenes where the surrounding context provides strong visual cues. AI inpainting is much better at "fill this with grass and sky" than "add a specific person in a specific pose."
+
+**Where it struggles:** Complex, structured content (text, logos, human faces with specific expressions), areas with strong geometric patterns, anything requiring visual consistency with specific reference images.
+
+**Best tools:** Adobe Photoshop's Generative Fill (powered by Adobe Firefly), Stability AI's Inpainting API, ComfyUI with ControlNet for technical users.
+
+### Background removal and replacement
+
+Background removal has been reliable for a couple of years now (Remove.bg, Photoshop's Select Subject). The more interesting development is AI-powered background *replacement* that matches the lighting and perspective of the subject:
+
+- Cast appropriate shadows
+- Apply consistent color temperature
+- Handle soft-edge blending automatically
+
+This is commercially valuable for product photography, where you want to place products in various settings without reshooting.
+
+**Good tools:** Adobe Firefly (background generation), Canva AI (integrated and beginner-friendly), ComfyUI pipelines for batch processing.
+
+### Generative expand (outpainting)
+
+Extend an image beyond its original borders. Extremely useful for adapting photos to different aspect ratios (square photo → 16:9 for video) or when you need more scene than the original shot captured.
+
+Photoshop's implementation is the most polished: select the canvas area outside the image, use Generative Fill, and the AI extends the scene plausibly. Works well for landscapes, interior spaces, and simple backgrounds. Works less well when extending images containing people (anatomical plausibility is harder).
+
+### Portrait and face editing
+
+AI-assisted face editing has become very capable:
+
+**Retouching:** Realistic skin smoothing, blemish removal, and frequency separation done automatically. What previously required skilled Photoshop work is now a slider in tools like Luminar Neo or Lightroom's AI Masking.
+
+**Expression editing:** Subtle facial expression adjustment — a slight smile, opening eyes that were slightly closed — is possible with portrait-specific tools. Quality has improved enough to be useful for fixing good-but-not-quite shots.
+
+**Age variation:** Experimental but functional. Useful for creative projects; ethically requires explicit consent for any real subjects.
+
+**Face swap:** Technically capable tools exist; use requires clear ethical consideration and varies significantly by jurisdiction in terms of legality. Not covered here as a workflow recommendation.
+
+### Style transfer and artistic editing
+
+Apply the visual style of one image (an artwork, a photo aesthetic, a design style) to another. The output quality varies enormously based on:
+- How distinctive the source style is
+- How compatible the content is with that style
+- The specific tool and model used
+
+Most useful for creative exploration and concept development, less useful for production-quality output without significant post-processing.
+
+## The tools worth knowing
+
+### Adobe Firefly and Photoshop
+
+The most polished and commercially safe option. Adobe Firefly is trained on licensed content (Adobe Stock) with explicit creator consent, which makes the commercial licensing clearer than many alternatives. The Photoshop integration (Generative Fill, Generative Expand) is the most user-friendly implementation of these capabilities.
+
+Best for: creative professionals who need commercially safe, high-quality output in an existing workflow.
+
+### ComfyUI (advanced users)
+
+A node-based interface for Stable Diffusion and related models. Maximum flexibility, maximum complexity. If you want to build custom pipelines — chain multiple AI operations, use ControlNet for pose/structure control, batch process thousands of images — ComfyUI is the tool.
+
+Requires real technical investment but gives capabilities unavailable in any commercial tool.
+
+### Canva AI
+
+The easiest entry point for non-technical users. Background removal, simple Generative Fill, style presets. Won't satisfy professionals but is genuinely useful for marketing teams and content creators without design backgrounds.
+
+### Luminar Neo and Capture One AI
+
+Strong for photography workflows specifically: AI sky replacement, portrait retouching, local adjustments with smart selection. Not for generative work; for AI-assisted photo editing in the traditional sense.
+
+### Clipdrop and Ideogram Canvas
+
+Clipdrop (Stability AI's product) covers the most useful individual editing functions in a simple interface: background removal, relight (changing the lighting in a portrait), uncrop, and cleanup. Good for quick tasks without learning a full application.
+
+## Workflows that actually work
+
+### Product photography at scale
+
+Challenge: You need product images on 20 different backgrounds for seasonal campaigns.
+
+AI workflow:
+1. Shoot products on consistent neutral background
+2. Batch background removal (Clipdrop API or Photoshop actions)
+3. Generative background replacement by category (outdoor, lifestyle, seasonal themes)
+4. Manual QA on 10-20% sample for quality
+
+This is genuinely practical and used by e-commerce teams right now. Estimated 60-70% time reduction vs. traditional reshooting.
+
+### Content image cleanup
+
+Challenge: You have editorial images with distracting elements (photobombers, cables, signage, logos).
+
+AI workflow:
+1. Mark distracting regions (selection tool)
+2. Generative fill to replace
+3. Spot-check and manual touch-up where needed
+
+Works well enough that this is standard practice at media companies using Photoshop.
+
+### Aspect ratio adaptation
+
+Challenge: Images need to work across multiple formats — 1:1 for Instagram, 16:9 for video, 9:16 for Reels, 4:3 for print.
+
+AI workflow:
+1. Start with highest-resolution original
+2. Use Generative Expand to create each target aspect ratio
+3. Review and approve; regenerate if needed
+
+Much faster than reshooting or traditional compositing.
+
+## Honest limitations in 2026
+
+**Text in images:** AI still struggles to generate or maintain legible text in images. If your edit requires text (signs, labels, logos), plan to composite text in separately.
+
+**Fine detail consistency:** Very fine details — jewelry settings, intricate patterns, specific textures — are often distorted or lost. For precision editing of fine details, traditional techniques are still more reliable.
+
+**Photorealistic people:** Full-body realistic people in edited scenes remain challenging. AI figures often have subtle issues: wrong hand count, inconsistent proportions, unnatural joints. Faces work better than full bodies.
+
+**Batch consistency:** When editing many images in a series (e.g., a product catalogue), AI-generated content varies between images. Matching style and lighting across a large batch requires significant QA and sometimes manual adjustment.
+
+## The bottom line
+
+AI image editing is the most immediately practical application of generative AI for creative professionals right now. The tools are mature, the workflows are proven, and the time savings on specific tasks are real.
+
+Start with background removal (easiest, most reliable), move to Generative Fill for cleanup and extension, and layer in more complex techniques as you develop a sense for what works and where to QA carefully.
+
+---
+
+### [Fine-Tuning vs. Prompting: Which Should You Use?](https://zro2.one/learn/llms-fine-tuning-vs-prompting)
+> Before you invest in fine-tuning, make sure you actually need it. This guide breaks down when prompting is enough and when fine-tuning is the right call.
+
+One of the most common mistakes teams make when deploying LLMs is reaching for fine-tuning too early. Fine-tuning feels powerful — and it is — but it comes with real costs: time, money, ongoing maintenance, and the risk of making a model *worse* at things it was originally good at.
+
+Before you fine-tune, you should be able to answer this question clearly: **"What can't I accomplish with prompting alone?"**
+
+## The spectrum of customization
+
+There are four main ways to adapt an LLM to your use case, roughly in order of cost and complexity:
+
+1. **System prompting** — Set instructions, tone, persona, and constraints at the start of every conversation.
+2. **Few-shot prompting** — Give the model examples of the input/output pattern you want.
+3. **RAG (retrieval-augmented generation)** — Inject relevant external information at inference time.
+4. **Fine-tuning** — Update the model's weights on a dataset of examples you control.
+
+Most applications that think they need fine-tuning actually need better prompting, a stronger few-shot strategy, or RAG.
+
+## When prompting is the right answer
+
+Prompting works best when:
+
+- **Your task is well-defined** but the default model behavior just needs direction. A system prompt saying "You are a strict JSON formatter. Return only valid JSON, never prose." is often all you need.
+- **Examples transfer well in-context.** If you can show 5–10 examples in the prompt and the model reliably generalizes, you're done. This is especially true for formatting, tone, and classification.
+- **Your requirements change frequently.** A new system prompt costs nothing. Retraining a fine-tuned model every time your product evolves is painful.
+- **You're using an API with a capable frontier model.** GPT-5, Claude Sonnet, Gemini Ultra — these models are strong enough that the bottleneck is usually your prompts, not the weights.
+
+A good rule of thumb: if you can demonstrate the behavior you want in 10 examples, try few-shot prompting before you do anything else. You might be surprised.
+
+## When RAG beats everything else
+
+If your core problem is *knowledge* — the model doesn't know about your products, your docs, recent events, or internal data — the answer is almost always RAG, not fine-tuning.
+
+Fine-tuning can't reliably "teach" a model new facts the way training data does. It can adjust style, format, and patterns, but for knowledge injection, retrieval is more reliable and much easier to update. You can change your document store without touching the model.
+
+RAG is the right call when:
+- You need up-to-date information the model wasn't trained on
+- You have internal knowledge bases, wikis, or product docs
+- Your facts change (pricing, policies, availability)
+- You need citations or source traceability
+
+## When fine-tuning actually helps
+
+Fine-tuning earns its cost in a narrower set of scenarios:
+
+### 1. Consistent format enforcement at scale
+If you're running millions of inference calls and need output in a very specific schema, fine-tuning can be more reliable (and cheaper per token) than cramming a complex schema into every prompt.
+
+### 2. Tone and style matching
+You want the model to sound like your brand's voice — not just follow instructions to do so, but *internalize* it. A few hundred high-quality examples of your preferred style can produce a model that defaults to it naturally.
+
+### 3. Reducing prompt length at scale
+Every token costs money. If your system prompts are long and repetitive across millions of calls, fine-tuning can let you move some of that instruction into the weights, reducing prompt length and inference cost.
+
+### 4. Domain-specific pattern learning
+If your task involves unusual patterns the base model never saw much of — specialized code syntax, domain jargon with specific conventions, highly structured outputs — fine-tuning on a well-curated dataset can be meaningfully better than prompting.
+
+### 5. Behavioral alignment
+Fine-tuning can make a model more reliably refuse or accept certain content patterns. This is what RLHF and RLAIF are doing at scale — and you can do a smaller version of it for your use case.
+
+## The fine-tuning investment
+
+If you decide fine-tuning makes sense, here's what you're actually signing up for:
+
+**Data collection is the hard part.** You need hundreds to thousands of high-quality (input, ideal_output) pairs. This is not a weekend project. Annotation takes time, domain expertise, and quality control. Bad training data produces bad models.
+
+**Evaluation infrastructure is non-negotiable.** You need to measure whether the fine-tuned model is actually better on your specific task *and* hasn't degraded on general tasks. Without evals, you're flying blind.
+
+**Maintenance overhead.** When the base model updates, your fine-tune can become stale. You may need to re-tune. Factor this into your roadmap.
+
+**Cost.** Fine-tuning frontier models via API (OpenAI, Anthropic) is affordable for small datasets but adds up. Running your own fine-tunes on open models requires GPU access and ML engineering.
+
+## A decision framework
+
+Start here:
+
+```
+Can a well-crafted system prompt accomplish this?
+  YES → Ship it. Iterate on the prompt.
+  
+Can few-shot examples in the prompt accomplish this?
+  YES → Ship it with examples.
+  
+Is the problem "model doesn't know this information"?
+  YES → Build RAG. Do not fine-tune for facts.
+  
+Is the task high-volume, format-critical, or style-specific?
+  And do you have 500+ high-quality examples?
+  YES → Consider fine-tuning. Start with a pilot.
+  NO → Keep prompting.
+```
+
+## In practice: a real example
+
+A team building a customer support assistant had a problem: the model kept giving generic answers when it should refer to specific policy details. Their first instinct was to fine-tune.
+
+After reviewing, the actual issue was: the model didn't have the policies in context. The fix was RAG — embedding their policy docs and retrieving relevant ones per query. Performance improved significantly. No fine-tuning required, deployed in days instead of months.
+
+## The honest summary
+
+Most teams should spend far more time on prompt quality and far less time thinking about fine-tuning. Fine-tuning is a real tool with real value — but it's at the end of the escalation path, not the beginning.
+
+Try prompting. Try few-shot. Try RAG. Then, if you still have a problem that those can't solve, you've probably earned the right to fine-tune.
+
+---
+
+### [Few-Shot Prompting: Teaching Models with Examples](https://zro2.one/learn/prompting-few-shot-guide)
+> Few-shot prompting is one of the most reliable techniques for getting consistent, high-quality LLM outputs. Here's how to use it effectively.
+
+Few-shot prompting is the practice of including examples of the task you want the model to perform — directly in the prompt — before asking it to do the actual task. It's one of the most reliable tools in prompt engineering, and one that many people underuse.
+
+The core idea: show, don't just tell.
+
+## Zero-shot vs. few-shot
+
+**Zero-shot prompting** relies entirely on instructions:
+
+```
+Classify the sentiment of this customer review as positive, negative, or neutral.
+
+Review: "The product arrived quickly but the quality was disappointing."
+```
+
+**Few-shot prompting** adds examples:
+
+```
+Classify the sentiment of this customer review as positive, negative, or neutral.
+
+Examples:
+Review: "Absolutely love this! Will buy again." → positive
+Review: "Broken on arrival, terrible customer service." → negative  
+Review: "It works as described. Nothing special." → neutral
+
+Now classify:
+Review: "The product arrived quickly but the quality was disappointing."
+```
+
+For most classification, extraction, and formatting tasks, few-shot beats zero-shot in both accuracy and consistency. The model learns the *pattern* from your examples rather than interpreting vague instructions.
+
+## Why it works
+
+LLMs are trained to be next-token predictors. When they see a pattern of input→output pairs, they recognize the pattern and extend it to new inputs. This is called **in-context learning** — the model "learns" from examples in the context without any weight updates.
+
+The examples do several things simultaneously:
+- Show the exact output *format* you want (without having to describe it)
+- Demonstrate the *judgment* to apply in ambiguous cases
+- Establish the *tone* and *level of detail* appropriate for the task
+- Calibrate the model to your specific domain and conventions
+
+This is more efficient than trying to describe all of these properties in instructions, because descriptions are often underspecified and examples are concrete.
+
+## How to write good examples
+
+### Cover the important cases, not just the easy ones
+
+A common mistake: including only clear, unambiguous examples. Your model will be fine on those anyway. What you need is examples that demonstrate how to handle the tricky cases.
+
+If you're classifying sentiment:
+- Include clear positives and negatives (to establish the pattern)
+- Include *mixed* reviews (clearly show how to handle when quality and shipping disagree)
+- Include *neutral* or ambiguous cases (show the boundary)
+
+If you're extracting information:
+- Include examples where the field is clearly present
+- Include examples where the field is absent or unclear (show what to output in those cases)
+- Include examples with unusual formatting or wording
+
+### Make your examples representative of real inputs
+
+Don't use toy examples that don't resemble your actual inputs. If your customers write short, informal reviews full of abbreviations, your examples should look like that — not formal, full-sentence product descriptions.
+
+The more your examples resemble the actual inputs the model will encounter, the better the pattern transfer.
+
+### Keep the format consistent
+
+Every example should have exactly the same format. If your first example uses "Input:" / "Output:", they all should. If your first example separates input from output with "→", they all should. Inconsistency in example format confuses the model about what's format and what's content.
+
+**Consistent:**
+```
+Input: "Great product!"
+Output: positive
+
+Input: "Doesn't work at all."
+Output: negative
+```
+
+**Inconsistent (avoid):**
+```
+"Great product!" → positive
+
+Input: "Doesn't work at all."
+Classification: negative
+```
+
+### Match example length to your target output
+
+If you want a one-word classification, your examples should show one-word outputs. If you want a structured JSON object, your examples should show complete JSON objects. The model calibrates output length and format from your examples.
+
+## How many examples?
+
+The right number depends on the task complexity:
+
+**Simple pattern tasks (classification, format conversion, simple extraction):** 3-5 examples usually establish the pattern clearly. More examples rarely help much after a point.
+
+**Nuanced judgment tasks (quality assessment, complex categorization, subjective decisions):** 8-15 examples help cover more of the decision space and demonstrate edge case handling.
+
+**Novel or unusual formats:** More examples help because the model needs more signal to recognize and extend an unfamiliar pattern.
+
+**Practical constraint:** Each example uses tokens. For high-volume applications, there's a cost to many examples. Find the minimum number that achieves your quality threshold.
+
+## Choosing which examples to show
+
+Not all examples are equal. For the best results:
+
+**Select for diversity:** Don't show 5 positive examples and 1 negative. Represent the distribution of real inputs, with emphasis on hard cases.
+
+**Order from simple to complex:** Start with clear examples, then edge cases. This helps the model build up an understanding progressively.
+
+**Dynamic example selection:** For applications where you have a large example bank, use embedding-based retrieval to select the most relevant examples for each specific input. A review about shipping is better served by examples involving shipping than examples about product quality.
+
+Example selection is an area where thoughtful engineering pays off. Building a curated example library and selecting from it per-query is a pattern used by many production systems.
+
+## Chain-of-thought in examples
+
+For reasoning tasks, including the *reasoning process* in your examples (not just the final answer) can dramatically improve accuracy. This is the chain-of-thought prompting pattern applied to few-shot examples.
+
+**Without chain-of-thought:**
+```
+Question: If a train leaves Chicago at 2pm going 80mph, and arrives in Detroit (280 miles away) at what time?
+Answer: 5:30pm
+```
+
+**With chain-of-thought:**
+```
+Question: If a train leaves Chicago at 2pm going 80mph, and arrives in Detroit (280 miles away) at what time?
+Reasoning: Distance = 280 miles, Speed = 80 mph. Time = 280/80 = 3.5 hours. 2:00pm + 3.5 hours = 5:30pm.
+Answer: 5:30pm
+```
+
+When the examples show the reasoning, the model tends to perform similar reasoning on new problems — even when you don't explicitly tell it to reason step by step.
+
+## Few-shot for output format control
+
+One of the most reliable uses of few-shot prompting is establishing complex output formats. Rather than describing your desired JSON schema in prose (which often leads to inconsistent output), show examples of exactly what you want:
+
+```
+Extract structured data from customer feedback. Return JSON.
+
+Example 1:
+Feedback: "Shipping was super fast but the box was damaged. Product inside was fine though."
+Output: {
+  "shipping_speed": "positive",
+  "packaging": "negative",
+  "product_quality": "positive",
+  "overall_sentiment": "mixed"
+}
+
+Example 2:
+Feedback: "Love it! Perfect for my needs. Will recommend."
+Output: {
+  "shipping_speed": null,
+  "packaging": null,
+  "product_quality": "positive",
+  "overall_sentiment": "positive"
+}
+
+Now extract from:
+Feedback: "Arrived in 2 days which was great. The color was slightly off from the photos."
+```
+
+The model learns the exact schema from examples — including how to handle fields where information isn't present (null, not an empty string or "unknown"). This is more reliable than a prose description.
+
+## When few-shot isn't the answer
+
+Few-shot prompting doesn't help when:
+- **The model fundamentally lacks the knowledge.** Examples can't teach a model facts it wasn't trained on. Use RAG for knowledge injection.
+- **The task requires specific tool capabilities** (browsing, calculation). Examples of reasoning don't substitute for actual tools.
+- **You have 500+ labeled examples.** At that scale, fine-tuning is worth evaluating — it's more efficient and can produce better results than cramming examples into every prompt.
+- **You need very long context.** Many examples consume significant context budget. On very long inputs, you may need to choose between context length and examples.
+
+## Combining few-shot with other techniques
+
+Few-shot works well in combination:
+- **Few-shot + system prompt:** Use the system prompt for persona and constraints; use few-shot examples for task pattern
+- **Few-shot + chain-of-thought:** Show reasoning in examples for complex tasks
+- **Few-shot + output format enforcement:** Use structured outputs API on top of examples for maximum format reliability
+- **Few-shot + dynamic retrieval:** Select examples per query based on semantic similarity
+
+The combination of a clear system prompt + 5-10 carefully chosen examples + structured output constraints is one of the most reliable patterns for production LLM tasks. It covers instruction, demonstration, and format enforcement — addressing the three main ways prompt outputs go wrong.
+
+---
+
+### [AI Video Understanding: Transcription, Summarization, and Analysis](https://zro2.one/learn/video-ai-understanding-and-analysis)
+> AI can now extract meaningful information from video at scale. Here's what's practical in 2026: transcription pipelines, video summarization, content analysis, and the tools to build them.
+
+Video is the format most human knowledge now lives in — meetings, training, presentations, interviews, educational content, product demos. Most of this is effectively unsearchable: you can't Ctrl+F a recording, and watching hours of video to find one relevant segment is painfully slow.
+
+AI video understanding tools are changing this. Here's what works now.
+
+## The core capabilities
+
+### Transcription
+
+Automated speech recognition (ASR) has become accurate enough for most production use cases. Whisper (OpenAI) set a new quality bar in 2022 and remains the most widely deployed model, but several alternatives now compete at similar quality:
+
+- **OpenAI Whisper:** Open-source, very high accuracy, supports 99 languages. Available as an API or self-hosted.
+- **Deepgram:** Commercial API with strong real-time and batch transcription. Nova-3 model is competitive with Whisper on accuracy, faster for real-time.
+- **AssemblyAI:** Adds speaker diarization, sentiment, topic detection, auto-chapters on top of ASR.
+- **Rev.ai:** Higher accuracy for difficult audio (heavy accents, poor recording conditions) via hybrid human+AI.
+- **Google Cloud Speech-to-Text:** Competitive, integrates well in GCP ecosystems.
+
+For most use cases, Whisper (via API or self-hosted) is the right starting point. Self-hosting with `faster-whisper` on a single GPU processes roughly 5-10x real-time (1 hour of audio in 6-12 minutes) at near-zero marginal cost.
+
+```python
+from faster_whisper import WhisperModel
+
+model = WhisperModel("large-v3", device="cuda", compute_type="float16")
+
+segments, info = model.transcribe("meeting_recording.mp4", beam_size=5)
+
+transcript_with_timestamps = []
+for segment in segments:
+    transcript_with_timestamps.append({
+        "start": segment.start,
+        "end": segment.end,
+        "text": segment.text.strip()
+    })
+```
+
+### Speaker diarization
+
+Knowing *who said what* is often as important as *what was said*. Speaker diarization assigns speaker labels to transcript segments.
+
+**pyannote.audio** is the open-source standard:
+
+```python
+from pyannote.audio import Pipeline
+import torch
+
+pipeline = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization-3.1",
+    use_auth_token="your-hf-token"
+)
+pipeline.to(torch.device("cuda"))
+
+diarization = pipeline("meeting.mp4")
+
+# Combine with transcript using timestamp alignment
+for turn, _, speaker in diarization.itertracks(yield_label=True):
+    print(f"[{turn.start:.2f}s - {turn.end:.2f}s] {speaker}")
+```
+
+Combined with Whisper transcription and timestamp alignment, this produces labeled transcripts:
+
+```
+[0:00 - 0:12] SPEAKER_1: Let's get started with the Q3 review.
+[0:13 - 0:45] SPEAKER_2: Sure, I'll start with the revenue numbers...
+```
+
+### Video summarization
+
+Once you have a transcript, LLM summarization is straightforward. The non-trivial parts are:
+
+**Handling long videos:** A 2-hour meeting transcript might be 30,000+ words — too long for a single LLM call. Strategies:
+- **Chunked summarization:** Summarize each 10-minute segment, then summarize the summaries
+- **Hierarchical summarization:** Multiple levels of summary for different detail needs
+- **Map-reduce:** Parallel summarization of chunks, then synthesis
+
+**Structured summaries:** Generic "summarize this" produces generic output. Better prompts produce structured, usable output:
+
+```python
+prompt = """You are analyzing a transcript of a business meeting.
+
+Produce a structured summary with:
+1. MEETING OVERVIEW (2-3 sentences: purpose, attendees, outcome)
+2. KEY DECISIONS (bulleted list — only actual decisions made, not discussions)
+3. ACTION ITEMS (format: "- [Name] will [action] by [deadline if mentioned]")
+4. OPEN QUESTIONS (unresolved questions that require follow-up)
+5. KEY TOPICS DISCUSSED (brief bullet for each major topic, with approximate timestamp)
+
+Transcript:
+{transcript}
+"""
+```
+
+**Topic segmentation:** Identify when the meeting shifts topics and label each segment. Useful for creating navigable meeting recordings.
+
+### Visual content analysis
+
+Pure transcription misses what's visible in the video — slides, demos, whiteboards, product demonstrations, non-verbal cues.
+
+For slide and document content in recordings:
+1. Extract frames at regular intervals or on scene changes
+2. OCR or vision model analysis per frame
+3. Merge visual content with timestamped transcript
+
+```python
+import cv2
+from openai import OpenAI
+import base64
+
+client = OpenAI()
+
+def analyze_frame(frame_data: bytes) -> str:
+    base64_image = base64.b64encode(frame_data).decode('utf-8')
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Describe what's on screen. If there are slides or text, transcribe the key content."},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                ]
+            }
+        ],
+        max_tokens=300
+    )
+    return response.choices[0].message.content
+
+# Sample frames at 1 per second
+cap = cv2.VideoCapture("presentation.mp4")
+fps = cap.get(cv2.CAP_PROP_FPS)
+frame_analyses = []
+
+frame_number = 0
+while cap.isOpened():
+    ret, frame = cap.read()
+    if not ret:
+        break
+    
+    if frame_number % int(fps) == 0:  # Once per second
+        timestamp = frame_number / fps
+        _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        analysis = analyze_frame(buffer.tobytes())
+        frame_analyses.append({"timestamp": timestamp, "content": analysis})
+    
+    frame_number += 1
+
+cap.release()
+```
+
+### Native multimodal video analysis with Gemini
+
+For shorter videos (under 1 hour), Google's Gemini API can process video natively:
+
+```python
+import google.generativeai as genai
+
+genai.configure(api_key="your-api-key")
+model = genai.GenerativeModel("gemini-2.0-flash")
+
+# Upload video file
+video_file = genai.upload_file("demo_video.mp4")
+
+# Wait for processing
+import time
+while video_file.state.name == "PROCESSING":
+    time.sleep(2)
+    video_file = genai.get_file(video_file.name)
+
+# Query the video
+response = model.generate_content([
+    video_file,
+    "Summarize the key product features shown in this demo video. Include specific timestamps for each feature."
+])
+
+print(response.text)
+```
+
+Gemini processes video natively — it sees the frames and hears the audio without your having to extract them separately. Quality is strong for general-purpose video understanding tasks.
+
+## Production pipeline architecture
+
+For a production video intelligence system:
+
+```
+Video Input
+    ↓
+[Stage 1: Audio extraction + Whisper transcription]
+    ↓
+[Stage 2: Speaker diarization + timestamp alignment]
+    ↓
+[Stage 3: Frame extraction + scene detection]
+    ↓
+[Stage 4: Frame analysis (slides, whiteboards, screen content)]
+    ↓
+[Stage 5: Multimodal merge — transcript + visual content + timestamps]
+    ↓
+[Stage 6: LLM synthesis — summaries, action items, topics]
+    ↓
+[Output: Searchable transcript, structured summary, topic index]
+```
+
+**Key considerations:**
+- Parallelize stages 2, 3, and 4 — they're independent
+- Cache intermediate results (transcripts, frame analyses) to avoid reprocessing
+- Build a search index over the timestamped transcript chunks (embeddings + BM25)
+- Store structured outputs (action items, decisions) in a database, not just text
+
+## Real applications being built now
+
+**Meeting intelligence:** Automated notes, action items, and summaries from Zoom/Teams recordings. Companies like Otter, Fireflies, and Notion AI are commercial implementations. Building a custom version is straightforward with Whisper + LLM.
+
+**Training and onboarding content indexing:** Make hours of instructional video searchable by topic and question. "What did the training say about the refund policy?" becomes answerable.
+
+**Legal and compliance:** Deposition transcription with speaker attribution, automated compliance review of recorded customer service calls.
+
+**Education:** Automatic chapter creation, quiz generation from lecture content, topic-based navigation of course recordings.
+
+**Media production:** B-roll discovery in large footage archives, automated logging, content identification for licensing.
+
+**Customer interviews:** Insight extraction across user research recordings at scale.
+
+## Cost and latency benchmarks
+
+For a rough 1-hour video:
+- Whisper transcription (self-hosted, GPU): ~6-10 minutes, ~$0.01-0.05 marginal cost
+- Whisper API: ~$0.36 (at $0.006/minute)
+- Speaker diarization: ~3-5 minutes self-hosted, $0.05-0.15 via API
+- LLM summarization (1hr transcript): ~$0.05-0.20 depending on model and length
+- Frame analysis (sampled): $0.10-0.50 depending on sampling rate and model
+
+Total cost for full analysis of a 1-hour meeting: roughly $0.20-1.00. At scale, self-hosting ASR and diarization is significantly cheaper.
+
+The tools and the economics are both mature enough for production. If your organization has significant video content that's currently unsearchable, this is a high-ROI application area.
+
+---
 
 ### [Deep Learning Optimization in Practice — Getting Models to Train Faster and Better](https://zro2.one/learn/deep-learning-optimization-practical-guide)
 > Practical techniques for stable deep learning training: optimizers, schedules, normalization, and debugging loss curves.
@@ -9384,6 +11496,929 @@ Welcome to the AI age. You're going to do great. 🚀
 ---
 
 ## Building with AI
+
+### [AI Glossary: Builder's Edition](https://zro2.one/learn/ai-glossary-builders-edition)
+> The terms you actually need when building AI-powered products: from inference basics to deployment patterns, defined plainly for people who ship things.
+
+This isn't a glossary for observers. It's for people who are building AI products and keep hitting terms they half-understand. Clear definitions, without the hype, organized by where you'll encounter them.
+
+---
+
+## Inference & Generation
+
+**Inference**
+Running a trained model on new input to get a prediction or output. When you call an AI API, you're running inference. Contrasted with *training*, which is where the model learns from data.
+
+**Token**
+The basic unit of text that LLMs process. Not exactly words — tokens can be word fragments, punctuation, or whole common words depending on the tokenizer. "Unbelievable" might be 3-4 tokens. A rough rule: 1 token ≈ 0.75 words in English. Token limits and costs are both denominated in tokens.
+
+**Context window**
+The maximum amount of text a model can consider at once — both the input you send and the output it generates. Measured in tokens. A 128k context window can hold roughly 100,000 words. Input beyond this limit gets truncated (or causes an error, depending on the API).
+
+**Prompt**
+The text you send to a model. In chat APIs, this includes system prompts, conversation history, and the current user message.
+
+**System prompt**
+Instructions you send before the conversation that shape the model's behavior, persona, and constraints for the entire session. Most chat APIs support this as a distinct role separate from user messages.
+
+**Temperature**
+A parameter controlling how random the model's outputs are. Low temperature (near 0) makes outputs more deterministic and focused. High temperature increases variety and creativity. Most APIs default to around 1.0.
+
+**Top-p (nucleus sampling)**
+An alternative to temperature that limits sampling to the smallest set of tokens whose combined probability exceeds p. Top-p = 0.9 means the model samples only from tokens that collectively make up 90% of the probability mass. Often used together with temperature.
+
+**Max tokens / max completion tokens**
+The maximum number of tokens the model will generate in its response. Doesn't guarantee the model uses all of them — it stops when it's done, at a stop sequence, or at the limit.
+
+**Stop sequence**
+A string (or list of strings) that, when generated, causes the model to stop producing output. Useful for constraining outputs to formats: e.g., stop at `\n` to get single-line outputs, or stop at `###` in structured generation.
+
+**Streaming**
+Receiving model output token by token as it's generated, rather than waiting for the complete response. Dramatically improves perceived latency in user-facing applications. Supported by most major APIs.
+
+**Logprobs**
+Log probabilities assigned to each output token. Some APIs expose these. Useful for: calibrating confidence, detecting when the model is uncertain, computing perplexity, filtering outputs.
+
+---
+
+## Models & Capabilities
+
+**Foundation model**
+A large model trained on broad data at scale, designed to be adapted for many tasks. GPT-5, Claude Sonnet, Gemini Pro — these are foundation models. Contrasted with task-specific models trained for one narrow purpose.
+
+**Multimodal model**
+A model that can process multiple types of input — typically text plus images, and sometimes audio or video. GPT-4V, Claude Sonnet, Gemini — all multimodal.
+
+**MLLM (Multimodal Large Language Model)**
+Specifically a large language model extended to handle multimodal inputs. The language model backbone is the same; multimodal inputs are encoded and projected into the model's representation space.
+
+**Fine-tuning**
+Continuing to train a pre-trained model on a curated dataset to adapt it for a specific task, style, or domain. Changes the model's weights. Contrasted with prompting, which adapts behavior without changing weights.
+
+**RLHF (Reinforcement Learning from Human Feedback)**
+A training technique used to align models with human preferences. Humans rate model outputs; a reward model is trained on those ratings; the LLM is then optimized to maximize reward. Used in essentially all frontier chat models.
+
+**Embedding**
+A dense numerical vector representing a piece of text (or image, audio, etc.) in high-dimensional space. Similar meaning = similar vectors. Embeddings enable semantic search, clustering, and classification without task-specific training.
+
+**Context length vs. effective context**
+The difference between how many tokens a model *can* process and how many it can effectively *use*. A model with a 1M context window may still degrade on tasks requiring reasoning across the full length. Effective context is often shorter than the spec sheet suggests.
+
+---
+
+## Architecture & APIs
+
+**Endpoint**
+The specific API URL you call to get a model response. Chat completions, embeddings, image generation, and speech synthesis are all different endpoints on most platforms.
+
+**Completion**
+The model's output — a "completion" of your input. The term comes from text completion; in modern chat APIs, the full response to your messages.
+
+**Function calling / tool use**
+A capability where models can output structured calls to functions you define, rather than (or in addition to) prose. The model decides when to use a tool, what arguments to pass, and you execute the function and return the result. Enables agents that take actions.
+
+**Structured outputs**
+API-level guarantees that model output conforms to a specified JSON schema. More reliable than asking the model to output JSON in a prompt — the model is constrained at the generation level to produce valid, schema-conforming output.
+
+**RAG (Retrieval-Augmented Generation)**
+Architecture where relevant documents are retrieved at inference time and injected into the prompt context before the model generates a response. Gives models access to external knowledge without fine-tuning.
+
+**Vector database**
+A database optimized for storing and querying embedding vectors by similarity. Used in RAG systems to find chunks of text semantically similar to a query. Common options: Pinecone, Weaviate, Qdrant, pgvector.
+
+**Chunking**
+Splitting large documents into smaller pieces before embedding them for RAG. Chunk size affects retrieval quality — too large loses precision, too small loses context. Typical: 256–1024 tokens with overlap.
+
+---
+
+## Deployment & Operations
+
+**Latency**
+Time from sending a request to receiving the complete response. Matters a lot in user-facing applications. Streaming reduces *perceived* latency even when total latency is the same.
+
+**Throughput**
+Requests per second (or tokens per second) the system can handle. Relevant when you need to process large volumes of data.
+
+**Rate limiting**
+API usage limits imposed per minute, hour, or day — in terms of requests or tokens. Hitting rate limits causes errors. Plan around them with queuing, retries with backoff, or higher-tier plans.
+
+**Token cost**
+Most APIs charge per input token and per output token, at different rates. Output tokens cost more than input tokens (generating is harder than reading). At scale, optimize for fewer input tokens (tighter prompts) and output tokens (concise responses).
+
+**Latency vs. quality tradeoff**
+Smaller, faster models have higher latency performance but lower quality ceilings. Larger, more capable models are slower and more expensive. Most production systems route between models by task complexity.
+
+**Prompt caching**
+API feature where prefix portions of prompts are cached and not recomputed on repeated calls. If your system prompt is long and repeated across many calls, caching can dramatically reduce costs and latency. Anthropic and Google support this; check provider docs for specifics.
+
+**Fallback**
+Automatic switching to an alternative model or provider when the primary fails or is rate-limited. Essential for production reliability. Implement with exponential backoff and circuit breakers.
+
+**Eval (evaluation)**
+A test suite for your AI system. Defines inputs and expected outputs (or quality criteria), measures whether the system meets them. Without evals, you can't tell if changes made things better or worse.
+
+**LLM-as-judge**
+Using an LLM to evaluate the output of another LLM. Common for assessing open-ended quality (accuracy, helpfulness, format compliance) at scale. Requires careful prompt design to reduce bias; correlates reasonably well with human judgment on many tasks.
+
+---
+
+## Agents & Orchestration
+
+**Agent**
+An AI system that takes actions in the world — calling tools, browsing the web, writing and executing code, interacting with APIs — based on LLM reasoning. Contrasted with chatbots that only generate text.
+
+**ReAct (Reason + Act)**
+A prompting pattern for agents where the model alternates between reasoning steps (Thought) and actions (Action/Observation). Makes the model's reasoning process explicit and allows it to update based on tool results.
+
+**Agentic loop**
+The cycle in an agent system: model generates output → actions are taken → results fed back to model → model generates next output. Can run for many iterations.
+
+**Orchestrator**
+Code (or a model) that manages multiple agents or tools — routing tasks, managing state, handling failures, combining results.
+
+**Memory (agent context)**
+How agents maintain information across multiple turns or sessions. Types: in-context (in the prompt), external (stored in a database and retrieved), procedural (stored in the agent's instructions).
+
+**Tool**
+A function an agent can call. Could be a web search, a calculator, a database query, an API call, code execution — anything with a defined interface the model can invoke.
+
+**Guardrails**
+Checks and constraints applied to agent inputs and outputs. Input guardrails block harmful requests before they reach the model. Output guardrails validate or filter model responses before they're returned or acted on.
+
+---
+
+The pace of new terminology in AI is fast enough that this list will grow. When you hit an unfamiliar term in a doc or paper: look for the original paper that introduced it — definitions are usually clearest there.
+
+---
+
+### [LLM Function Calling and Tool Use: A Developer's Guide](https://zro2.one/learn/llm-api-function-calling-guide)
+> Function calling lets LLMs trigger real actions instead of just generating text. Here's how it works across major APIs, patterns that work, and pitfalls to avoid.
+
+Function calling is the capability that turns an LLM from a text generator into an action-taking agent. Instead of just answering "The weather in Chicago is 34°F and cloudy," a model with function calling can *actually call your weather API*, retrieve real-time data, and then answer accurately.
+
+Understanding how function calling works — and how to use it well — is one of the most important skills in modern AI development.
+
+## The core idea
+
+When you use function calling, you tell the model about functions it can invoke. The model decides when a function is needed, generates a structured call with appropriate arguments, and then *stops* — waiting for you to execute the function and return the result.
+
+The sequence:
+1. You send the model a user message + a list of available tools (function definitions)
+2. The model generates a tool call (or calls) with arguments
+3. Your code executes the function with those arguments
+4. You send the result back to the model
+5. The model generates a final response incorporating the tool result(s)
+
+This loop can repeat multiple times. The model can call multiple tools in sequence, processing results from one to inform the next call.
+
+## How it looks in code (OpenAI API)
+
+```python
+import openai
+import json
+
+client = openai.OpenAI()
+
+# Define your tools
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather for a location. Use this when the user asks about weather conditions.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "City and state, e.g. 'Chicago, IL' or 'London, UK'"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "Temperature unit"
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+
+def get_weather(location: str, unit: str = "fahrenheit") -> dict:
+    # Your actual weather API call here
+    return {"temperature": 34, "conditions": "cloudy", "location": location}
+
+# Initial request
+messages = [{"role": "user", "content": "What's the weather in Chicago?"}]
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=messages,
+    tools=tools,
+    tool_choice="auto"  # Let the model decide when to use tools
+)
+
+# Check if the model wants to call a function
+message = response.choices[0].message
+if message.tool_calls:
+    # Add the assistant's message (with tool call) to conversation
+    messages.append(message)
+    
+    # Execute each tool call
+    for tool_call in message.tool_calls:
+        function_name = tool_call.function.name
+        arguments = json.loads(tool_call.function.arguments)
+        
+        # Call the function
+        if function_name == "get_weather":
+            result = get_weather(**arguments)
+        
+        # Add the tool result to conversation
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call.id,
+            "content": json.dumps(result)
+        })
+    
+    # Get final response
+    final_response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        tools=tools
+    )
+    print(final_response.choices[0].message.content)
+```
+
+## Anthropic API (Claude)
+
+Claude uses a similar pattern with slightly different naming:
+
+```python
+import anthropic
+import json
+
+client = anthropic.Anthropic()
+
+tools = [
+    {
+        "name": "get_weather",
+        "description": "Get the current weather for a location.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "City and state or country"
+                }
+            },
+            "required": ["location"]
+        }
+    }
+]
+
+response = client.messages.create(
+    model="claude-sonnet-4-5",
+    max_tokens=1024,
+    tools=tools,
+    messages=[{"role": "user", "content": "What's the weather in Chicago?"}]
+)
+
+# Handle tool use blocks
+if response.stop_reason == "tool_use":
+    tool_use_block = next(b for b in response.content if b.type == "tool_use")
+    tool_result = get_weather(**tool_use_block.input)
+    
+    # Continue the conversation with tool result
+    final = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=1024,
+        tools=tools,
+        messages=[
+            {"role": "user", "content": "What's the weather in Chicago?"},
+            {"role": "assistant", "content": response.content},
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": tool_use_block.id,
+                        "content": json.dumps(tool_result)
+                    }
+                ]
+            }
+        ]
+    )
+```
+
+## Writing good function descriptions
+
+**The description is the most important part.** The model uses your function descriptions — not just the name and parameters — to decide when and how to call a function. Vague descriptions produce unreliable tool selection.
+
+**Good description:**
+```json
+{
+    "name": "search_products",
+    "description": "Search the product catalog for items matching a query. Use this when the user is looking for specific products, asking about availability, or comparing product options. Returns a list of matching products with prices and availability."
+}
+```
+
+**Poor description:**
+```json
+{
+    "name": "search_products",
+    "description": "Search for products"
+}
+```
+
+Rules for good descriptions:
+- Describe *when* to call the function, not just what it does
+- Describe what the function returns (helps the model use the result correctly)
+- Be specific about the scope — what kinds of queries this handles
+- Note any important limitations ("only returns in-stock items", "limited to the US catalog")
+
+**Parameter descriptions matter equally:**
+```json
+"location": {
+    "type": "string",
+    "description": "City and country in the format 'City, Country'. Examples: 'Paris, France', 'Tokyo, Japan'. Do not use abbreviations."
+}
+```
+
+Format hints in parameter descriptions significantly reduce argument parsing errors.
+
+## Tool choice control
+
+All major APIs let you control how the model uses tools:
+
+- **`auto`**: Model decides when to use tools (most common)
+- **`none`**: Force text-only response, ignore tools
+- **`required`**: Model must call at least one tool
+- **Specific tool**: Force the model to call a specific function
+
+Use `required` when you need structured data extraction — you're essentially using function calling as a structured output mechanism, not an action mechanism.
+
+```python
+# Force the model to call a specific extraction function
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Extract info from this receipt: ..."}],
+    tools=tools,
+    tool_choice={"type": "function", "function": {"name": "extract_receipt_data"}}
+)
+```
+
+## Structured outputs via function calling
+
+One of the most reliable ways to get consistently structured JSON output is to define a "function" that doesn't actually do anything — it's just a schema definition. Force the model to call it, and the arguments are your structured output.
+
+```python
+extraction_tool = {
+    "type": "function",
+    "function": {
+        "name": "extract_data",
+        "description": "Extract the requested information from the provided text.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "company_name": {"type": "string"},
+                "revenue": {"type": "number", "description": "Revenue in USD"},
+                "employees": {"type": "integer"},
+                "founded_year": {"type": "integer"}
+            },
+            "required": ["company_name", "revenue"]
+        }
+    }
+}
+
+# Use tool_choice to force this function
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": f"Extract company info from: {text}"}],
+    tools=[extraction_tool],
+    tool_choice={"type": "function", "function": {"name": "extract_data"}}
+)
+
+# The arguments are your structured output — guaranteed to match the schema
+extracted = json.loads(response.choices[0].message.tool_calls[0].function.arguments)
+```
+
+This is more reliable than `response_format: { type: "json_object" }` for complex schemas because the model is constrained to match your schema exactly.
+
+## Parallel function calling
+
+Models can call multiple functions in a single response. This is useful when multiple independent lookups are needed:
+
+```
+User: "Compare the weather in Chicago and New York"
+Model: [calls get_weather("Chicago") AND get_weather("New York") simultaneously]
+```
+
+When handling parallel calls, execute them concurrently and return all results before asking for the final response:
+
+```python
+import asyncio
+
+if message.tool_calls:
+    messages.append(message)
+    
+    # Execute all tool calls in parallel
+    async def execute_tool(tool_call):
+        args = json.loads(tool_call.function.arguments)
+        result = await async_get_weather(**args)  # Your async implementation
+        return tool_call.id, result
+    
+    results = await asyncio.gather(*[execute_tool(tc) for tc in message.tool_calls])
+    
+    for tool_call_id, result in results:
+        messages.append({
+            "role": "tool",
+            "tool_call_id": tool_call_id,
+            "content": json.dumps(result)
+        })
+```
+
+## Common pitfalls
+
+**Inconsistent argument formats:** The model will generate arguments based on your description. If you say "ISO 8601 date format" but don't validate, you'll occasionally get other formats. Always validate and sanitize function arguments before executing.
+
+**Trusting tool results blindly:** The model will incorporate tool results into its reasoning. If your tool returns incorrect or unexpected data, the model will reason from it confidently. Validate tool outputs before returning them.
+
+**Too many tools:** Providing 20+ tools leads to poor tool selection. Group related functionality or use routing logic to provide only relevant tools for a given context.
+
+**Missing error handling in tool results:** Tell the model when a tool fails:
+```python
+try:
+    result = get_weather(**args)
+except Exception as e:
+    result = {"error": str(e), "status": "failed"}
+```
+The model can then handle errors gracefully rather than reasoning from an empty result.
+
+**Security — LLM injection through tool results:** If tool results include content from external sources (web pages, user-submitted data), that content can contain prompt injections that alter the model's behavior. Sanitize or isolate external content in tool results.
+
+## Function calling as an agent framework
+
+The agentic loop — model → tools → model → tools → ... — is the foundation of modern AI agents. Libraries like LangChain, LlamaIndex, and Anthropic's own agent tooling are built on exactly this pattern.
+
+For simple agents (1-3 tools, clear task boundaries), building the loop yourself is often cleaner than adopting a framework. For complex multi-agent systems with many tools, routing logic, and state management, frameworks start to earn their weight.
+
+Understanding the raw API mechanics gives you the foundation to use any framework effectively — and to debug it when it doesn't work the way you expect.
+
+---
+
+### [Multimodal Search: Finding Content Across Text, Images, and Audio](https://zro2.one/learn/multimodal-ai-search)
+> Multimodal search lets you find images with text queries, match audio to descriptions, and bridge modalities. Here's how it works and how to build it.
+
+Traditional search works within a modality: you search text with text queries, find images by their text metadata, locate audio by filename or tag. Multimodal search breaks this constraint — finding images by describing them in natural language, finding audio clips by describing their content, or using an image to find related images without any text at all.
+
+This is increasingly practical to build, and the applications are commercially significant: product search by image, video content discovery, medical image retrieval, music discovery by mood description.
+
+## The foundational idea: a shared embedding space
+
+Multimodal search works by projecting different modalities into a **shared embedding space** where semantic similarity is meaningful across modalities.
+
+Concretely: if you encode "a golden retriever playing fetch on a beach" (text) and an actual photo of that scene (image), a good multimodal model will produce embeddings that are close to each other in vector space. You can then search images using a text query — find images whose embeddings are nearest to your query embedding.
+
+The key insight: **semantic meaning can be shared across modalities even though the raw data looks completely different.** The word "beach" and a photograph of a beach share something, and that something can be represented in a common vector space.
+
+## CLIP: the model that made this practical
+
+**CLIP** (Contrastive Language-Image Pre-training), from OpenAI (2021), is the most important development in multimodal search. CLIP is trained on hundreds of millions of image-text pairs from the internet using a contrastive objective:
+
+- Push together the embeddings of matching image-text pairs
+- Push apart the embeddings of non-matching pairs
+- Do this simultaneously for a batch of many pairs
+
+The result: an image encoder and a text encoder that share a representation space. Text and image embeddings from CLIP are genuinely comparable — you can compute cosine similarity between a text embedding and an image embedding to measure semantic relevance.
+
+CLIP's practical impact was immediate: suddenly text-to-image search was achievable with reasonable quality, without labeling millions of images with text.
+
+## Building text-to-image search
+
+Here's the basic architecture:
+
+### Step 1: Embed your image library
+
+```python
+from transformers import CLIPProcessor, CLIPModel
+import torch
+from PIL import Image
+import numpy as np
+
+model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+
+def embed_image(image_path: str) -> np.ndarray:
+    image = Image.open(image_path)
+    inputs = processor(images=image, return_tensors="pt", padding=True)
+    with torch.no_grad():
+        embedding = model.get_image_features(**inputs)
+    # Normalize to unit sphere (important for cosine similarity)
+    embedding = embedding / embedding.norm(dim=-1, keepdim=True)
+    return embedding.numpy().squeeze()
+
+# Embed all images in your library
+embeddings = {}
+for image_path in your_image_paths:
+    embeddings[image_path] = embed_image(image_path)
+```
+
+### Step 2: Index in a vector store
+
+```python
+import qdrant_client
+from qdrant_client.models import VectorParams, Distance
+
+client = qdrant_client.QdrantClient(host="localhost", port=6333)
+
+# Create collection
+client.create_collection(
+    collection_name="images",
+    vectors_config=VectorParams(size=768, distance=Distance.COSINE)
+)
+
+# Insert embeddings
+client.upsert(
+    collection_name="images",
+    points=[
+        {"id": i, "vector": emb.tolist(), "payload": {"path": path}}
+        for i, (path, emb) in enumerate(embeddings.items())
+    ]
+)
+```
+
+### Step 3: Search with text queries
+
+```python
+def search_images(query: str, top_k: int = 10) -> list:
+    # Embed the text query
+    inputs = processor(text=[query], return_tensors="pt", padding=True)
+    with torch.no_grad():
+        text_embedding = model.get_text_features(**inputs)
+    text_embedding = text_embedding / text_embedding.norm(dim=-1, keepdim=True)
+    
+    # Search vector store
+    results = client.search(
+        collection_name="images",
+        query_vector=text_embedding.numpy().squeeze().tolist(),
+        limit=top_k
+    )
+    
+    return [r.payload["path"] for r in results]
+
+# Use it
+results = search_images("sunset over ocean with dramatic clouds")
+```
+
+This is the complete core of a text-to-image search system. Production systems add caching, batching, filtering by metadata, and UI — but the core is this simple.
+
+## Image-to-image search
+
+Since CLIP produces comparable embeddings for images, you can also search by image: "find me images similar to this one."
+
+```python
+def find_similar_images(reference_image_path: str, top_k: int = 10) -> list:
+    query_embedding = embed_image(reference_image_path)
+    
+    results = client.search(
+        collection_name="images",
+        query_vector=query_embedding.tolist(),
+        limit=top_k + 1  # +1 to exclude the reference itself
+    )
+    
+    # Filter out the exact match
+    return [r.payload["path"] for r in results if r.payload["path"] != reference_image_path]
+```
+
+Applications: product search by photo, reverse image search, finding near-duplicates in a large library, style matching.
+
+## Audio multimodal search
+
+Audio multimodal search is less standardized than image-text search, but the pattern is the same: you need audio and text (or audio and audio) in a shared embedding space.
+
+**Approach 1: Transcription-based**
+Transcribe audio to text, then use standard text embeddings. Simple, works well for spoken content (podcasts, meetings, lectures). Fails for music or non-speech audio.
+
+**Approach 2: Audio encoders with cross-modal training**
+Models like CLAP (Contrastive Language-Audio Pre-training) apply the CLIP approach to audio: train an audio encoder and text encoder jointly so that audio clips and text descriptions share an embedding space.
+
+```python
+# Using CLAP for audio-text search
+from transformers import ClapModel, ClapProcessor
+
+model = ClapModel.from_pretrained("laion/clap-htsat-unfused")
+processor = ClapProcessor.from_pretrained("laion/clap-htsat-unfused")
+
+def embed_audio(audio_path: str) -> np.ndarray:
+    import torchaudio
+    waveform, sample_rate = torchaudio.load(audio_path)
+    inputs = processor(audios=waveform, return_tensors="pt", sampling_rate=sample_rate)
+    with torch.no_grad():
+        embedding = model.get_audio_features(**inputs)
+    return (embedding / embedding.norm(dim=-1, keepdim=True)).numpy().squeeze()
+
+def embed_text_for_audio(text: str) -> np.ndarray:
+    inputs = processor(text=[text], return_tensors="pt")
+    with torch.no_grad():
+        embedding = model.get_text_features(**inputs)
+    return (embedding / embedding.norm(dim=-1, keepdim=True)).numpy().squeeze()
+```
+
+With CLAP embeddings, you can search audio by text description: "upbeat jazz piano," "dog barking," "heavy rain on a rooftop."
+
+## Video search
+
+Video search combines the challenges of both images and audio. Approaches:
+
+**Frame-level search:** Embed individual frames (or sampled frames) with an image encoder. Search returns specific frames. This finds visual moments but misses temporal context.
+
+**Transcript-based:** Transcribe audio, chunk with timestamps, embed and index. Search returns timestamped transcript segments. Works well for spoken content, misses visual information.
+
+**Multimodal per-segment:** Divide video into short segments, embed the combination of frames + transcript for each segment, search over segments. Best quality but compute-intensive.
+
+For most production use cases, combining transcript search (high recall for spoken content) with frame-level visual search (for visual queries) and merging results gives the best practical result.
+
+## The commercial embedding APIs
+
+Building with raw CLIP or CLAP gives you maximum flexibility. For many applications, cloud APIs are faster to production:
+
+**OpenAI embeddings (text-only):** `text-embedding-3-large` is strong for text search. Not multimodal.
+
+**Google's Vertex AI multimodal embeddings:** Produces aligned text + image (and video) embeddings from a single API. Drop-in for CLIP-style search with no model hosting.
+
+**Amazon Titan Multimodal Embeddings:** Similar to Google's, integrated with AWS ecosystems.
+
+**Cohere Embed:** Strong text embeddings with multilingual support; not natively multimodal.
+
+For prototyping, hosted APIs reduce infrastructure burden significantly. At scale, self-hosting open models becomes economical.
+
+## What to watch for in production
+
+**Embedding drift:** If your embedding model is updated, embeddings in your index become incompatible with new queries. Plan for re-indexing when models change.
+
+**Domain mismatch:** CLIP was trained on internet images. For specialized domains (medical imaging, satellite imagery, industrial inspection), domain-specific fine-tuning or specialized encoders perform substantially better.
+
+**Scale and cost:** Embedding a library of 10M images takes meaningful compute. Batch efficiently; use GPU acceleration; cache embeddings.
+
+**Hybrid search:** For most real applications, pure semantic search underperforms a hybrid approach combining dense (embedding) and sparse (keyword/metadata) search. A product with "Sony WH-1000XM5" in the query should match on that exact model name, not just semantic proximity.
+
+## The practical upshot
+
+Multimodal search is now buildable in a weekend with open-source tools. CLIP for text-to-image is mature, well-documented, and produces genuinely useful search quality on general-domain content. CLAP for audio-text is less mature but functional.
+
+The most impactful applications in 2026: e-commerce product search by photo, enterprise media library search, medical image retrieval, and video content navigation. Each is commercially significant and now technically accessible without research-team resources.
+
+---
+
+### [Hybrid Search for RAG: Combining Dense and Sparse Retrieval](https://zro2.one/learn/rag-hybrid-search-guide)
+> Pure semantic search often underperforms in production RAG systems. Hybrid search — combining dense embeddings with sparse retrieval — is the more reliable approach.
+
+Most RAG tutorials start with a simple approach: embed your documents, embed the query, find the nearest neighbors by cosine similarity, feed the results to the LLM. It's a reasonable prototype, but production RAG systems almost universally move to **hybrid search** — combining dense (embedding-based) retrieval with sparse (keyword-based) retrieval.
+
+This post explains why pure semantic search underperforms, how hybrid search works, and how to implement it.
+
+## The problem with pure semantic search
+
+Dense retrieval using embeddings is powerful for *semantic* similarity — matching queries to documents that mean the same thing even if they use different words. "What's the capital of France?" will find a document that says "Paris is France's capital city" even without exact word overlap.
+
+But semantic search has real failure modes:
+
+**Keyword precision:** A user searching for "model XR-7 installation" needs the exact product model number. Semantic search may return results about similar products, or about installation generally, rather than the specific XR-7 documentation. The embedding of "XR-7" isn't meaningfully different from "XR-8" in most embedding spaces.
+
+**Technical terms:** Acronyms, technical jargon, error codes, part numbers, drug names — these often don't have strong semantic embeddings because they appear rarely in training data. `ENOENT` as a query won't reliably surface documentation about Linux file system errors just from embeddings.
+
+**Names:** Person names, company names, product names often embed similarly to other names. Searching for "John Martinez pricing proposal" may not reliably surface documents mentioning that specific person.
+
+**Exact phrase requirements:** Sometimes users want exact match, not semantic similarity. Legal documents, contract clauses, quoted text.
+
+In short: **semantic search excels at conceptual similarity; keyword search excels at lexical precision.** Real queries often need both.
+
+## Sparse retrieval: BM25
+
+The dominant sparse retrieval algorithm is **BM25** (Best Match 25) — a refined version of TF-IDF that has dominated information retrieval for decades and remains competitive with modern neural retrievers on many benchmarks.
+
+BM25 scores documents based on:
+- **Term frequency (TF):** How often query terms appear in a document — but with diminishing returns (saturation)
+- **Inverse document frequency (IDF):** How rare the term is across all documents — rare terms get more weight
+- **Document length normalization:** Longer documents don't get unfairly rewarded just for containing more words
+
+```python
+from rank_bm25 import BM25Okapi
+import numpy as np
+
+# Prepare your corpus
+documents = [
+    "XR-7 installation guide for industrial systems",
+    "Model XR-8 user manual and setup instructions",
+    "General installation best practices for machinery"
+]
+
+# Tokenize
+tokenized_corpus = [doc.lower().split() for doc in documents]
+
+# Create BM25 index
+bm25 = BM25Okapi(tokenized_corpus)
+
+# Search
+query = "XR-7 installation"
+tokenized_query = query.lower().split()
+scores = bm25.get_scores(tokenized_query)
+
+# Scores: XR-7 doc >> XR-8 doc > general doc
+# Semantic search might have put general doc higher
+```
+
+BM25 naturally handles the keyword precision cases that semantic search misses. "XR-7" gets high weight because it appears in only one document (high IDF) and appears in the query.
+
+## Hybrid search: reciprocal rank fusion
+
+The most common approach to combining dense and sparse retrieval is **Reciprocal Rank Fusion (RRF)**.
+
+The idea: take the ranked lists from dense and sparse retrieval, and combine them by reciprocal rank:
+
+```
+RRF_score(doc) = Σ 1 / (k + rank_in_list)
+```
+
+where k is a constant (typically 60) that reduces the influence of very high ranks.
+
+```python
+def reciprocal_rank_fusion(dense_results: list, sparse_results: list, k: int = 60) -> list:
+    """
+    dense_results: list of (doc_id, score) from embedding search
+    sparse_results: list of (doc_id, score) from BM25 search
+    Returns: reranked list of (doc_id, combined_score)
+    """
+    rrf_scores = {}
+    
+    # Score from dense results
+    for rank, (doc_id, _) in enumerate(dense_results):
+        if doc_id not in rrf_scores:
+            rrf_scores[doc_id] = 0
+        rrf_scores[doc_id] += 1 / (k + rank + 1)
+    
+    # Score from sparse results
+    for rank, (doc_id, _) in enumerate(sparse_results):
+        if doc_id not in rrf_scores:
+            rrf_scores[doc_id] = 0
+        rrf_scores[doc_id] += 1 / (k + rank + 1)
+    
+    # Sort by combined score
+    return sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+```
+
+RRF works well in practice because:
+- It's rank-based (not score-based), so you don't need to normalize different score scales
+- It handles the case where one retriever returns a highly relevant document the other missed
+- It's simple and parameter-light
+
+## Full implementation with Qdrant
+
+Modern vector databases like Qdrant have native sparse vector support, enabling efficient hybrid search without maintaining separate indices:
+
+```python
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    VectorParams, SparseVectorParams, Distance,
+    SparseIndexParams, PointStruct, SparseVector
+)
+import numpy as np
+from openai import OpenAI
+
+openai_client = OpenAI()
+qdrant = QdrantClient(host="localhost", port=6333)
+
+# Create collection with both dense and sparse vectors
+qdrant.create_collection(
+    collection_name="documents",
+    vectors_config={
+        "dense": VectorParams(size=1536, distance=Distance.COSINE)
+    },
+    sparse_vectors_config={
+        "sparse": SparseVectorParams(index=SparseIndexParams())
+    }
+)
+
+def get_dense_embedding(text: str) -> list:
+    response = openai_client.embeddings.create(
+        model="text-embedding-3-large",
+        input=text
+    )
+    return response.data[0].embedding
+
+def get_sparse_embedding(text: str) -> dict:
+    """Create sparse TF-IDF-like representation"""
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    # In practice, use a shared vectorizer fit on your full corpus
+    vectorizer = TfidfVectorizer()
+    # Simplified — in production, use a pre-fit vectorizer
+    matrix = vectorizer.fit_transform([text])
+    cx = matrix.tocoo()
+    return {"indices": cx.col.tolist(), "values": cx.data.tolist()}
+
+def index_document(doc_id: str, text: str):
+    dense_vector = get_dense_embedding(text)
+    sparse_vector = get_sparse_embedding(text)
+    
+    qdrant.upsert(
+        collection_name="documents",
+        points=[
+            PointStruct(
+                id=doc_id,
+                vector={
+                    "dense": dense_vector,
+                    "sparse": SparseVector(
+                        indices=sparse_vector["indices"],
+                        values=sparse_vector["values"]
+                    )
+                },
+                payload={"text": text}
+            )
+        ]
+    )
+
+def hybrid_search(query: str, top_k: int = 10) -> list:
+    query_dense = get_dense_embedding(query)
+    query_sparse = get_sparse_embedding(query)
+    
+    from qdrant_client.models import Prefetch, FusionQuery, Fusion
+    
+    results = qdrant.query_points(
+        collection_name="documents",
+        prefetch=[
+            Prefetch(query=query_dense, using="dense", limit=top_k * 2),
+            Prefetch(
+                query=SparseVector(
+                    indices=query_sparse["indices"],
+                    values=query_sparse["values"]
+                ),
+                using="sparse",
+                limit=top_k * 2
+            )
+        ],
+        query=FusionQuery(fusion=Fusion.RRF),
+        limit=top_k
+    )
+    
+    return [(r.id, r.payload["text"], r.score) for r in results.points]
+```
+
+## Adding a reranker
+
+Hybrid search typically retrieves 2-4x more candidates than you need, then applies a **cross-encoder reranker** to reorder them by deeper relevance assessment.
+
+Cross-encoders (models like Cohere Rerank, BGE Reranker, or ColBERT) process query and document *jointly*, capturing deeper semantic relationships than bi-encoder embeddings. They're slower (can't pre-index), so you use them on the smaller candidate set after initial retrieval.
+
+```python
+import cohere
+
+co = cohere.Client("your-api-key")
+
+def rerank(query: str, documents: list, top_n: int = 5) -> list:
+    results = co.rerank(
+        model="rerank-english-v3.0",
+        query=query,
+        documents=[doc["text"] for doc in documents],
+        top_n=top_n
+    )
+    
+    return [documents[r.index] for r in results.results]
+
+# Pipeline
+candidates = hybrid_search(query, top_k=20)  # Retrieve 20
+doc_objects = [{"text": text, "id": id_} for id_, text, _ in candidates]
+final_results = rerank(query, doc_objects, top_n=5)  # Rerank to 5
+# Feed final_results to LLM
+```
+
+The three-stage pipeline (dense retrieval → BM25 → reranking) is the current production standard for RAG retrieval quality.
+
+## When to add each component
+
+**Always worth having:** BM25 alongside dense retrieval. The implementation cost is low; the reliability improvement for keyword-sensitive queries is high.
+
+**Add reranking when:** You have 100k+ documents, complex queries, or quality is genuinely critical. Reranking adds latency (100-300ms) and cost; measure whether the quality gain justifies it for your use case.
+
+**Add query expansion when:** Your users use short queries that under-specify their needs. LLM-based query expansion (generate multiple phrasings of the query, search with all of them) can significantly improve recall.
+
+## Measuring if it's working
+
+Before and after hybrid search implementation, measure:
+
+- **Recall@K:** Of the relevant documents for a set of test queries, what fraction appear in the top K results?
+- **Precision@K:** Of the top K results returned, what fraction are actually relevant?
+- **MRR (Mean Reciprocal Rank):** Average of 1/rank_of_first_relevant_document across queries
+
+Create a test set of 50-100 queries with known relevant documents. Measure these metrics for dense-only, sparse-only, and hybrid. The improvement from hybrid is usually clearest in Recall@K.
+
+## The bottom line
+
+Pure semantic search is a starting point, not a destination. For production RAG systems handling diverse query types, hybrid search — dense + BM25 + optional reranking — consistently outperforms either approach alone. The implementation complexity is manageable; the quality improvement is real.
+
+If your RAG system sometimes gives confident answers based on the wrong sources: retrieval quality is where to look first.
+
+---
 
 ### [Designing Human-in-the-Loop AI Workflows That Scale](https://zro2.one/learn/ai-workflows-human-in-the-loop-design)
 > Architecture patterns for AI workflows where humans review the right steps without becoming a bottleneck.
