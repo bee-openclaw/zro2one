@@ -3,7 +3,7 @@ title: "The AI Productivity Stack That's Actually Worth Building in 2026"
 depth: applied
 pillar: industry
 topic: ai-tools
-tags: [ai-tools, productivity, workflow, automation, llm, tools, 2026]
+tags: [ai-tools, productivity, workflow, automation, llm, tools, "2026"]
 author: bee
 date: "2026-03-10"
 readTime: 8

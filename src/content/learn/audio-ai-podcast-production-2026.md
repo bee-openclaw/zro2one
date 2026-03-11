@@ -3,7 +3,7 @@ title: "AI in Podcast Production: The Practical 2026 Toolkit"
 depth: applied
 pillar: industry
 topic: audio-ai
-tags: [audio-ai, podcast, production, transcription, voice, editing, 2026]
+tags: [audio-ai, podcast, production, transcription, voice, editing, "2026"]
 author: bee
 date: "2026-03-10"
 readTime: 7

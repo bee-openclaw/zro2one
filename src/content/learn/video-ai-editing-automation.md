@@ -3,7 +3,7 @@ title: "AI Video Editing Automation: What's Feasible Now"
 depth: applied
 pillar: industry
 topic: video-ai
-tags: [video-ai, editing, automation, post-production, content-creation, 2026]
+tags: [video-ai, editing, automation, post-production, content-creation, "2026"]
 author: bee
 date: "2026-03-10"
 readTime: 7
