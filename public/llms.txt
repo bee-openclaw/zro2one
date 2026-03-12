@@ -4,6 +4,10 @@
 
 ## AI Foundations
 
+- [AI Foundations: Training vs Inference Explained Clearly](https://zro2.one/learn/ai-foundations-inference-vs-training): The clearest way to understand the difference between training and inference, why both matter, and where product teams usually get confused.
+- [AI Glossary: Agent Loop, Tool Use, and Orchestration Terms That Matter](https://zro2.one/learn/ai-glossary-agent-loop): A practical glossary for the agent era: agent loop, planner, tool call, handoff, verifier, memory, and other terms people keep using loosely.
+- [Deep Learning Overfitting: A Practical Guide to Prevention and Diagnosis](https://zro2.one/learn/deep-learning-overfitting-practical-guide): How overfitting actually shows up in deep learning systems, how to diagnose it, and which interventions are worth trying first.
+- [What Is AI Agency, Really? The Difference Between Automation and Agents](https://zro2.one/learn/what-is-ai-agency-vs-automation): A plain-English explanation of AI agency, what makes an agent different from ordinary automation, and why the distinction matters.
 - [Loss Functions Explained: The Objective Behind Every AI Model](https://zro2.one/learn/ai-foundations-loss-functions-explained): Models learn by minimizing loss. Here's what a loss function actually is, why it matters, and how the objective you choose shapes the behavior you get.
 - [Mixture-of-Experts Explained](https://zro2.one/learn/deep-learning-mixture-of-experts-explained): Mixture-of-experts models promise more scale without paying full dense-model costs. Here's how MoE architectures work, why routing matters, and where the tradeoffs really are.
 - [Information Extraction in NLP](https://zro2.one/learn/nlp-information-extraction-guide): Turning messy text into structured data is one of NLP's most valuable jobs. Here's how information extraction works, what systems need to capture, and why evaluation is harder than it looks.
@@ -63,6 +67,7 @@
 
 ## This Week in AI
 
+- [This Week in AI](https://zro2.one/learn/2026-03-12-this-week-in-ai-011): This week: the AI market keeps shifting from demo energy toward reliability, deployment discipline, and systems that can survive real work.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-010): This week: OpenAI buys Promptfoo, productivity AI gets more deeply embedded in spreadsheets and documents, and the global enterprise race keeps widening.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-009): This week: efficiency dominates as labs race to do more with less compute, a major open-source reasoning model drops, and enterprise AI adoption hits new milestones.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-008): This week: the AI stack hardens into infrastructure, reasoning models find their production groove, and the open-source ecosystem surprises again.
@@ -76,6 +81,10 @@
 
 ## Practice & Tools
 
+- [Synthetic Voice Governance: How to Use Audio AI Without Creating Trust Debt](https://zro2.one/learn/audio-ai-synthetic-voice-governance): The practical governance layer for synthetic voice systems: consent, disclosure, storage, abuse prevention, and product design choices.
+- [Getting Started With AI at Work Without Creating a Mess](https://zro2.one/learn/getting-started-ai-at-work-safely): A realistic first-step guide for people starting to use AI at work: where to begin, what to avoid, and how to build useful habits fast.
+- [Machine Learning Monitoring Playbook for Production Teams](https://zro2.one/learn/machine-learning-monitoring-playbook-2026): A practical monitoring framework for production ML systems: data drift, performance decay, feedback loops, and the alerts that actually matter.
+- [NLP Evaluation Playbook in 2026: Beyond Accuracy](https://zro2.one/learn/nlp-evaluation-playbook-2026): A practical NLP evaluation framework for modern systems spanning classification, extraction, search, QA, and generative behavior.
 - [AI Tools for Meetings in 2026: What Saves Time and What Creates More Noise](https://zro2.one/learn/ai-tools-for-meetings-2026): Meeting AI is no longer just transcription. Here's how to evaluate note-takers, summaries, action-item extraction, and follow-up tooling without buying features your team will ignore.
 - [AI Workflows for Incident Response](https://zro2.one/learn/ai-workflows-incident-response): Incident response is a strong fit for AI when you keep humans in control. Here's how to use models for triage, summarization, runbook support, and postmortems without creating new operational risk.
 - [Speech-to-Speech AI Systems in 2026](https://zro2.one/learn/audio-ai-speech-to-speech-systems-2026): Voice AI is moving beyond transcription plus text generation. Here's how modern speech-to-speech systems work, where latency comes from, and what builders need to get right.
@@ -136,6 +145,13 @@
 
 ## Building with AI
 
+- [AI Workflows for Finance Ops: Where Automation Helps and Where Review Still Matters](https://zro2.one/learn/ai-workflows-finance-ops-automation): A practical design guide for finance operations workflows using AI: intake, extraction, exception handling, approvals, and auditability.
+- [LLM API Fallbacks and Failover: A Production Guide](https://zro2.one/learn/llm-api-fallbacks-and-failover-guide): How to design fallback paths for LLM systems without making behavior unpredictable: model failover, degraded modes, retries, and routing policy.
+- [LLM Inference Optimization Playbook for 2026](https://zro2.one/learn/llms-inference-optimization-playbook-2026): How teams cut LLM latency and cost without wrecking answer quality: model routing, prompt reduction, caching, batching, and eval-driven tradeoffs.
+- [MLLMs for Grounded UI Agents: Why Vision-Language Models Matter](https://zro2.one/learn/mllms-grounded-ui-agents): How multimodal language models enable grounded UI agents by connecting screenshots, layout understanding, and action planning.
+- [Multimodal AI for Sensor Fusion Products](https://zro2.one/learn/multimodal-ai-sensor-fusion-for-products): How product teams should think about multimodal AI when combining text, images, audio, and sensor signals in one system.
+- [Prompting by Constraint Design: A Better Way to Get Reliable Outputs](https://zro2.one/learn/prompting-constraint-design-guide): Why reliable prompting is usually a constraint design problem, not a clever wording problem, and how to structure prompts accordingly.
+- [RAG Freshness and Staleness: The Part Builders Underestimate](https://zro2.one/learn/rag-freshness-and-staleness-guide): Why retrieval quality is not enough in RAG systems: freshness, index staleness, update pipelines, and trust in changing knowledge bases.
 - [AI Glossary: Evals Edition](https://zro2.one/learn/ai-glossary-evals-edition): The practical vocabulary behind LLM evaluation, red-teaming, and AI reliability. If your team is building with models, these are the terms worth understanding.
 - [How to Run LLM Evals in Production](https://zro2.one/learn/llm-api-evals-in-production-guide): Most LLM apps break quietly after launch. Here's how to set up practical production evals so prompt changes, model swaps, and retrieval drift do not surprise you.
 - [LLM Inference Latency: Why Your App Feels Slow and How to Fix It](https://zro2.one/learn/llms-inference-latency-guide): LLM quality matters, but latency often determines whether a product feels magical or frustrating. Here's how inference delay really works and how builders should reduce it.
@@ -175,6 +191,9 @@
 
 ## Industry & Applications
 
+- [AI Tools for Small Teams: A 2026 Selection Guide](https://zro2.one/learn/ai-tools-for-small-teams-2026): How small teams should choose AI tools in 2026 without building a messy stack of overlapping copilots and disconnected subscriptions.
+- [Image AI for Creative Ops: A Playbook for Teams That Need Throughput](https://zro2.one/learn/image-ai-creative-ops-playbook): How creative and brand teams can use image AI for throughput without turning every asset into off-brand slop.
+- [Video AI in Post-Production: A Systems Guide](https://zro2.one/learn/video-ai-post-production-systems-guide): How video AI fits into post-production systems: logging, rough cuts, captioning, cleanup, highlights, and review workflows.
 - [The AI Productivity Stack That's Actually Worth Building in 2026](https://zro2.one/learn/ai-tools-productivity-stack-2026): Not every AI tool is worth adding to your workflow. This is the current stack that compounds — the tools that actually save time rather than just generating content to edit.
 - [AI in Podcast Production: The Practical 2026 Toolkit](https://zro2.one/learn/audio-ai-podcast-production-2026): AI has transformed podcast production — from transcription and editing to show notes, clips, and distribution. Here's the stack that actually works and where human judgment still matters.
 - [AI for Document Understanding: Beyond PDF Extraction](https://zro2.one/learn/multimodal-ai-document-understanding): Modern document understanding has moved far beyond OCR. AI now extracts structure, meaning, and relationships from complex documents — here's how to build systems that work in production.

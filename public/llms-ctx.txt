@@ -5,6 +5,267 @@
 
 ## AI Foundations
 
+### [AI Foundations: Training vs Inference Explained Clearly](https://zro2.one/learn/ai-foundations-inference-vs-training)
+> The clearest way to understand the difference between training and inference, why both matter, and where product teams usually get confused.
+
+A lot of AI confusion comes from one simple mix-up: people talk about training and inference like they are the same thing. They are not.
+
+Training is how a model learns. Inference is how a trained model is used.
+
+That distinction sounds basic, but it unlocks a lot.
+
+## Training: the expensive learning phase
+
+During training, a model sees huge amounts of data and adjusts its internal parameters to reduce error. This is where the model develops the statistical patterns that later make it useful.
+
+Training usually involves:
+
+- large datasets
+- repeated optimization steps
+- significant GPU or TPU compute
+- experiments on architecture, loss, and hyperparameters
+
+This is the “making the brain” phase.
+
+## Inference: the serving phase
+
+Inference happens after training. A user sends a prompt, image, audio file, or query, and the model generates an output using the parameters it already learned.
+
+Inference is what most products pay for every day.
+
+Examples:
+
+- a chatbot answering a question
+- a vision model classifying an image
+- a speech model transcribing audio
+- a recommender scoring items for a user
+
+This is the “using the brain” phase.
+
+## Why the distinction matters
+
+### Product costs usually show up at inference time
+
+A company might train rarely but serve constantly. That means inference latency and cost often matter more to product economics than training glamour.
+
+### Model capability is constrained by training
+
+Inference tricks can help, but they do not magically give a model knowledge or reasoning skills it never learned during training.
+
+### Different teams own different parts
+
+Research teams may care most about training. Platform and product teams often care most about inference. Confusing the two leads to bad decisions and vague arguments.
+
+## A useful mental model
+
+Think of training like building a library and inference like asking the librarian a question.
+
+- Training decides what knowledge patterns exist in the system
+- Inference decides how efficiently and reliably that system responds
+
+You cannot fix a terrible library with a nicer front desk. You also cannot blame the library for a slow front desk.
+
+## Where modern AI gets interesting
+
+In 2026, the line is getting more nuanced because some systems use inference-time scaling, retrieval, tool use, or memory. That means part of the apparent intelligence comes from runtime orchestration, not only the base model.
+
+Still, the foundation remains the same: training creates capability, inference delivers it.
+
+If you understand that split, a lot of AI marketing instantly becomes easier to decode.
+
+---
+
+### [AI Glossary: Agent Loop, Tool Use, and Orchestration Terms That Matter](https://zro2.one/learn/ai-glossary-agent-loop)
+> A practical glossary for the agent era: agent loop, planner, tool call, handoff, verifier, memory, and other terms people keep using loosely.
+
+The AI world is very good at inventing terms and then using them sloppily. This glossary focuses on agent and orchestration language that actually matters in practice.
+
+## Agent loop
+
+A repeated cycle where a model observes state, decides what to do, takes an action, then checks the result before continuing.
+
+In plain English: think, act, look, repeat.
+
+## Tool call
+
+A structured request from the model to an external system such as search, code execution, a database, or an internal API.
+
+Tool use matters because the model is no longer limited to the text already inside the prompt.
+
+## Planner
+
+A component, prompt, or model pass responsible for breaking a task into steps. Some systems have an explicit planner. Others fake it with prompt structure.
+
+## Executor
+
+The part that carries out the work. Sometimes this is still the same model. Sometimes it is a separate service or a different model optimized for action rather than deliberation.
+
+## Verifier
+
+A model or rule-based system that checks whether the output is valid, safe, or complete. In strong systems, generation and verification are separated instead of trusting the first answer blindly.
+
+## Handoff
+
+When one agent, tool, or workflow stage passes control to another. Good handoffs preserve context. Bad handoffs create duplicated work and strange behavior.
+
+## Memory
+
+A persistent store of relevant context outside the immediate prompt window. This can include user preferences, prior tasks, or summarized history.
+
+Memory is not magic. It is just state management with better branding.
+
+## Scratchpad
+
+Temporary reasoning space used during a task. This may be visible or hidden. It is useful for decomposition, but it is not the same as long-term memory.
+
+## Retry policy
+
+Rules for what happens when a tool call or model step fails. Mature systems define retries carefully. Immature systems just loop harder and make the outage more expensive.
+
+## Guardrail
+
+A constraint that limits harmful or invalid behavior. Guardrails can be policy prompts, schema constraints, allowlists, human review steps, or programmatic checks.
+
+## Orchestrator
+
+The layer that decides how models, tools, memory, and workflow stages work together. Most real “agent” products are as much orchestration systems as they are model systems.
+
+## Human in the loop
+
+A design pattern where a person reviews, approves, or corrects important steps. This is not a sign of weakness. It is often the reason the workflow works.
+
+## Final takeaway
+
+When people argue about agents, they are often mixing up model capability, workflow design, and orchestration quality. A clean vocabulary helps separate those layers.
+
+That is useful because many failures blamed on “the model” are actually failures in memory, handoff, verification, or retry logic.
+
+---
+
+### [Deep Learning Overfitting: A Practical Guide to Prevention and Diagnosis](https://zro2.one/learn/deep-learning-overfitting-practical-guide)
+> How overfitting actually shows up in deep learning systems, how to diagnose it, and which interventions are worth trying first.
+
+Overfitting is the classic deep learning problem that never really leaves. The model gets very good at the training set and noticeably worse at the world.
+
+People describe this like it is one thing. In practice, it is a family of failure modes.
+
+## What overfitting means
+
+A model is overfitting when it learns patterns that improve training performance but do not generalize to unseen data.
+
+That usually appears as:
+
+- training loss keeps dropping
+- validation performance stalls or worsens
+- errors cluster on slightly different real-world examples
+
+## Common causes
+
+### Limited or narrow data
+
+If the dataset is too small or too homogeneous, the model can memorize superficial cues instead of learning robust structure.
+
+### Label noise
+
+Noisy labels can push the model toward brittle shortcuts. Deep networks are distressingly willing to absorb nonsense if you give them enough updates.
+
+### Excess capacity relative to signal
+
+Very large models can fit weak datasets extremely well. That is not automatically bad, but it increases the need for regularization and evaluation discipline.
+
+## The first interventions worth trying
+
+### Improve the data before changing the architecture
+
+Add coverage where the model fails, clean labels, and inspect edge cases. Data fixes often beat clever regularization tricks.
+
+### Use validation correctly
+
+A weak validation split can hide overfitting. Make sure the validation set reflects realistic deployment conditions, not just a random slice that looks too similar to training.
+
+### Regularize with intent
+
+Useful options include:
+
+- weight decay
+- dropout
+- augmentation
+- early stopping
+- mixup or label smoothing in some settings
+
+Do not throw them all in blindly. Each changes the learning dynamics.
+
+## Watch for shortcut learning
+
+One subtle version of overfitting is when the model learns an easy proxy signal instead of the concept you wanted. Maybe it keys on background texture, timestamp artifacts, or formatting quirks.
+
+This is why error analysis matters. Metrics tell you that something went wrong. Example inspection tells you how.
+
+## The boring truth
+
+There is no universal anti-overfitting recipe. But there is a reliable process:
+
+1. verify the split
+2. inspect failure buckets
+3. improve data quality and coverage
+4. add targeted regularization
+5. reevaluate on representative data
+
+That process is less glamorous than hunting for one weird trick, but it works.
+
+---
+
+### [What Is AI Agency, Really? The Difference Between Automation and Agents](https://zro2.one/learn/what-is-ai-agency-vs-automation)
+> A plain-English explanation of AI agency, what makes an agent different from ordinary automation, and why the distinction matters.
+
+People use the word “agent” for almost anything with a prompt box now. That has made the term less useful than it should be.
+
+## Automation is not the same as agency
+
+Automation follows predefined steps. If X happens, do Y. The logic may be complex, but the path is designed in advance.
+
+Agency implies some degree of runtime decision-making:
+
+- choosing among actions
+- deciding what information to gather
+- adapting based on results
+- continuing through multiple steps toward a goal
+
+That does not make agents magical. It just means they have a wider action space.
+
+## A practical distinction
+
+A workflow that always extracts text from a PDF, classifies it, and stores the result is automation.
+
+A system that can inspect the PDF, decide whether to search for more context, ask a follow-up question, route to a human, or trigger a different tool path is showing a form of agency.
+
+## Why the distinction matters
+
+If you call everything an agent, you lose clarity about risk and design.
+
+Automation can often be tested like software rules. Agents need stronger monitoring because they may choose different paths at runtime.
+
+That changes:
+
+- evaluation strategy
+- permission design
+- human review requirements
+- failure handling
+
+## Most products live in the middle
+
+In practice, many useful systems are hybrids. They combine deterministic workflow structure with limited agentic choice inside specific steps.
+
+That is usually healthier than going fully open-ended.
+
+## The takeaway
+
+AI agency is not consciousness, will, or sci-fi autonomy. It is task-directed decision-making inside a system.
+
+That is still powerful. But understanding it clearly helps teams build better products and make fewer silly claims.
+
+---
+
 ### [Loss Functions Explained: The Objective Behind Every AI Model](https://zro2.one/learn/ai-foundations-loss-functions-explained)
 > Models learn by minimizing loss. Here's what a loss function actually is, why it matters, and how the objective you choose shapes the behavior you get.
 
@@ -7362,6 +7623,69 @@ Welcome to your AI education. Let's go from zero to one. 🚀
 
 ## This Week in AI
 
+### [This Week in AI](https://zro2.one/learn/2026-03-12-this-week-in-ai-011)
+> This week: the AI market keeps shifting from demo energy toward reliability, deployment discipline, and systems that can survive real work.
+
+Week of March 12, 2026. The headlines moved fast, but the deeper pattern was pretty consistent: the market is getting less impressed by novelty and more interested in systems that hold up.
+
+## Reliability is becoming the product
+
+Across the industry, the conversation keeps moving away from raw benchmark theater and toward boring questions that matter more in production:
+
+- does the system recover cleanly from tool failure?
+- can teams evaluate changes before rollout?
+- is latency predictable under real load?
+- can operators explain what happened after a bad run?
+
+This is healthy. AI systems are entering workflows where “mostly works” is not good enough.
+
+## Embedded AI keeps beating separate AI
+
+The strongest product signal remains the same as last week: AI is doing better when it disappears into existing work surfaces.
+
+That means:
+
+- assistants inside documents instead of beside them
+- search inside team knowledge instead of in a separate app
+- copilots attached to workflows instead of generic chat windows
+
+The market keeps rewarding tools that remove steps, not tools that add another destination.
+
+## Enterprises are getting more selective
+
+A year ago, many buyers were willing to test almost anything with the word “agent” on the landing page. In 2026, procurement is less gullible.
+
+Teams now ask sharper questions:
+
+- what evals exist?
+- how are permissions handled?
+- what is the fallback path?
+- how portable is the architecture?
+
+That is a sign of maturity, not slowdown.
+
+## Open source keeps shaping the pace
+
+Another recurring pattern: open models and open tooling continue to compress the window between frontier release and widespread imitation.
+
+That does not eliminate the advantage of the biggest labs, but it does change the buying equation. Buyers increasingly assume that baseline model capability will diffuse. What stays differentiated longer is distribution, workflow integration, trust, and operating discipline.
+
+## The real theme
+
+Put it together and the theme is simple: AI is being judged more like infrastructure and less like entertainment.
+
+That changes which companies look strong. The winners are not always the ones with the loudest launch day. They are the ones building systems that teams can run every day without babysitting them.
+
+## What to read next
+
+- **[LLM API Integration Reliability Checklist](/learn/llm-api-integration-reliability-checklist)**
+- **[AI Workflows: Human-in-the-Loop Design](/learn/ai-workflows-human-in-the-loop-design)**
+- **[ChatGPT vs Claude vs Gemini in 2026](/learn/chatgpt-vs-claude-vs-gemini-2026)**
+
+*This Week in AI is a high-signal pattern read, not an attempt to list every headline on the internet.*
+
+---
+
 ### [This Week in AI](https://zro2.one/learn/this-week-in-ai-010)
 > This week: OpenAI buys Promptfoo, productivity AI gets more deeply embedded in spreadsheets and documents, and the global enterprise race keeps widening.
 
@@ -8194,6 +8518,298 @@ More next week.
 ---
 
 ## Practice & Tools
+
+### [Synthetic Voice Governance: How to Use Audio AI Without Creating Trust Debt](https://zro2.one/learn/audio-ai-synthetic-voice-governance)
+> The practical governance layer for synthetic voice systems: consent, disclosure, storage, abuse prevention, and product design choices.
+
+Synthetic voice is one of the most commercially useful and socially risky forms of generative AI.
+
+When it works, it creates better accessibility, faster production, and more flexible interfaces. When it is deployed carelessly, it destroys trust very quickly.
+
+## Start with consent, not capability
+
+The first question should not be “can we clone this voice?” It should be “should we, and under what permission model?”
+
+Strong systems define:
+
+- who can authorize voice creation
+- what evidence of consent is stored
+- what uses were approved
+- how revocation works
+
+Without that, you do not have a feature. You have a liability.
+
+## Disclosure should be product-level, not hidden in legal text
+
+Users should be able to tell when a voice is synthetic or heavily transformed. That does not require an obnoxious watermark every five seconds, but it does require honest product design.
+
+Examples:
+
+- explicit labels in apps and dashboards
+- metadata in exported assets
+- clear disclosure when voice is used in customer-facing interactions
+
+## Store voice assets like sensitive identity data
+
+Voiceprints and high-fidelity samples are not ordinary media files. They are identity-adjacent assets.
+
+Treat them with:
+
+- limited access controls
+- encryption at rest
+- retention rules
+- deletion workflows
+- clear provenance tracking
+
+## Abuse prevention needs friction
+
+A lot of teams want voice generation to feel instant and magical. Some friction is good.
+
+Useful frictions include:
+
+- rate limits
+- approval for public-facing usage
+- content policy checks
+- risk review for impersonation-like requests
+
+If a system makes harmful usage effortless, that is a design failure.
+
+## The strategic point
+
+Audio AI products will increasingly compete on trust, not just realism. Hyper-realistic output is table stakes. The harder and more valuable problem is proving that the system respects identity, consent, and context.
+
+That is what keeps synthetic voice from becoming trust debt with better acoustics.
+
+---
+
+### [Getting Started With AI at Work Without Creating a Mess](https://zro2.one/learn/getting-started-ai-at-work-safely)
+> A realistic first-step guide for people starting to use AI at work: where to begin, what to avoid, and how to build useful habits fast.
+
+The best way to start using AI at work is not to redesign your job overnight. It is to remove one annoying repeat task and do it consistently.
+
+That sounds almost too modest, but it is how habits form.
+
+## Pick one workflow, not ten
+
+Start with a task that is:
+
+- frequent
+- low-risk
+- text-heavy or research-heavy
+- annoying enough that you will actually use help
+
+Good examples:
+
+- summarizing long emails
+- drafting first-pass documents
+- turning rough notes into cleaner structure
+- extracting action items from meetings
+
+Bad first examples:
+
+- anything confidential if you do not understand the tool policy
+- high-stakes decisions with no review
+- automations that trigger external actions immediately
+
+## Learn the core moves first
+
+You do not need advanced prompting tricks on day one. You do need a few reliable habits:
+
+- provide context
+- state the output format you want
+- ask for assumptions explicitly
+- verify facts before forwarding anything important
+
+That last step is the one beginners skip because the draft looks polished. Polished is not the same as correct.
+
+## Build a review habit early
+
+Treat AI as a fast junior collaborator, not an oracle.
+
+Review for:
+
+- factual errors
+- missing nuance
+- tone mismatch
+- invented sources or numbers
+- overconfident language
+
+If you develop that reflex early, you can use AI aggressively without becoming sloppy.
+
+## Keep a small prompt library
+
+When you find prompts that work for recurring tasks, save them. The gain from AI often comes from repeatable patterns, not fresh cleverness every day.
+
+## The goal for week one
+
+By the end of the first week, you should be able to point to one task that is now faster, cleaner, or less draining because of AI.
+
+That is enough. Useful adoption compounds from there.
+
+---
+
+### [Machine Learning Monitoring Playbook for Production Teams](https://zro2.one/learn/machine-learning-monitoring-playbook-2026)
+> A practical monitoring framework for production ML systems: data drift, performance decay, feedback loops, and the alerts that actually matter.
+
+A model that performs well at launch is not the same thing as a model that performs well three months later.
+
+Production ML degrades quietly. Input distributions shift, labels arrive late, and product changes alter the meaning of the prediction target. If you only watch uptime, you will miss the real failure.
+
+## The four layers to monitor
+
+Useful ML monitoring is a stack, not a single chart.
+
+### 1) System health
+
+Start with the boring basics:
+
+- request volume
+- latency
+- error rate
+- feature pipeline freshness
+- training and inference job success
+
+If the pipeline is broken, the model quality question can wait.
+
+### 2) Data quality
+
+Many incidents are really data incidents.
+
+Watch for:
+
+- null-rate changes in key features
+- category explosion in string fields
+- distribution shifts in top numeric features
+- schema drift between training and serving
+
+This is where teams catch “we renamed a field upstream” before they spend a week blaming the algorithm.
+
+### 3) Model behavior
+
+Once the inputs look healthy, measure the model itself:
+
+- score distribution changes
+- calibration drift
+- segment-level error rates
+- confusion matrix changes for critical classes
+
+Do not rely on one global metric. A model can look fine overall while failing badly for a high-value segment.
+
+### 4) Business outcomes
+
+The final layer is the one that matters most.
+
+Did fraud loss rise? Did conversion drop? Did review time increase? A model exists to improve an operational outcome. Monitoring should eventually connect back to that outcome.
+
+## Build alerts around decisions, not dashboards
+
+A dashboard that nobody acts on is decoration.
+
+Create alerts only where there is a defined response:
+
+- retrain trigger
+- rollback trigger
+- human review escalation
+- data engineering incident
+
+This keeps the signal-to-noise ratio tolerable.
+
+## The label-delay problem
+
+Many teams cannot observe true model accuracy quickly because labels arrive days or weeks later. That is normal.
+
+In the short term, use proxy signals:
+
+- sudden shifts in score distributions
+- increased manual override rate
+- rising complaint volume
+- workflow step changes downstream
+
+Then reconcile those proxies with delayed ground truth later.
+
+## A practical operating rhythm
+
+Good teams run three cadences:
+
+- daily system and data checks
+- weekly segment review
+- monthly retraining and rubric review
+
+That rhythm is boring on purpose. Production ML is operations work wearing a statistics badge.
+
+If you monitor inputs, model behavior, and business impact together, most failures become visible before they become expensive.
+
+---
+
+### [NLP Evaluation Playbook in 2026: Beyond Accuracy](https://zro2.one/learn/nlp-evaluation-playbook-2026)
+> A practical NLP evaluation framework for modern systems spanning classification, extraction, search, QA, and generative behavior.
+
+NLP evaluation used to feel simpler: pick a dataset, measure accuracy or F1, compare models, done.
+
+That world is mostly gone. Modern NLP systems combine retrieval, prompting, LLMs, tool use, and product-specific constraints. Evaluation has to reflect that complexity.
+
+## Start with task families
+
+Different NLP tasks require different metrics and failure analysis.
+
+### Classification
+
+Use precision, recall, F1, calibration, and segment-level metrics.
+
+### Extraction
+
+Measure field-level correctness, completeness, and schema validity.
+
+### Search and retrieval
+
+Look at recall@k, ranking quality, latency, and downstream answer usefulness.
+
+### QA and generation
+
+Blend exactness where possible with rubric scoring and human review where needed.
+
+## Add operational dimensions
+
+In 2026, model quality alone is not enough. Evaluation should also cover:
+
+- latency
+- cost
+- refusal behavior
+- robustness to messy inputs
+- drift over time
+
+A system that is slightly more accurate but twice as expensive and much less stable may be worse in practice.
+
+## Use representative datasets, not comfort datasets
+
+Many teams accidentally benchmark on clean, neatly labeled samples that do not resemble live traffic. Then they wonder why production feels worse.
+
+Evaluation sets should include:
+
+- noisy inputs
+- ambiguous cases
+- rare but high-impact examples
+- recent data reflecting current usage
+
+## Inspect failure buckets
+
+Aggregate scores hide the interesting stuff. Break failures into buckets such as:
+
+- missing context
+- label ambiguity
+- retrieval miss
+- prompt instruction failure
+- formatting error
+
+That gives the team something actionable.
+
+## The key shift
+
+Modern NLP evaluation is not just model benchmarking. It is system evaluation. The question is no longer “which model is best on this benchmark?” It is “does this system perform reliably on the work we actually need done?”
+
+That is a better question, and it produces better products.
+
+---
 
 ### [AI Tools for Meetings in 2026: What Saves Time and What Creates More Noise](https://zro2.one/learn/ai-tools-for-meetings-2026)
 > Meeting AI is no longer just transcription. Here's how to evaluate note-takers, summaries, action-item extraction, and follow-up tooling without buying features your team will ignore.
@@ -16413,6 +17029,455 @@ Welcome to the AI age. You're going to do great. 🚀
 
 ## Building with AI
 
+### [AI Workflows for Finance Ops: Where Automation Helps and Where Review Still Matters](https://zro2.one/learn/ai-workflows-finance-ops-automation)
+> A practical design guide for finance operations workflows using AI: intake, extraction, exception handling, approvals, and auditability.
+
+Finance operations is exactly the kind of environment where AI can help a lot and also make a mess fast if you design it badly.
+
+The winning pattern is not “let the model run accounting.” It is using AI to accelerate structured work while keeping approval, traceability, and exception handling explicit.
+
+## Good candidate workflows
+
+Finance ops usually benefits most in places like:
+
+- invoice intake and field extraction
+- vendor email triage
+- policy-aware categorization
+- anomaly explanation drafts
+- reconciliation support
+- close-process checklist assistance
+
+These are repetitive, document-heavy, and full of edge cases — perfect territory for AI plus rules.
+
+## A strong workflow shape
+
+### 1) Intake
+
+Collect the document or message, normalize the format, and attach metadata such as vendor, channel, timestamp, and business unit.
+
+### 2) Extraction
+
+Use OCR, document parsing, or an LLM to pull structured fields. Require schema validation before anything downstream trusts the output.
+
+### 3) Confidence and exception routing
+
+Not every extraction should flow straight through. Route cases based on confidence, missing fields, and policy risk.
+
+### 4) Human approval
+
+For payments, exceptions, or anything hitting thresholds, make approval a first-class stage. This is where many bad “agent” demos quietly cheat.
+
+### 5) Audit trail
+
+Store the original source, extracted fields, model output, reviewer action, and final resolution. If the workflow cannot explain itself later, it is not ready.
+
+## Where teams go wrong
+
+- treating AI output as ground truth
+- skipping schema validation
+- hiding low-confidence cases inside a generic queue
+- failing to capture corrections for future improvement
+
+The correction loop matters. Reviewers are not just there to catch mistakes; they are your best source of training signal.
+
+## The design principle
+
+Use AI where language and documents are messy. Use rules where policy is crisp. Use humans where money moves or ambiguity remains.
+
+That mix is less sexy than “fully autonomous finance agent,” but it is much more likely to survive contact with auditors and reality.
+
+---
+
+### [LLM API Fallbacks and Failover: A Production Guide](https://zro2.one/learn/llm-api-fallbacks-and-failover-guide)
+> How to design fallback paths for LLM systems without making behavior unpredictable: model failover, degraded modes, retries, and routing policy.
+
+Every LLM API eventually fails in some interesting way.
+
+The mistake is assuming fallback means “just call another model if the first one errors.” That is only one kind of failure, and often not the hardest one.
+
+## First, define failure classes
+
+Useful fallback design starts by separating failures into types:
+
+- provider outage
+- timeout or latency breach
+- malformed structured output
+- safety refusal when a task is actually allowed
+- low-confidence answer quality
+
+Different failures deserve different responses.
+
+## Use degraded modes deliberately
+
+The best fallback is often not a second frontier model. It is a narrower, simpler mode that still helps the user.
+
+Examples:
+
+- summarize instead of fully drafting
+- extract fields instead of doing freeform reasoning
+- search and present sources instead of answering directly
+- return a structured partial result with uncertainty markers
+
+This keeps the product usable instead of pretending every path is equivalent.
+
+## Failover should preserve product semantics
+
+If Model A returns JSON and Model B suddenly writes a conversational essay, you do not have failover. You have chaos.
+
+Before routing to a backup model, confirm:
+
+- prompt compatibility
+- schema compatibility
+- tool support parity
+- acceptable latency profile
+- comparable policy behavior
+
+## Retries are not strategy
+
+Retrying the same call can help with transient network issues. It does very little for systematic prompt or schema failures. Mature systems use bounded retries, jitter, and explicit cutoffs.
+
+## Evaluate fallback quality separately
+
+A common mistake is validating the primary path and assuming the backup path is “good enough.” Run evals on fallback behavior as its own product surface.
+
+Questions to test:
+
+- does the output stay in the same format?
+- does quality degrade gracefully?
+- do users get a clear signal when capability is reduced?
+- do logs explain which path executed?
+
+## The production rule
+
+Fallbacks should reduce surprise, not increase it. That means fewer clever cascades, stronger contracts, and explicit degraded modes.
+
+If the system cannot preserve the core user promise during failure, it should say less and do less — clearly — rather than improvising its way into a larger incident.
+
+---
+
+### [LLM Inference Optimization Playbook for 2026](https://zro2.one/learn/llms-inference-optimization-playbook-2026)
+> How teams cut LLM latency and cost without wrecking answer quality: model routing, prompt reduction, caching, batching, and eval-driven tradeoffs.
+
+Shipping an LLM feature is easy. Shipping one that stays fast, affordable, and stable under real traffic is the hard part.
+
+Most teams start with the same pattern: one big model, a long system prompt, zero caching, and a growing bill. That works for prototypes. It gets painful in production.
+
+This playbook is about the practical levers that actually move the curve.
+
+## Start with the real optimization target
+
+Do not optimize for “lowest latency” in isolation. Optimize for a service level that users can feel and the business can afford.
+
+For most teams, the real target is a combination of:
+
+- p95 latency
+- cost per successful task
+- answer quality on a fixed eval set
+- operational reliability during traffic spikes
+
+That last piece matters. A setup that is fast at 20 requests per minute but collapses at 2,000 is not optimized. It is fragile.
+
+## 1) Route by task difficulty
+
+Not every prompt deserves your most expensive model.
+
+A good routing stack usually has three lanes:
+
+- a cheap model for classification, extraction, and rewrites
+- a mid-tier model for normal assistant work
+- a reasoning model for the small slice of tasks that genuinely need extra thinking
+
+The mistake is routing by product surface instead of by difficulty. “All support tickets use Model X” sounds simple, but a password-reset request and a contract dispute should not cost the same.
+
+## 2) Shrink the prompt before you shrink the model
+
+Prompt bloat is one of the easiest ways to waste money.
+
+Before changing models, inspect what you send on every call:
+
+- old chat turns nobody needs
+- repeated policy blocks
+- verbose tool schemas
+- giant retrieval dumps
+
+Most stacks can cut prompt tokens dramatically by summarizing history, deduplicating instructions, and retrieving fewer but better chunks. Token discipline usually improves speed and quality at the same time.
+
+## 3) Cache the boring parts
+
+There are three useful caches in LLM systems:
+
+- **response cache** for identical or nearly identical prompts
+- **retrieval cache** for expensive search steps
+- **prompt prefix cache** for long shared instructions or context
+
+Teams often overlook prefix caching because it feels invisible. But if every request starts with the same large policy block, that repeated work adds up fast.
+
+## 4) Batch where users will not notice
+
+Some workloads are interactive. Others are just queued work wearing a chat costume.
+
+Batching helps most when requests are not user-blocking:
+
+- document classification
+- offline enrichment
+- nightly summaries
+- evaluation jobs
+
+If a task can wait 500 milliseconds to join a batch, you may get a major efficiency gain. If a user is staring at the cursor, do not be cute.
+
+## 5) Use evals as the brake pedal
+
+Optimization without evals is mostly self-deception.
+
+Whenever you change model, prompt length, retrieval settings, or caching behavior, rerun a representative eval set. Measure:
+
+- exact-match tasks
+- rubric-scored tasks
+- refusal and safety behavior
+- latency and spend
+
+The winning setup is rarely the most impressive model. It is the cheapest configuration that still clears the quality bar.
+
+## A sane production rule
+
+First remove unnecessary tokens. Then route by difficulty. Then cache repeated work. Then batch non-urgent jobs. Evaluate after every meaningful change.
+
+That order beats random tuning because it fixes waste before it introduces complexity.
+
+LLM optimization in 2026 is less about heroic prompt magic and more about systems discipline. The teams that win are the ones that treat inference like an engineering budget, not a vibes problem.
+
+---
+
+### [MLLMs for Grounded UI Agents: Why Vision-Language Models Matter](https://zro2.one/learn/mllms-grounded-ui-agents)
+> How multimodal language models enable grounded UI agents by connecting screenshots, layout understanding, and action planning.
+
+If you want an agent to operate software the way humans do, text alone is not enough. Real interfaces are visual, stateful, and often inconsistent. That is where MLLMs become useful.
+
+## What grounded UI work requires
+
+A UI agent needs to answer questions like:
+
+- what elements are visible right now?
+- which button corresponds to the task goal?
+- what changed after the last action?
+- did the workflow succeed or quietly fail?
+
+Traditional LLMs can reason over HTML or accessibility trees when those are available. But screenshots and rendered state often contain the real truth.
+
+## Why MLLMs help
+
+MLLMs combine language reasoning with visual perception. That lets them:
+
+- interpret screenshots
+- locate relevant controls
+- relate spatial layout to task intent
+- detect visual confirmation states
+
+This is not magic. It is grounding. The model is operating on what is actually visible, not just what a DOM dump claims is there.
+
+## The hard parts
+
+Grounded UI agents still struggle with:
+
+- tiny visual differences between important states
+- dynamic layouts and hidden menus
+- ambiguous labels
+- long horizon tasks where one mistake compounds later
+
+That is why strong systems pair visual models with structured environment signals when possible.
+
+## Best practice
+
+Treat the MLLM as one sensor in a control loop, not the entire control stack. Combine:
+
+- screenshot understanding
+- accessibility or DOM metadata
+- action constraints
+- retry and verification logic
+
+The best UI agents are hybrid systems. Pure screenshot reasoning is impressive, but brittle.
+
+## The strategic takeaway
+
+MLLMs matter because they reduce the gap between how software is built and how software is used. Human users navigate by looking. Agents that can also look gain a more grounded understanding of state.
+
+That is one of the reasons UI automation is getting more capable in 2026: the models are finally seeing enough of the environment to reason about it.
+
+---
+
+### [Multimodal AI for Sensor Fusion Products](https://zro2.one/learn/multimodal-ai-sensor-fusion-for-products)
+> How product teams should think about multimodal AI when combining text, images, audio, and sensor signals in one system.
+
+Multimodal AI gets discussed like it is mostly about fancy demos. In products, its real value is often simpler: combining different signals so the system can make a better decision than any one modality would allow.
+
+## What sensor fusion means here
+
+In product terms, sensor fusion means combining multiple input channels such as:
+
+- text instructions
+- images or video
+- speech or ambient audio
+- structured telemetry
+- location or device state
+
+The point is not adding modalities for fun. The point is reducing ambiguity.
+
+## Why one modality is often not enough
+
+A voice request might be vague. An image might lack context. A telemetry event might explain what happened but not why. When the system can combine them, it often becomes both more useful and more robust.
+
+Examples:
+
+- a field service app using speech notes plus photos plus equipment history
+- a driving assistant using visual state plus mapping plus voice interaction
+- a health workflow combining questionnaire text, sensor readings, and image evidence
+
+## Product design implications
+
+### Align timestamps and context
+
+Cross-modal systems fail when signals are not synchronized or cannot be tied to the same event.
+
+### Decide which modality wins conflicts
+
+If audio suggests one thing and vision suggests another, what breaks the tie? Good products define this explicitly.
+
+### Preserve provenance
+
+Teams need to know which modality contributed what evidence. This matters for debugging and trust.
+
+## The risk
+
+More modalities can increase model capability, but they also increase integration complexity, cost, and failure surface. A multimodal stack with weak orchestration is often worse than a single-modality product that is well-designed.
+
+## The practical rule
+
+Use multimodal AI when the modalities reduce uncertainty in a workflow that actually matters. Do not add image, audio, or sensors just because the demo looks cooler.
+
+The best multimodal products feel less like a technology showcase and more like the system simply understands enough context to be helpful.
+
+---
+
+### [Prompting by Constraint Design: A Better Way to Get Reliable Outputs](https://zro2.one/learn/prompting-constraint-design-guide)
+> Why reliable prompting is usually a constraint design problem, not a clever wording problem, and how to structure prompts accordingly.
+
+A lot of prompt advice focuses on phrasing. That matters a little. Constraint design matters more.
+
+Reliable prompts do not just ask nicely. They narrow the space of acceptable behavior.
+
+## What constraint design means
+
+A prompt has strong constraints when it clearly defines:
+
+- the role or job to perform
+- the input boundaries
+- the expected output shape
+- the success criteria
+- the things the model must not do
+
+This is why prompts with schemas, rubrics, and examples usually outperform vague prose.
+
+## Weak prompt vs strong prompt
+
+A weak prompt says: “Summarize this customer call and suggest next steps.”
+
+A stronger prompt says:
+
+- summarize in five bullets
+- separate facts from assumptions
+- list only next steps supported by the call
+- if evidence is missing, say so explicitly
+
+The second prompt is better not because it sounds smarter, but because it reduces ambiguity.
+
+## Use constraints that match the task
+
+### For extraction
+
+Use explicit fields and validation rules.
+
+### For analysis
+
+Require evidence-backed claims and uncertainty markers.
+
+### For generation
+
+Define tone, audience, length, and forbidden content.
+
+### For workflow actions
+
+Require the model to ask for confirmation before irreversible steps.
+
+## The hidden benefit
+
+Constraint design also makes prompts easier to maintain. If the output quality changes, you can inspect which contract broke instead of endlessly tweaking wording like a Victorian séance.
+
+## Final rule
+
+When prompts feel unreliable, do not start by adding more adjectives. Start by tightening the task contract.
+
+That shift alone improves a surprising amount of LLM work.
+
+---
+
+### [RAG Freshness and Staleness: The Part Builders Underestimate](https://zro2.one/learn/rag-freshness-and-staleness-guide)
+> Why retrieval quality is not enough in RAG systems: freshness, index staleness, update pipelines, and trust in changing knowledge bases.
+
+Most RAG discussions focus on chunking, embeddings, and reranking. All important. But a lot of real failures come from something more boring: the system is retrieving old or inconsistent knowledge.
+
+## Freshness is part of quality
+
+A retrieval system can return highly relevant chunks that are also obsolete.
+
+That creates a dangerous illusion. The answer looks grounded. It is just grounded in the wrong version of reality.
+
+## Common staleness problems
+
+- documents updated but not reindexed
+- deleted content still searchable
+- multiple conflicting versions of the same policy
+- slow sync between source systems and vector store
+- metadata that does not reflect recency or authority
+
+These are not edge cases. They are normal operating problems.
+
+## Design for knowledge lifecycle
+
+A production RAG system needs a content lifecycle, not just a retrieval pipeline.
+
+Important pieces include:
+
+- ingestion timestamps
+- source-of-truth metadata
+- version handling
+- delete and tombstone behavior
+- scheduled or event-driven reindexing
+
+If your pipeline cannot answer “when did this chunk enter the index and what replaced it,” trust will erode fast.
+
+## Use freshness in ranking
+
+Relevance should not be the only score. In changing domains, ranking should also consider recency and authority. A slightly less semantically similar chunk from the current policy may be more valuable than a more similar chunk from last quarter.
+
+## Expose provenance to the user
+
+Good RAG products make it easier to judge freshness by showing:
+
+- source title
+- modified date
+- owning system or team
+- link to original document
+
+That turns retrieval from a black box into a navigable evidence layer.
+
+## Bottom line
+
+RAG quality is not just “did we retrieve the right kind of text?” It is also “did we retrieve text that is still true?”
+
+Builders who treat freshness as a first-class concern ship systems people can trust. Everyone else ships a polished way to quote outdated documents.
+
+---
+
 ### [AI Glossary: Evals Edition](https://zro2.one/learn/ai-glossary-evals-edition)
 > The practical vocabulary behind LLM evaluation, red-teaming, and AI reliability. If your team is building with models, these are the terms worth understanding.
 
@@ -22419,6 +23484,192 @@ What gets built on top of these advances — the multimodal agents, the embodied
 ---
 
 ## Industry & Applications
+
+### [AI Tools for Small Teams: A 2026 Selection Guide](https://zro2.one/learn/ai-tools-for-small-teams-2026)
+> How small teams should choose AI tools in 2026 without building a messy stack of overlapping copilots and disconnected subscriptions.
+
+Small teams do not need the biggest AI stack. They need the least annoying one.
+
+The failure mode is predictable: one writing tool, one meeting tool, one search tool, one coding tool, one automation tool, and six tabs open to products that mostly do the same thing.
+
+## Buy for workflows, not demos
+
+A flashy demo is easy. Daily use is hard.
+
+Before adding a tool, ask three questions:
+
+- What repeated task does this remove?
+- Where will people use it: chat, docs, email, IDE, browser?
+- What happens to the output after generation?
+
+If the answer to the third question is “someone copies it into another app,” you probably have integration debt already.
+
+## The five categories that matter most
+
+### 1) General-purpose assistant
+
+One strong model interface for research, drafting, analysis, and Q&A. This is the default surface people reach for when they are unsure where to start.
+
+### 2) Embedded office AI
+
+AI inside docs, spreadsheets, and presentations usually drives more usage than a standalone chatbot because it cuts context-switching.
+
+### 3) Search and knowledge retrieval
+
+Teams need a reliable way to search internal documents, not just ask a model to guess from memory.
+
+### 4) Coding support
+
+If your team ships software, this usually pays for itself quickly. If your team does not code, skip the shiny dev tools and spend elsewhere.
+
+### 5) Workflow automation
+
+The real compounding value comes from moving work between systems: intake, summarization, classification, routing, follow-up.
+
+## What small teams should avoid
+
+- overlapping subscriptions with no owner
+- tools that cannot export data cleanly
+- AI features with weak permission controls
+- niche copilots for tasks you do twice a month
+
+The worst AI stack is the one that creates more review and coordination work than it removes.
+
+## A simple selection model
+
+Use this order:
+
+1. start with one general assistant
+2. add embedded tools where work already happens
+3. add retrieval/search when information sprawl becomes painful
+4. automate only the workflows that happen every week
+
+This keeps the stack coherent.
+
+## The rule of thumb
+
+For a small team, fewer integrated tools beat more specialized tools almost every time. The goal is not maximum model exposure. The goal is faster work with less friction.
+
+That sounds obvious, but a lot of 2026 AI buying still behaves like tech tourism. The useful teams are the ones buying for operating rhythm, not novelty.
+
+---
+
+### [Image AI for Creative Ops: A Playbook for Teams That Need Throughput](https://zro2.one/learn/image-ai-creative-ops-playbook)
+> How creative and brand teams can use image AI for throughput without turning every asset into off-brand slop.
+
+Image AI is most useful when the problem is throughput, not originality theater.
+
+Creative ops teams need variants, mockups, background swaps, concept boards, and layout-ready assets. That is where image models help most. They are less reliable as autonomous taste machines.
+
+## Where image AI pays off
+
+Strong use cases tend to cluster around:
+
+- concept exploration before production
+- resizing and variant generation
+- background and object edits
+- product visualization drafts
+- campaign ideation boards
+- internal creative testing
+
+These are speed problems, not final-judgment problems.
+
+## Put the brand system upstream
+
+The fastest way to get junk is asking a model for “a premium modern ad” and hoping for the best.
+
+Good teams provide structure first:
+
+- color and typography references
+- product constraints
+- tone and visual vocabulary
+- negative examples
+- review criteria for acceptability
+
+The more reusable the brief, the more useful the model becomes.
+
+## Separate generation from approval
+
+Do not collapse ideation, selection, and publication into one step.
+
+A sane creative ops flow looks like this:
+
+1. generate candidate directions
+2. shortlist with human review
+3. refine with targeted edits
+4. hand off to design production or final QA
+
+This keeps AI in the acceleration lane instead of pretending it owns taste.
+
+## Watch for hidden costs
+
+Teams save time on production drafts and then lose it again cleaning up weird artifacts, brand drift, or legal ambiguity.
+
+That is why governance matters:
+
+- track source assets
+- label synthetic material internally
+- define approval thresholds
+- keep humans responsible for public output
+
+## Bottom line
+
+Image AI is best used as a creative multiplier, not a replacement for judgment. It helps teams explore faster, version faster, and test more directions. The teams that benefit most are the ones with clear standards, not the ones chasing infinite prompt roulette.
+
+---
+
+### [Video AI in Post-Production: A Systems Guide](https://zro2.one/learn/video-ai-post-production-systems-guide)
+> How video AI fits into post-production systems: logging, rough cuts, captioning, cleanup, highlights, and review workflows.
+
+Video AI is rarely a full replacement for editing judgment. It is much more interesting as infrastructure for post-production throughput.
+
+## Where the leverage is
+
+Post-production contains a lot of repetitive work:
+
+- transcription
+- clip logging
+- silence and filler detection
+- caption generation
+- highlight extraction
+- content tagging
+- first-pass rough cut assistance
+
+These are exactly the areas where AI can compress hours into minutes.
+
+## Think in stages, not one giant model
+
+A strong video AI stack usually combines multiple components:
+
+- speech recognition for transcript generation
+- vision models for scene and object understanding
+- language models for summarization and packaging
+- editing logic for timeline actions
+
+Trying to make one model do everything usually produces a flashy demo and a mediocre workflow.
+
+## Human review still defines the final mile
+
+Good editors care about pacing, tone, emphasis, and story shape. AI can assist with candidate cuts and metadata, but final editorial judgment still matters a lot.
+
+That is not a weakness. It is exactly why the workflow should separate assistance from approval.
+
+## Good product design patterns
+
+- keep transcript and timeline linked
+- make every AI suggestion reversible
+- show why a clip was selected
+- allow editors to teach preferences over time
+
+This creates a tool that accelerates editors rather than irritating them.
+
+## Strategic takeaway
+
+The best video AI products in 2026 are not “push button, movie appears.” They are systems that make media operations less manual, more searchable, and easier to iterate.
+
+That is a more durable value proposition than hype about fully automated storytelling.
+
+---
 
 ### [The AI Productivity Stack That's Actually Worth Building in 2026](https://zro2.one/learn/ai-tools-productivity-stack-2026)
 > Not every AI tool is worth adding to your workflow. This is the current stack that compounds — the tools that actually save time rather than just generating content to edit.
