@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "AI can dramatically speed up hiring workflows — but the legal, ethical, and practical risks are significant. Here's a clear-eyed guide to where AI helps, where it hurts, and where it's banned."
-related: [ai-workflows-human-in-the-loop, ai-workflows-customer-support, what-is-ai-ai-and-jobs]
+related: [ai-workflows-human-in-the-loop-design, ai-workflows-customer-support, what-is-ai-ai-and-jobs]
 ---
 
 Hiring is one of the most consequential business processes where AI is being deployed — and one of the most regulated. Getting it right means understanding not just the technology but the legal landscape, the bias risks, and where human judgment is irreplaceable.

@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 10
 description: "Medical imaging is one of AI's most impactful applications — but the gap between research papers and clinical reality is larger than headlines suggest. Here's an honest assessment of where things stand."
-related: [image-ai-vision-transformers, image-ai-diffusion-models, mllms-medical-imaging]
+related: [image-ai-vision-transformers, image-ai-understanding-diffusion-models, mllms-medical-imaging]
 ---
 
 AI in medical imaging is the rare case where the technology genuinely saves lives. FDA-cleared algorithms detect cancers, flag strokes, and identify fractures with accuracy that matches or exceeds radiologists in specific tasks. But the story is more nuanced than the headlines.

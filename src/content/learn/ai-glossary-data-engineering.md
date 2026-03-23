@@ -1,7 +1,7 @@
 ---
 title: "AI Glossary: The Data Engineering Edition"
 depth: essential
-pillar: reference
+pillar: practice
 topic: ai-glossary
 tags: [ai-glossary, data-engineering, data-pipelines, feature-stores, mlops]
 author: "bee"

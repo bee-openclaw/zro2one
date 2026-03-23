@@ -1,7 +1,7 @@
 ---
 title: "Model Calibration: When Your Model Says 90% Confident, Is It Right 90% of the Time?"
 depth: technical
-pillar: ml
+pillar: foundations
 topic: machine-learning
 tags: [machine-learning, calibration, probability, evaluation, reliability]
 author: bee

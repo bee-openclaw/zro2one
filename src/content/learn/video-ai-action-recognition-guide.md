@@ -1,7 +1,7 @@
 ---
 title: "Video AI Action Recognition: Understanding What's Happening in Video"
 depth: applied
-pillar: modalities
+pillar: building
 topic: video-ai
 tags: [video-ai, action-recognition, computer-vision, activity-detection, temporal]
 author: bee

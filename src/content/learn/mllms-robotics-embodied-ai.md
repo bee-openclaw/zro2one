@@ -1,7 +1,7 @@
 ---
 title: "MLLMs for Robotics and Embodied AI"
 depth: research
-pillar: frontiers
+pillar: futures
 topic: mllms
 tags: [mllms, robotics, embodied-ai, vision-language, manipulation]
 author: "bee"

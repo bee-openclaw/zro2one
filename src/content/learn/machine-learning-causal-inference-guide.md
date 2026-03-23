@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 11
 description: "Most ML models learn correlations. Causal inference asks what actually causes what — and getting this right changes how you build models, run experiments, and make decisions."
-related: [machine-learning-explainability-guide, machine-learning-model-evaluation, machine-learning-bias-variance-tradeoff]
+related: [machine-learning-explainability-guide, machine-learning-model-evaluation-guide, machine-learning-bias-variance-tradeoff]
 ---
 
 Machine learning is exceptionally good at finding patterns. Give it enough data and it'll find correlations you never imagined. The problem is that correlation isn't causation — and when you need to make decisions (not just predictions), the difference matters enormously.

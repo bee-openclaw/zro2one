@@ -1,7 +1,7 @@
 ---
 title: "Parent Document Retrieval: Solving RAG's Context Window Problem"
 depth: technical
-pillar: rag
+pillar: building
 topic: rag
 tags: [rag, retrieval, chunking, parent-document, architecture]
 author: bee

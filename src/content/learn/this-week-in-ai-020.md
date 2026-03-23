@@ -1,7 +1,7 @@
 ---
 title: "This Week in AI #020: Distillation Wars Heat Up, Audio AI Matures, Open-Source Reasoning Models Improve"
 depth: essential
-pillar: news
+pillar: current
 topic: this-week-in-ai
 tags: [news, distillation, audio-ai, open-source, reasoning]
 author: bee

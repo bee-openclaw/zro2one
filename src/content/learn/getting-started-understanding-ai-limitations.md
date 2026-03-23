@@ -1,7 +1,7 @@
 ---
 title: "Understanding AI Limitations: What It Can't Do (Yet)"
 depth: essential
-pillar: getting-started
+pillar: foundations
 topic: getting-started
 tags: [getting-started, limitations, hallucinations, expectations, beginner]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "AI Image Editing Workflows in 2026"
 depth: applied
-pillar: applied
+pillar: practice
 topic: image-ai
 tags: [image-ai, editing, workflows, creative-tools, productivity]
 author: bee

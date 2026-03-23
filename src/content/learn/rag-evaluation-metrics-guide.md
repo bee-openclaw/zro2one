@@ -1,7 +1,7 @@
 ---
 title: "Evaluation Metrics for RAG Systems"
 depth: technical
-pillar: applied
+pillar: practice
 topic: rag
 tags: [rag, evaluation, metrics, testing, quality]
 author: bee

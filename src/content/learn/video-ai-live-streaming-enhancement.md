@@ -1,7 +1,7 @@
 ---
 title: "AI-Powered Live Streaming: Real-Time Video Enhancement and Production"
 depth: applied
-pillar: media
+pillar: industry
 topic: video-ai
 tags: [video-ai, live-streaming, real-time, video-enhancement, production]
 author: bee

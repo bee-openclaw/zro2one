@@ -1,7 +1,7 @@
 ---
 title: "Cross-Modal Retrieval: Searching Across Text, Images, and Audio"
 depth: applied
-pillar: modalities
+pillar: building
 topic: multimodal-ai
 tags: [multimodal-ai, cross-modal, retrieval, embeddings, search]
 author: bee

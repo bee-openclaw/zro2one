@@ -1,7 +1,7 @@
 ---
 title: "Text Preprocessing in 2026: What Still Matters and What Doesn't"
 depth: applied
-pillar: nlp
+pillar: building
 topic: nlp
 tags: [nlp, preprocessing, text-processing, practical]
 author: bee

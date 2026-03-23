@@ -1,7 +1,7 @@
 ---
 title: "Can AI Be Conscious? The Debate Explained"
 depth: essential
-pillar: concepts
+pillar: foundations
 topic: what-is-ai
 tags: [what-is-ai, consciousness, philosophy, sentience, understanding]
 author: bee

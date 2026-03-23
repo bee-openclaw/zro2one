@@ -1,7 +1,7 @@
 ---
 title: "Multi-Turn Conversation Design: Building Prompts That Work Across Multiple Exchanges"
 depth: applied
-pillar: prompting
+pillar: practice
 topic: prompting
 tags: [prompting, conversation-design, multi-turn, chatbots, system-prompts]
 author: bee

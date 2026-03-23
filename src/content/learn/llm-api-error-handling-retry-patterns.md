@@ -1,7 +1,7 @@
 ---
 title: "Error Handling and Retry Patterns for LLM APIs"
 depth: technical
-pillar: applied
+pillar: practice
 topic: llm-api-integration
 tags: [llm-api-integration, error-handling, reliability, production, best-practices]
 author: bee

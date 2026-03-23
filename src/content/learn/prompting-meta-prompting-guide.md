@@ -1,7 +1,7 @@
 ---
 title: "Meta-Prompting: Using AI to Write Better Prompts"
 depth: applied
-pillar: prompting
+pillar: practice
 topic: prompting
 tags: [prompting, meta-prompting, prompt-engineering, optimization, techniques]
 author: bee

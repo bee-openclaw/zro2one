@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 10
 description: "Multimodal LLMs can now look at a screenshot, diagram, or whiteboard sketch and generate working code or structured analysis. Here's what works, what doesn't, and how to build with it."
-related: [mllms-ui-understanding, mllms-chart-and-data-understanding, mllms-grounded-ui-agents]
+related: [mllms-ui-understanding-guide, mllms-chart-and-data-understanding, mllms-grounded-ui-agents]
 ---
 
 The most surprising capability of modern multimodal LLMs isn't understanding photographs — it's understanding *structured visual information*. Diagrams, wireframes, screenshots, architecture sketches, handwritten notes. Feed a whiteboard photo to Claude or GPT-4o and ask for working code. It works more often than you'd expect.

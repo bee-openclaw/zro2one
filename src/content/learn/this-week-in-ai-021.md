@@ -1,7 +1,7 @@
 ---
 title: "This Week in AI #021: March 17–23, 2026"
 depth: essential
-pillar: news
+pillar: current
 topic: this-week-in-ai
 tags: [this-week-in-ai, news, roundup]
 author: bee

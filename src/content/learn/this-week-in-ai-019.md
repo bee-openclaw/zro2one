@@ -1,7 +1,7 @@
 ---
 title: "This Week in AI #019: Enterprise AI Gets Boring (That's Good), Video Models Find Their Niche"
 depth: essential
-pillar: news
+pillar: current
 topic: this-week-in-ai
 tags: [this-week-in-ai, news, enterprise, video-ai, open-source, regulation]
 author: bee

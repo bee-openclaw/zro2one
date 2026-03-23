@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "Sports video analysis has moved from expensive proprietary systems to accessible AI tools. Here's how player tracking, event detection, and tactical analysis work — and what you can build."
-related: [video-ai-object-tracking-guide, video-ai-scene-detection-and-segmentation, video-ai-real-time-processing]
+related: [video-ai-object-tracking-guide, video-ai-scene-detection-and-segmentation, video-ai-real-time-edge]
 ---
 
 Every professional sports team now uses video AI. What used to require a room full of analysts watching footage can now be automated: tracking every player's movement, detecting tactical patterns, measuring performance metrics, and generating actionable insights from game film.

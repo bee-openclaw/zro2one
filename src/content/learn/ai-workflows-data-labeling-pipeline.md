@@ -1,7 +1,7 @@
 ---
 title: "Building an AI-Assisted Data Labeling Pipeline"
 depth: applied
-pillar: workflows
+pillar: practice
 topic: ai-workflows
 tags: [ai-workflows, data-labeling, annotation, automation, machine-learning]
 author: bee

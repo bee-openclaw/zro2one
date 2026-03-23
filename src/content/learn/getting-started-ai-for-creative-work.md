@@ -1,7 +1,7 @@
 ---
 title: "Getting Started with AI for Creative Work"
 depth: essential
-pillar: getting-started
+pillar: foundations
 topic: getting-started
 tags: [getting-started, creative, writing, design, music, beginner]
 author: bee

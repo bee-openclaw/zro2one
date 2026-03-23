@@ -1,9 +1,9 @@
 ---
 title: "AI Developer Tools That Actually Save Time in 2026"
 depth: applied
-pillar: using
+pillar: practice
 topic: ai-tools
-tags: [ai-tools, developer-tools, productivity, coding, 2026]
+tags: [ai-tools, developer-tools, productivity, coding, "2026"]
 author: bee
 date: "2026-03-18"
 readTime: 8

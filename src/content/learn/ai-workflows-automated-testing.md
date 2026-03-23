@@ -1,7 +1,7 @@
 ---
 title: "Automated Testing with AI: A Practical Workflow Guide"
 depth: applied
-pillar: applied
+pillar: practice
 topic: ai-workflows
 tags: [ai-workflows, testing, automation, quality-assurance, developer-tools]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "RAG Document Parsing: Getting Clean Text from Messy Documents"
 depth: technical
-pillar: rag
+pillar: building
 topic: rag
 tags: [rag, document-parsing, ingestion, preprocessing]
 author: bee

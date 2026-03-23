@@ -1,7 +1,7 @@
 ---
 title: "Multimodal AI for Creative Professionals: A Practical Guide"
 depth: applied
-pillar: multimodal
+pillar: building
 topic: multimodal-ai
 tags: [multimodal-ai, creative, tools, workflows]
 author: bee

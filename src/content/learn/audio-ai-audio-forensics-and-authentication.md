@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "As synthetic voice gets better, verifying that audio is real becomes critical. Here's how audio forensics works, what AI detection can and can't do, and the emerging authentication standards."
-related: [audio-ai-voice-cloning-2026, audio-ai-noise-reduction-and-enhancement, what-is-ai-ai-and-creativity]
+related: [audio-ai-voice-cloning-2026, audio-ai-noise-reduction-and-enhancement, what-is-ai-and-creativity]
 ---
 
 Voice cloning has crossed the uncanny valley. A three-second sample is enough to generate convincing synthetic speech. This creates an urgent problem: how do you know if audio is real?

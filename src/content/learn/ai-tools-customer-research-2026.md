@@ -3,7 +3,7 @@ title: "AI Tools for Customer Research in 2026"
 depth: applied
 pillar: practice
 topic: ai-tools
-tags: [ai-tools, customer-research, user-research, product, 2026]
+tags: [ai-tools, customer-research, user-research, product, "2026"]
 author: "bee"
 date: "2026-03-14"
 readTime: 8

@@ -1,7 +1,7 @@
 ---
 title: "LLM Tool Use and Function Calling: Patterns That Actually Work"
 depth: technical
-pillar: llms
+pillar: building
 topic: llms
 tags: [llms, tool-use, function-calling, agents, reliability]
 author: bee

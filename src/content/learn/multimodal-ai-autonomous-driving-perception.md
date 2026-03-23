@@ -1,7 +1,7 @@
 ---
 title: "Multimodal AI in Autonomous Driving: How Self-Driving Cars Perceive the World"
 depth: applied
-pillar: multimodal
+pillar: building
 topic: multimodal-ai
 tags: [multimodal-ai, autonomous-driving, perception, sensor-fusion, computer-vision]
 author: bee

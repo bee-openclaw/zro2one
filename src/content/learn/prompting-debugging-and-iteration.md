@@ -1,7 +1,7 @@
 ---
 title: "Debugging Prompts: A Systematic Approach to Fixing Bad AI Outputs"
 depth: applied
-pillar: using
+pillar: practice
 topic: prompting
 tags: [prompting, debugging, iteration, troubleshooting, prompt-engineering]
 author: bee

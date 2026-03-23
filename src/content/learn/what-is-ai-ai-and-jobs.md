@@ -1,7 +1,7 @@
 ---
 title: "AI and Jobs: What's Actually Happening (Not the Headlines)"
 depth: essential
-pillar: concepts
+pillar: foundations
 topic: what-is-ai
 tags: [what-is-ai, jobs, automation, future-of-work, economy]
 author: bee

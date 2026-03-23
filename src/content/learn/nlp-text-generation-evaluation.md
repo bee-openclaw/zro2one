@@ -1,7 +1,7 @@
 ---
 title: "Evaluating Text Generation: Metrics, Methods, and What Actually Works"
 depth: applied
-pillar: nlp
+pillar: building
 topic: nlp
 tags: [nlp, evaluation, text-generation, metrics, llm-evaluation]
 author: bee

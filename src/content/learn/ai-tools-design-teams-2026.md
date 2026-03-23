@@ -3,7 +3,7 @@ title: "AI Tools for Design Teams in 2026"
 depth: applied
 pillar: practice
 topic: ai-tools
-tags: [ai-tools, design, creative-ai, image-ai, productivity, 2026]
+tags: [ai-tools, design, creative-ai, image-ai, productivity, "2026"]
 author: bee
 date: "2026-03-13"
 readTime: 9

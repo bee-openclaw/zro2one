@@ -1,7 +1,7 @@
 ---
 title: "Federated Learning: Training Models Without Sharing Data"
 depth: technical
-pillar: machine-learning
+pillar: foundations
 topic: machine-learning
 tags: [machine-learning, federated-learning, privacy, distributed-systems]
 author: bee

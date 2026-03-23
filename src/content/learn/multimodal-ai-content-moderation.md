@@ -1,7 +1,7 @@
 ---
 title: "Multimodal AI for Content Moderation: Beyond Text Filters"
 depth: applied
-pillar: multimodal
+pillar: building
 topic: multimodal-ai
 tags: [multimodal-ai, content-moderation, safety, trust-and-safety, applied]
 author: bee

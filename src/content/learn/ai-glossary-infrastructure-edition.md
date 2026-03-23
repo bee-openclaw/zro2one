@@ -1,7 +1,7 @@
 ---
 title: "AI Glossary: Infrastructure Edition"
 depth: applied
-pillar: reference
+pillar: practice
 topic: ai-glossary
 tags: [ai-glossary, infrastructure, mlops, gpu, deployment]
 author: bee

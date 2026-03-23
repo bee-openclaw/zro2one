@@ -1,7 +1,7 @@
 ---
 title: "LLM Prompt Caching: Cut Costs and Latency by 90%"
 depth: technical
-pillar: integration
+pillar: building
 topic: llm-api-integration
 tags: [llm-api-integration, prompt-caching, optimization, cost, latency]
 author: bee

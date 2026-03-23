@@ -1,7 +1,7 @@
 ---
 title: "AI Photography Workflows: From Capture to Final Edit in 2026"
 depth: applied
-pillar: media
+pillar: industry
 topic: image-ai
 tags: [image-ai, photography, editing, workflows, tools]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "Spatial Audio and AI: How Models Create 3D Sound"
 depth: applied
-pillar: audio
+pillar: industry
 topic: audio-ai
 tags: [audio-ai, spatial-audio, 3d-audio, immersive, generation]
 author: bee

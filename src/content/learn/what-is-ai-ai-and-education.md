@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 8
 description: "AI tutors, automated grading, personalized learning, and the cheating crisis. Here's an honest look at how AI is reshaping education — the promise, the problems, and the messy reality."
-related: [what-is-ai-ai-and-jobs, what-is-ai-ai-and-creativity, getting-started-ai-for-students]
+related: [what-is-ai-ai-and-jobs, what-is-ai-and-creativity, getting-started-ai-for-students]
 ---
 
 AI in education is a story of two simultaneously true things: AI tutoring has the potential to be the most significant improvement in learning since the printing press, AND AI is creating the biggest academic integrity crisis in the history of education.

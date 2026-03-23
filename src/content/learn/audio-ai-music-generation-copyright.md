@@ -1,7 +1,7 @@
 ---
 title: "AI Music Generation and the Copyright Question"
 depth: applied
-pillar: applied
+pillar: practice
 topic: audio-ai
 tags: [audio-ai, music-generation, copyright, legal, creative-ai]
 author: bee

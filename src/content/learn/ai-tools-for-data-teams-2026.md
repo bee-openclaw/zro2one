@@ -1,7 +1,7 @@
 ---
 title: "AI Tools for Data Teams in 2026"
 depth: applied
-pillar: applied
+pillar: practice
 topic: ai-tools
 tags: [ai-tools, data-analysis, data-science, analytics, productivity]
 author: bee

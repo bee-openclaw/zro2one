@@ -1,7 +1,7 @@
 ---
 title: "AI Tools for Finance Teams in 2026: What Actually Works"
 depth: applied
-pillar: tools
+pillar: practice
 topic: ai-tools
 tags: [ai-tools, finance, automation, productivity]
 author: bee

@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 11
 description: "Not all data fits in a grid. Social networks, molecules, knowledge graphs, and road networks are naturally graphs. Graph neural networks learn representations that respect this structure."
-related: [deep-learning-cnns-explained, ai-foundations-transformers, deep-learning-attention-mechanisms]
+related: [deep-learning-cnns-explained, ai-foundations-transformers, deep-learning-attention-mechanisms-visual-guide]
 ---
 
 CNNs process grids (images). RNNs and Transformers process sequences (text). But many real-world datasets are neither — they're graphs. Social networks, molecular structures, road networks, recommendation systems, knowledge graphs, and citation networks are all naturally represented as nodes connected by edges.

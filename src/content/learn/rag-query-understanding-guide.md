@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "The quality of RAG output depends more on understanding the query than on the retrieval algorithm. Query classification, expansion, decomposition, and routing determine whether the right documents ever reach the LLM."
-related: [rag-query-rewriting, rag-hybrid-search-guide, rag-reranking-guide]
+related: [rag-query-rewriting-guide, rag-hybrid-search-guide, rag-reranking-strategies]
 ---
 
 Most RAG tutorials focus on the retrieval and generation steps. But the silent failure mode of production RAG systems is upstream: the system doesn't understand what the user is actually asking for.

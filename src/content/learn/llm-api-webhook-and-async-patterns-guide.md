@@ -1,7 +1,7 @@
 ---
 title: "LLM API Webhooks and Async Patterns: Beyond Request-Response"
 depth: technical
-pillar: integrations
+pillar: building
 topic: llm-api-integration
 tags: [llm-api-integration, webhooks, async, architecture]
 author: bee

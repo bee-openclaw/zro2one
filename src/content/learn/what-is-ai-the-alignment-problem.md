@@ -1,7 +1,7 @@
 ---
 title: "The Alignment Problem: Why Getting AI to Do What We Mean Is So Hard"
 depth: essential
-pillar: concepts
+pillar: foundations
 topic: what-is-ai
 tags: [what-is-ai, alignment, safety, values, reward-hacking]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "Prompting for Structured Output: JSON, Tables, Lists, and Beyond"
 depth: applied
-pillar: prompting
+pillar: practice
 topic: prompting
 tags: [prompting, structured-output, json, formatting, practical]
 author: bee

@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "When text says 'she,' 'the company,' or 'it,' something needs to figure out what those words refer to. Coreference resolution is the NLP task of linking mentions to entities — and it's harder than it sounds."
-related: [nlp-named-entity-recognition, nlp-information-extraction, nlp-text-classification]
+related: [nlp-named-entity-recognition, nlp-information-extraction-guide, nlp-text-classification-guide]
 ---
 
 Consider this paragraph:

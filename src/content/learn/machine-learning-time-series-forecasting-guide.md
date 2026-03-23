@@ -1,7 +1,7 @@
 ---
 title: "Time Series Forecasting with Machine Learning: A Practical Guide"
 depth: applied
-pillar: fundamentals
+pillar: foundations
 topic: machine-learning
 tags: [machine-learning, time-series, forecasting, applied-ml, data-science]
 author: bee

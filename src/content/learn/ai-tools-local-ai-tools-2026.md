@@ -1,7 +1,7 @@
 ---
 title: "The Best Local AI Tools in 2026: Privacy-First Alternatives"
 depth: applied
-pillar: tools
+pillar: practice
 topic: ai-tools
 tags: [ai-tools, local-ai, privacy, open-source, ollama]
 author: bee

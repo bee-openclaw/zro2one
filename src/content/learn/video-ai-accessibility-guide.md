@@ -1,7 +1,7 @@
 ---
 title: "AI-Powered Video Accessibility: A Complete Guide"
 depth: applied
-pillar: applied
+pillar: practice
 topic: video-ai
 tags: [video-ai, accessibility, captioning, audio-description, inclusion]
 author: bee

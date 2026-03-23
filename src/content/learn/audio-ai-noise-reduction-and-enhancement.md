@@ -1,7 +1,7 @@
 ---
 title: "AI Audio Noise Reduction and Enhancement: From Raw to Professional"
 depth: applied
-pillar: media
+pillar: industry
 topic: audio-ai
 tags: [audio-ai, noise-reduction, audio-enhancement, production, tools]
 author: bee

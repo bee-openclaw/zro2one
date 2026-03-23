@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 8
 description: "Most people try AI once, think 'that's cool,' and go back to their old workflow. Here's how to actually make AI a persistent part of how you work — with specific habits, triggers, and low-friction patterns."
-related: [getting-started-first-week-exercises, getting-started-ai-at-work, getting-started-evaluating-ai-outputs]
+related: [getting-started-first-week-exercises, getting-started-ai-at-work-safely, getting-started-evaluating-ai-outputs]
 ---
 
 You've tried ChatGPT. Maybe Claude too. You've been impressed a few times, frustrated a few times, and then... gone back to doing things the way you always have. Sound familiar?

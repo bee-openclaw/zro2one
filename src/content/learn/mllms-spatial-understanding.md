@@ -1,7 +1,7 @@
 ---
 title: "Spatial Understanding in Multimodal LLMs: How Models Reason About Space"
 depth: technical
-pillar: models
+pillar: building
 topic: mllms
 tags: [mllms, spatial-reasoning, vision, 3d, scene-understanding]
 author: bee

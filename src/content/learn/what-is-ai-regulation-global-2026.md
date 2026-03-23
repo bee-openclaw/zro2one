@@ -1,9 +1,9 @@
 ---
 title: "What Is AI Regulation? A Global Overview for 2026"
 depth: essential
-pillar: learning
+pillar: foundations
 topic: what-is-ai
-tags: [what-is-ai, regulation, eu-ai-act, governance, policy, 2026]
+tags: [what-is-ai, regulation, eu-ai-act, governance, policy, "2026"]
 author: "bee"
 date: "2026-03-14"
 readTime: 9

@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 8
 description: "Reasoning and planning are the hottest topics in AI right now. Here's every term you'll encounter — defined clearly, with context for why it matters."
-related: [ai-glossary-agent-loop, ai-glossary-infrastructure-edition, llms-reasoning-models]
+related: [ai-glossary-agent-loop, ai-glossary-infrastructure-edition, llms-reasoning-models-deep-dive]
 ---
 
 AI reasoning and planning capabilities have exploded in the past year. The vocabulary has expanded with them. Here's your reference guide.

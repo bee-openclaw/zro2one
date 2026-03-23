@@ -1,7 +1,7 @@
 ---
 title: "LLM API Caching Strategies: Stop Paying for the Same Answer Twice"
 depth: technical
-pillar: integration
+pillar: building
 topic: llm-api-integration
 tags: [llm-api, caching, cost-optimization, performance, architecture]
 author: bee

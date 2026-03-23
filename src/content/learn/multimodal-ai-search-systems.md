@@ -1,7 +1,7 @@
 ---
 title: "Multimodal Search Systems: Finding Anything with AI"
 depth: applied
-pillar: applied
+pillar: practice
 topic: multimodal-ai
 tags: [multimodal-ai, search, embeddings, retrieval, vector-search]
 author: bee

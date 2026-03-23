@@ -1,7 +1,7 @@
 ---
 title: "AI for Small Business: Where to Start Without a Data Team"
 depth: essential
-pillar: getting-started
+pillar: foundations
 topic: getting-started
 tags: [getting-started, small-business, practical-ai, automation, tools]
 author: bee

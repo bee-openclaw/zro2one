@@ -1,7 +1,7 @@
 ---
 title: "Weight Initialization in Deep Learning: Why It Matters More Than You Think"
 depth: technical
-pillar: fundamentals
+pillar: foundations
 topic: deep-learning
 tags: [deep-learning, weight-initialization, training, neural-networks, optimization]
 author: bee

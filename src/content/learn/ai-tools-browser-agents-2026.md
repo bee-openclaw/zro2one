@@ -1,9 +1,9 @@
 ---
 title: "AI Browser Agents in 2026: Tools That Actually Browse the Web for You"
 depth: applied
-pillar: tools
+pillar: practice
 topic: ai-tools
-tags: [ai-tools, browser-agents, automation, web-browsing, productivity, 2026]
+tags: [ai-tools, browser-agents, automation, web-browsing, productivity, "2026"]
 author: bee
 date: "2026-03-15"
 readTime: 8

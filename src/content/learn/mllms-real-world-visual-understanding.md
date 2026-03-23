@@ -1,7 +1,7 @@
 ---
 title: "MLLMs in the Wild: Real-World Visual Understanding Beyond Benchmarks"
 depth: technical
-pillar: mllms
+pillar: building
 topic: mllms
 tags: [mllms, visual-understanding, deployment, evaluation]
 author: bee

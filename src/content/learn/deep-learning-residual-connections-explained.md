@@ -1,7 +1,7 @@
 ---
 title: "Residual Connections: The Simple Idea That Made Deep Learning Deep"
 depth: technical
-pillar: deep-learning
+pillar: foundations
 topic: deep-learning
 tags: [deep-learning, residual-connections, skip-connections, architecture]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "How to Tell If AI Gave You a Good Answer"
 depth: essential
-pillar: using
+pillar: practice
 topic: getting-started
 tags: [getting-started, evaluation, critical-thinking, hallucination, trust]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "AI for Freelancers: Work Smarter Without Hiring a Team"
 depth: essential
-pillar: getting-started
+pillar: foundations
 topic: getting-started
 tags: [getting-started, freelancers, productivity, practical]
 author: bee

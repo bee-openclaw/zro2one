@@ -1,7 +1,7 @@
 ---
 title: "AI Glossary: Multimodal Edition"
 depth: applied
-pillar: reference
+pillar: practice
 topic: ai-glossary
 tags: [ai-glossary, multimodal, reference, terminology, vision, audio]
 author: bee

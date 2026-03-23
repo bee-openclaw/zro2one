@@ -1,7 +1,7 @@
 ---
 title: "AI Scene Detection and Video Segmentation: Automatically Understanding Video Structure"
 depth: applied
-pillar: media
+pillar: industry
 topic: video-ai
 tags: [video-ai, scene-detection, segmentation, video-understanding, editing]
 author: bee

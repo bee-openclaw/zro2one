@@ -1,7 +1,7 @@
 ---
 title: "AI Inpainting and Outpainting: Editing and Extending Images Intelligently"
 depth: applied
-pillar: modalities
+pillar: building
 topic: image-ai
 tags: [image-ai, inpainting, outpainting, editing, diffusion-models]
 author: bee

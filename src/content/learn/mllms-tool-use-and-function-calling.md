@@ -1,7 +1,7 @@
 ---
 title: "Tool Use and Function Calling in Multimodal LLMs"
 depth: technical
-pillar: models
+pillar: building
 topic: mllms
 tags: [mllms, tool-use, function-calling, agents, multimodal]
 author: bee

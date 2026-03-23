@@ -1,7 +1,7 @@
 ---
 title: "AI for Architectural Visualization: From Sketches to Photorealistic Renders"
 depth: applied
-pillar: image
+pillar: industry
 topic: image-ai
 tags: [image-ai, architecture, visualization, diffusion-models]
 author: bee

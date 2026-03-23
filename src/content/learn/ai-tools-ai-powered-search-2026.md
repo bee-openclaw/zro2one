@@ -1,9 +1,9 @@
 ---
 title: "AI-Powered Search Tools in 2026: Beyond Keywords"
 depth: applied
-pillar: tools
+pillar: practice
 topic: ai-tools
-tags: [ai-tools, search, semantic-search, productivity, 2026]
+tags: [ai-tools, search, semantic-search, productivity, "2026"]
 author: bee
 date: "2026-03-17"
 readTime: 8

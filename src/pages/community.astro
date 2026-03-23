@@ -1,0 +1,214 @@
+---
+import Layout from '../layouts/Layout.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+---
+
+<Layout
+  title="Community — Zro2One"
+  description="Join the Zro2One community. Three learning tracks — Foundation, Advanced, and Business — designed to meet you where you are and take you further."
+>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <!-- Hero -->
+    <div class="text-center mb-16">
+      <h1 class="text-4xl sm:text-5xl font-black text-zro-dark mb-6">
+        Learn together. Build together.
+      </h1>
+      <p class="text-lg sm:text-xl text-zro-gray max-w-2xl mx-auto">
+        AI moves fast. You don't have to figure it out alone. Join a community of people
+        learning, building, and launching — at every level.
+      </p>
+    </div>
+
+    <!-- Three Tracks -->
+    <div class="grid gap-8 sm:grid-cols-1 lg:grid-cols-3 mb-20">
+      <!-- Track 1: Foundation -->
+      <div class="rounded-2xl border border-gray-200 p-8 flex flex-col hover:border-emerald-300 hover:shadow-lg transition-all">
+        <div class="text-3xl mb-4">🟢</div>
+        <h2 class="text-xl font-bold text-zro-dark mb-2">Foundation</h2>
+        <p class="text-sm font-medium text-emerald-600 mb-4">For curious professionals</p>
+        <p class="text-zro-gray text-sm leading-relaxed mb-6 flex-1">
+          You've heard about AI tools but haven't used them yet — or tried once and bounced off.
+          This track gives you a structured on-ramp: what AI actually is, which tools matter for
+          your work, and how to start using them with confidence. No coding required.
+        </p>
+        <ul class="text-sm text-zro-gray space-y-2 mb-6">
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-500 mt-0.5">✓</span>
+            <span>Guided learning paths through Zro2One content</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-500 mt-0.5">✓</span>
+            <span>Weekly live sessions with walkthroughs</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-500 mt-0.5">✓</span>
+            <span>Ask questions in a judgment-free space</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-500 mt-0.5">✓</span>
+            <span>Cohort-based — learn alongside peers</span>
+          </li>
+        </ul>
+        <p class="text-xs text-zro-gray italic">
+          Best for: mid-career and senior professionals, career changers, managers, educators
+        </p>
+      </div>
+
+      <!-- Track 2: Advanced -->
+      <div class="rounded-2xl border border-gray-200 p-8 flex flex-col hover:border-purple-300 hover:shadow-lg transition-all">
+        <div class="text-3xl mb-4">🟣</div>
+        <h2 class="text-xl font-bold text-zro-dark mb-2">Advanced</h2>
+        <p class="text-sm font-medium text-purple-600 mb-4">For builders and practitioners</p>
+        <p class="text-zro-gray text-sm leading-relaxed mb-6 flex-1">
+          You already use AI tools and maybe build with them. You want to stay sharp, learn what's
+          new, and swap notes with people at your level. This track is peer-driven — show and tell,
+          not lecture and listen.
+        </p>
+        <ul class="text-sm text-zro-gray space-y-2 mb-6">
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-0.5">✓</span>
+            <span>Biweekly show-and-tell sessions</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-0.5">✓</span>
+            <span>Share projects, tools, and workflows</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-0.5">✓</span>
+            <span>Deep-dives on new models, frameworks, and techniques</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-purple-500 mt-0.5">✓</span>
+            <span>Collaborative projects and challenges</span>
+          </li>
+        </ul>
+        <p class="text-xs text-zro-gray italic">
+          Best for: developers, engineers, data scientists, AI-native professionals
+        </p>
+      </div>
+
+      <!-- Track 3: Business -->
+      <div class="rounded-2xl border border-gray-200 p-8 flex flex-col hover:border-amber-300 hover:shadow-lg transition-all">
+        <div class="text-3xl mb-4">🟠</div>
+        <h2 class="text-xl font-bold text-zro-dark mb-2">Business</h2>
+        <p class="text-sm font-medium text-amber-600 mb-4">For aspiring founders</p>
+        <p class="text-zro-gray text-sm leading-relaxed mb-6 flex-1">
+          You can build things with AI — but turning skills into a business is a different game.
+          This track covers idea validation, finding customers, pricing, MVP strategy, and the
+          unglamorous work of going from side project to real revenue.
+        </p>
+        <ul class="text-sm text-zro-gray space-y-2 mb-6">
+          <li class="flex items-start gap-2">
+            <span class="text-amber-500 mt-0.5">✓</span>
+            <span>Idea validation frameworks</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-500 mt-0.5">✓</span>
+            <span>Office hours with founders and mentors</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-500 mt-0.5">✓</span>
+            <span>From MVP to first customer playbooks</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-amber-500 mt-0.5">✓</span>
+            <span>Accountability groups and peer feedback</span>
+          </li>
+        </ul>
+        <p class="text-xs text-zro-gray italic">
+          Best for: technical people exploring entrepreneurship, freelancers, indie hackers
+        </p>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mb-20">
+      <h2 class="text-2xl sm:text-3xl font-black text-zro-dark mb-8 text-center">
+        How it works
+      </h2>
+      <div class="grid gap-6 sm:grid-cols-3">
+        <div class="text-center">
+          <div class="text-4xl font-black text-emerald-500 mb-3">1</div>
+          <h3 class="font-bold text-zro-dark mb-2">Pick your track</h3>
+          <p class="text-sm text-zro-gray">
+            Choose the track that matches where you are right now. Not sure? Start with Foundation.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-black text-emerald-500 mb-3">2</div>
+          <h3 class="font-bold text-zro-dark mb-2">Join the community</h3>
+          <p class="text-sm text-zro-gray">
+            Get access to your track's channel, resources, and sessions. Everything is free.
+          </p>
+        </div>
+        <div class="text-center">
+          <div class="text-4xl font-black text-emerald-500 mb-3">3</div>
+          <h3 class="font-bold text-zro-dark mb-2">Show up and grow</h3>
+          <p class="text-sm text-zro-gray">
+            Attend sessions, ask questions, share what you learn. The community gets better when you participate.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mb-20">
+      <h2 class="text-2xl sm:text-3xl font-black text-zro-dark mb-8 text-center">
+        Questions
+      </h2>
+      <div class="space-y-6 max-w-2xl mx-auto">
+        <div>
+          <h3 class="font-bold text-zro-dark mb-1">Is this really free?</h3>
+          <p class="text-sm text-zro-gray">
+            Yes. The community, the content, and the sessions are all free. We believe AI education
+            should be accessible to everyone.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-zro-dark mb-1">Can I switch tracks?</h3>
+          <p class="text-sm text-zro-gray">
+            Absolutely. Tracks aren't gates — they're starting points. Join multiple if you want.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-zro-dark mb-1">What's the time commitment?</h3>
+          <p class="text-sm text-zro-gray">
+            Foundation runs weekly sessions (~1 hour). Advanced and Business run biweekly. Everything
+            is recorded if you can't make it live.
+          </p>
+        </div>
+        <div>
+          <h3 class="font-bold text-zro-dark mb-1">Do I need to know how to code?</h3>
+          <p class="text-sm text-zro-gray">
+            Not for Foundation or Business. The Advanced track assumes some technical background, but
+            there's no strict requirement.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center rounded-2xl bg-slate-50 border border-gray-200 p-10 sm:p-14 mb-16">
+      <h2 class="text-2xl sm:text-3xl font-black text-zro-dark mb-4">
+        Ready to join?
+      </h2>
+      <p class="text-zro-gray mb-8 max-w-lg mx-auto">
+        Sign up below and we'll get you into the right track. First cohort launching soon.
+      </p>
+      <a
+        href="https://forms.gle/PLACEHOLDER"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-block bg-zro-dark text-white font-bold px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors text-sm"
+      >
+        Join the Community →
+      </a>
+      <p class="text-xs text-zro-gray mt-4">Free forever. No spam. Just learning.</p>
+    </div>
+
+    <!-- Newsletter -->
+    <div>
+      <NewsletterForm />
+    </div>
+  </div>
+</Layout>

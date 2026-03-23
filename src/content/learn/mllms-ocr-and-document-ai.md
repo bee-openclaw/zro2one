@@ -1,7 +1,7 @@
 ---
 title: "MLLMs for OCR and Document AI: Beyond Traditional Text Recognition"
 depth: technical
-pillar: multimodal
+pillar: building
 topic: mllms
 tags: [mllms, ocr, document-ai, vision-language, extraction]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "Text Summarization: From Extractive to Abstractive to LLM-Powered"
 depth: applied
-pillar: nlp
+pillar: building
 topic: nlp
 tags: [nlp, summarization, text-processing, llms, applied]
 author: bee

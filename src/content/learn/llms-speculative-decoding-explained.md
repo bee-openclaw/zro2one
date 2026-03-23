@@ -1,7 +1,7 @@
 ---
 title: "Speculative Decoding: How LLMs Generate Text Faster Without Losing Quality"
 depth: technical
-pillar: models
+pillar: building
 topic: llms
 tags: [llms, speculative-decoding, inference, performance, optimization]
 author: bee

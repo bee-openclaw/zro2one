@@ -1,7 +1,7 @@
 ---
 title: "LLM Routing: How to Pick the Right Model for Every Request"
 depth: technical
-pillar: models
+pillar: building
 topic: llms
 tags: [llms, routing, model-selection, optimization, cost]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "Video Search and Retrieval: Finding Moments in Hours of Footage"
 depth: applied
-pillar: video
+pillar: industry
 topic: video-ai
 tags: [video-ai, search, retrieval, multimodal]
 author: bee

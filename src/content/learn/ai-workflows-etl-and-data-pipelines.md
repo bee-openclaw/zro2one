@@ -1,7 +1,7 @@
 ---
 title: "AI-Powered ETL and Data Pipelines: Automating the Unglamorous Work"
 depth: applied
-pillar: workflows
+pillar: practice
 topic: ai-workflows
 tags: [ai-workflows, etl, data-pipelines, automation, data-engineering]
 author: bee

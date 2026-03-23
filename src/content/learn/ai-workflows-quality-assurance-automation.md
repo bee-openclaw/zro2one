@@ -1,7 +1,7 @@
 ---
 title: "AI Workflows for Quality Assurance: Automating the Boring Parts"
 depth: applied
-pillar: workflows
+pillar: practice
 topic: ai-workflows
 tags: [ai-workflows, qa, testing, automation]
 author: bee

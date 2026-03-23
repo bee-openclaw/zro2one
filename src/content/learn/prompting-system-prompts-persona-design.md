@@ -1,7 +1,7 @@
 ---
 title: "System Prompts and Persona Design: Shaping How AI Behaves"
 depth: applied
-pillar: applied
+pillar: practice
 topic: prompting
 tags: [prompting, system-prompts, persona-design, prompt-engineering, llm-customization]
 author: bee

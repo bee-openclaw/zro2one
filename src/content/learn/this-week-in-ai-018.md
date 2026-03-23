@@ -1,7 +1,7 @@
 ---
 title: "This Week in AI #018: Agents Get Memory, Open Models Close the Gap"
 depth: essential
-pillar: news
+pillar: current
 topic: this-week-in-ai
 tags: [this-week-in-ai, news, agents, open-source, memory]
 author: bee

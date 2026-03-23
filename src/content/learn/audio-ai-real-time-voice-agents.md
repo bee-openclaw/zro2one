@@ -1,7 +1,7 @@
 ---
 title: "Building Real-Time Voice Agents with Audio AI"
 depth: applied
-pillar: modalities
+pillar: building
 topic: audio-ai
 tags: [audio-ai, voice-agents, real-time, speech, conversational-ai]
 author: bee

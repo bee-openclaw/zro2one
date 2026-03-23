@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 8
 description: "Telling an AI to 'act as an expert' changes its output in measurable ways. Here's the science behind role prompting, the patterns that work, the ones that don't, and how to design roles that consistently improve output."
-related: [prompting-system-prompts-explained, prompting-meta-prompting-guide, prompting-constraint-design]
+related: [prompting-system-prompts-explained, prompting-meta-prompting-guide, prompting-constraint-design-guide]
 ---
 
 "You are a senior software engineer at a FAANG company." Does this actually change the AI's output? Yes — measurably. But not always in the way you'd expect.

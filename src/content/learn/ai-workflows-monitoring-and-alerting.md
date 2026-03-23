@@ -1,7 +1,7 @@
 ---
 title: "AI Workflow Monitoring: Catching Failures Before Your Users Do"
 depth: applied
-pillar: workflows
+pillar: practice
 topic: ai-workflows
 tags: [ai-workflows, monitoring, alerting, observability, production]
 author: bee

@@ -1,7 +1,7 @@
 ---
 title: "Knowledge Distillation: Making Large Models Small Without Losing What They Know"
 depth: technical
-pillar: dl
+pillar: foundations
 topic: deep-learning
 tags: [deep-learning, distillation, compression, deployment, optimization]
 author: bee

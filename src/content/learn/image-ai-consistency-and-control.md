@@ -1,7 +1,7 @@
 ---
 title: "Image AI: Achieving Consistency and Control in Generation"
 depth: applied
-pillar: image
+pillar: industry
 topic: image-ai
 tags: [image-ai, consistency, controlnet, ip-adapter, style, generation]
 author: bee

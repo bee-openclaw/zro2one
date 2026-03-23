@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 10
 description: "The loss landscape determines whether your neural network trains successfully or gets stuck. Understanding its geometry — saddle points, plateaus, sharp vs. flat minima — changes how you think about training."
-related: [ai-foundations-gradient-descent, ai-foundations-optimization-algorithms, deep-learning-weight-initialization-guide]
+related: [ai-foundations-gradient-descent-intuition, ai-foundations-optimization-algorithms, deep-learning-weight-initialization-guide]
 ---
 
 When a neural network trains, it's navigating a high-dimensional surface — the loss landscape. Every point on this surface represents a specific set of weights, and the height at that point is the loss (how wrong the model is). Training is the process of moving downhill.

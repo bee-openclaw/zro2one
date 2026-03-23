@@ -1,7 +1,7 @@
 ---
 title: "Self-Consistency Prompting: When One Answer Isn't Enough"
 depth: applied
-pillar: prompting
+pillar: practice
 topic: prompting
 tags: [prompting, self-consistency, reasoning, reliability]
 author: bee

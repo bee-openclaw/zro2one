@@ -1,7 +1,7 @@
 ---
 title: "AI Lip Sync and Dubbing: Translating Video Across Languages"
 depth: applied
-pillar: video
+pillar: industry
 topic: video-ai
 tags: [video-ai, lip-sync, dubbing, translation, localization]
 author: bee

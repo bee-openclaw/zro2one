@@ -1,7 +1,7 @@
 ---
 title: "Metadata Filtering in RAG: The Most Underrated Retrieval Technique"
 depth: technical
-pillar: rag
+pillar: building
 topic: rag
 tags: [rag, metadata, filtering, retrieval, vector-search, architecture]
 author: bee

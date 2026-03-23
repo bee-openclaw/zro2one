@@ -1,7 +1,7 @@
 ---
 title: "Voice Activity Detection: The Unsung Hero of Audio AI"
 depth: applied
-pillar: audio
+pillar: industry
 topic: audio-ai
 tags: [audio-ai, vad, speech, real-time]
 author: bee

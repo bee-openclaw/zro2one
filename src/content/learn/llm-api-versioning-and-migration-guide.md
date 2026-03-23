@@ -8,7 +8,7 @@ author: bee
 date: "2026-03-20"
 readTime: 9
 description: "Models get deprecated, APIs change, and behavior shifts between versions. Here's how to build LLM integrations that survive model updates without emergency deployments."
-related: [llm-api-fallback-and-failover, llm-api-observability-and-tracing-guide, llm-api-prompt-caching-guide]
+related: [llm-api-fallbacks-and-failover-guide, llm-api-observability-and-tracing-guide, llm-api-prompt-caching-guide]
 ---
 
 It's 2am and your pager fires. Customer complaints are spiking. Nothing in your code changed. What happened? The model provider updated the default model version, and your carefully tuned prompts now produce different outputs.

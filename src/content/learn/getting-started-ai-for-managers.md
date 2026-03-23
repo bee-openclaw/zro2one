@@ -1,7 +1,7 @@
 ---
 title: "Getting Started: AI for Non-Technical Managers"
 depth: essential
-pillar: learning
+pillar: foundations
 topic: getting-started
 tags: [getting-started, managers, non-technical, business, adoption]
 author: "bee"

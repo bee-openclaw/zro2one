@@ -1,7 +1,7 @@
 ---
 title: "AI and Privacy: What You Should Actually Worry About"
 depth: essential
-pillar: what-is-ai
+pillar: foundations
 topic: what-is-ai
 tags: [what-is-ai, privacy, data, ethics]
 author: bee
