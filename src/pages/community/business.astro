@@ -1,0 +1,123 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('learn', ({ data }) => !data.draft);
+
+// Business track: applied content from practice/industry pillars, plus tools
+const businessArticles = allArticles.filter(
+  a => a.data.depth === 'applied' || a.data.depth === 'essential'
+);
+
+const sections = [
+  {
+    title: '💡 Spot Opportunities',
+    description: 'Understand what AI can do — and where the business gaps are.',
+    filter: (a: any) =>
+      a.data.topic === 'what-is-ai' ||
+      (a.data.topic === 'ai-tools' && a.data.depth === 'applied'),
+  },
+  {
+    title: '🛠️ Build & Ship',
+    description: 'Tools, workflows, and practical approaches to building AI-powered products.',
+    filter: (a: any) =>
+      a.data.topic === 'ai-workflows' ||
+      (a.data.topic === 'ai-tools' && a.data.depth === 'applied') === false && a.data.topic === 'ai-tools' && a.data.depth === 'essential',
+  },
+  {
+    title: '🏢 AI for Industries',
+    description: 'See how AI is being applied across industries — find your niche.',
+    filter: (a: any) =>
+      a.data.pillar === 'industry' ||
+      a.data.topic === 'getting-started' && a.data.depth === 'applied',
+  },
+  {
+    title: '📊 Tools & Stack',
+    description: 'Know the tools landscape so you can pick the right stack for your product.',
+    filter: (a: any) =>
+      a.data.topic === 'ai-tools',
+  },
+  {
+    title: '📰 Market Intelligence',
+    description: 'Stay current on what\'s shipping, what\'s changing, and where the market is moving.',
+    filter: (a: any) =>
+      a.data.topic === 'this-week-in-ai',
+  },
+];
+
+// Deduplicate: each article only appears in its first matching section
+const usedIds = new Set<string>();
+const sectionData = sections.map(section => {
+  const articles = businessArticles
+    .filter(a => {
+      if (usedIds.has(a.id)) return false;
+      return section.filter(a);
+    })
+    .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+    .slice(0, 12); // Cap per section for readability
+  articles.forEach(a => usedIds.add(a.id));
+  return { title: section.title, description: section.description, articles };
+}).filter(s => s.articles.length > 0);
+---
+
+<Layout
+  title="Business Track — Zro2One Community"
+  description="From skills to startup. Learn to spot ideas, validate them, and build something real."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <!-- Header -->
+    <div class="max-w-3xl mb-12">
+      <a href="/community" class="text-sm text-zro-gray hover:text-zro-dark mb-4 inline-block">← Back to Community</a>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-4xl">🟠</span>
+        <h1 class="text-4xl sm:text-5xl font-black text-zro-dark">Business Track</h1>
+      </div>
+      <p class="text-xl text-zro-gray">
+        You can build — now learn to ship. Understand markets, spot opportunities,
+        and turn AI skills into something that makes money.
+      </p>
+    </div>
+
+    <!-- How to use this page -->
+    <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 mb-12">
+      <h2 class="font-bold text-zro-dark mb-2">How this track works</h2>
+      <ul class="text-sm text-zro-gray space-y-1">
+        <li>💡 Study how AI is applied across industries — that's where the ideas live</li>
+        <li>🛠️ Learn the tools landscape so you know what to build <em>with</em></li>
+        <li>📰 Follow weekly AI news to spot timing opportunities</li>
+        <li>🤝 Biweekly office hours — pitch ideas, get feedback, find accountability partners</li>
+      </ul>
+    </div>
+
+    <!-- Coming soon: Business-specific content -->
+    <div class="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-8 mb-12 text-center">
+      <h2 class="text-xl font-bold text-zro-dark mb-2">🚧 Business content coming soon</h2>
+      <p class="text-sm text-zro-gray max-w-lg mx-auto">
+        We're building dedicated guides on idea validation, finding customers, pricing strategy,
+        MVP playbooks, and going from side project to first revenue. For now, explore the curated
+        content below — it's the foundation for spotting opportunities.
+      </p>
+    </div>
+
+    <!-- Sections -->
+    {sectionData.map((section) => (
+      <section class="mb-16">
+        <h2 class="text-2xl font-black text-zro-dark mb-2">{section.title}</h2>
+        <p class="text-zro-gray mb-6">{section.description}</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {section.articles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              depth={article.data.depth}
+              slug={article.id}
+              readTime={article.data.readTime}
+              pillar={article.data.pillar}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>

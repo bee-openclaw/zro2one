@@ -1,0 +1,116 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('learn', ({ data }) => !data.draft);
+
+// Foundation track: essential + applied depth, organized by learning journey
+const foundationArticles = allArticles.filter(
+  a => a.data.depth === 'essential' || a.data.depth === 'applied'
+);
+
+// Define curated sections for the Foundation track
+const sections = [
+  {
+    title: '🚀 Start Here',
+    description: 'New to AI? Begin with these.',
+    topics: ['what-is-ai', 'getting-started'],
+    depths: ['essential'] as const,
+  },
+  {
+    title: '🧠 Understand the Fundamentals',
+    description: 'Build real understanding of how AI works — no code required.',
+    topics: ['ai-foundations', 'ai-glossary'],
+    depths: ['essential', 'applied'] as const,
+  },
+  {
+    title: '🛠️ AI Tools for Your Work',
+    description: 'Practical guides to tools you can start using today.',
+    topics: ['ai-tools', 'ai-workflows'],
+    depths: ['essential', 'applied'] as const,
+  },
+  {
+    title: '💬 Prompting & Communication',
+    description: 'Learn to talk to AI effectively.',
+    topics: ['prompting'],
+    depths: ['essential', 'applied'] as const,
+  },
+  {
+    title: '📰 Stay Current',
+    description: 'Weekly updates on what\'s happening in AI.',
+    topics: ['this-week-in-ai'],
+    depths: ['essential', 'applied'] as const,
+  },
+  {
+    title: '🔍 Go Deeper',
+    description: 'Ready for more? Explore applied concepts across AI domains.',
+    topics: ['llms', 'machine-learning', 'nlp', 'image-ai', 'audio-ai', 'video-ai', 'multimodal-ai', 'mllms', 'deep-learning', 'rag', 'llm-api-integration'],
+    depths: ['applied'] as const,
+  },
+];
+
+const sectionData = sections.map(section => {
+  const articles = foundationArticles
+    .filter(a => section.topics.includes(a.data.topic) && (section.depths as readonly string[]).includes(a.data.depth))
+    .sort((a, b) => {
+      // essential before applied
+      const depthOrder = ['essential', 'applied', 'technical', 'research'];
+      const depthDiff = depthOrder.indexOf(a.data.depth) - depthOrder.indexOf(b.data.depth);
+      if (depthDiff !== 0) return depthDiff;
+      return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    });
+  return { ...section, articles };
+}).filter(s => s.articles.length > 0);
+---
+
+<Layout
+  title="Foundation Track — Zro2One Community"
+  description="Your AI learning on-ramp. Structured content for professionals getting started with AI tools and concepts."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <!-- Header -->
+    <div class="max-w-3xl mb-12">
+      <a href="/community" class="text-sm text-zro-gray hover:text-zro-dark mb-4 inline-block">← Back to Community</a>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-4xl">🟢</span>
+        <h1 class="text-4xl sm:text-5xl font-black text-zro-dark">Foundation Track</h1>
+      </div>
+      <p class="text-xl text-zro-gray">
+        Your structured path from AI-curious to AI-capable. Start at the top, work your way down,
+        and come to weekly sessions with questions.
+      </p>
+    </div>
+
+    <!-- How to use this page -->
+    <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 mb-12">
+      <h2 class="font-bold text-zro-dark mb-2">How to use this track</h2>
+      <ul class="text-sm text-zro-gray space-y-1">
+        <li>📖 Work through sections top to bottom — each builds on the last</li>
+        <li>🟢 <strong>Essential</strong> articles are plain-language explainers — start here</li>
+        <li>🔵 <strong>Applied</strong> articles are hands-on how-tos — do these when you're ready to try things</li>
+        <li>💬 Bring questions to the weekly live session</li>
+      </ul>
+    </div>
+
+    <!-- Sections -->
+    {sectionData.map((section) => (
+      <section class="mb-16">
+        <h2 class="text-2xl font-black text-zro-dark mb-2">{section.title}</h2>
+        <p class="text-zro-gray mb-6">{section.description}</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {section.articles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              depth={article.data.depth}
+              slug={article.id}
+              readTime={article.data.readTime}
+              pillar={article.data.pillar}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>

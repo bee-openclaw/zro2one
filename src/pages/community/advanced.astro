@@ -1,0 +1,103 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('learn', ({ data }) => !data.draft);
+
+// Advanced track: technical + research depth
+const advancedArticles = allArticles.filter(
+  a => a.data.depth === 'technical' || a.data.depth === 'research'
+);
+
+const sections = [
+  {
+    title: '🏗️ Building with AI',
+    description: 'Architecture, implementation, and production patterns.',
+    topics: ['rag', 'llm-api-integration', 'ai-workflows'],
+  },
+  {
+    title: '🧪 Models & Training',
+    description: 'How models work under the hood — transformers, training, optimization.',
+    topics: ['llms', 'deep-learning', 'ai-foundations', 'machine-learning'],
+  },
+  {
+    title: '💬 NLP & Language',
+    description: 'Text processing, understanding, and generation at depth.',
+    topics: ['nlp', 'prompting'],
+  },
+  {
+    title: '👁️ Vision & Multimodal',
+    description: 'Image, video, audio, and multimodal AI systems.',
+    topics: ['image-ai', 'video-ai', 'audio-ai', 'multimodal-ai', 'mllms'],
+  },
+  {
+    title: '🔬 Research & Frontier',
+    description: 'Paper breakdowns, cutting-edge concepts, open questions.',
+    topics: ['what-is-ai', 'ai-glossary', 'getting-started', 'ai-tools', 'this-week-in-ai'],
+  },
+];
+
+const sectionData = sections.map(section => {
+  const articles = advancedArticles
+    .filter(a => section.topics.includes(a.data.topic))
+    .sort((a, b) => {
+      const depthOrder = ['technical', 'research'];
+      const depthDiff = depthOrder.indexOf(a.data.depth) - depthOrder.indexOf(b.data.depth);
+      if (depthDiff !== 0) return depthDiff;
+      return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
+    });
+  return { ...section, articles };
+}).filter(s => s.articles.length > 0);
+---
+
+<Layout
+  title="Advanced Track — Zro2One Community"
+  description="For builders and practitioners. Technical deep-dives, peer learning, and staying on the cutting edge."
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <!-- Header -->
+    <div class="max-w-3xl mb-12">
+      <a href="/community" class="text-sm text-zro-gray hover:text-zro-dark mb-4 inline-block">← Back to Community</a>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-4xl">🟣</span>
+        <h1 class="text-4xl sm:text-5xl font-black text-zro-dark">Advanced Track</h1>
+      </div>
+      <p class="text-xl text-zro-gray">
+        Technical deep-dives and reference material for practitioners. Browse by interest area,
+        bring projects to show-and-tell sessions, and learn from peers.
+      </p>
+    </div>
+
+    <!-- How to use this page -->
+    <div class="rounded-2xl bg-purple-50 border border-purple-200 p-6 mb-12">
+      <h2 class="font-bold text-zro-dark mb-2">How this track works</h2>
+      <ul class="text-sm text-zro-gray space-y-1">
+        <li>🟣 <strong>Technical</strong> articles include code, architecture diagrams, and implementation details</li>
+        <li>🔴 <strong>Research</strong> articles break down papers and frontier concepts</li>
+        <li>🎤 Biweekly show-and-tell — share what you're building, learn what others are exploring</li>
+        <li>🧩 Browse by domain — pick what's relevant to your current work</li>
+      </ul>
+    </div>
+
+    <!-- Sections -->
+    {sectionData.map((section) => (
+      <section class="mb-16">
+        <h2 class="text-2xl font-black text-zro-dark mb-2">{section.title}</h2>
+        <p class="text-zro-gray mb-6">{section.description}</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {section.articles.map((article) => (
+            <ArticleCard
+              title={article.data.title}
+              description={article.data.description}
+              depth={article.data.depth}
+              slug={article.id}
+              readTime={article.data.readTime}
+              pillar={article.data.pillar}
+            />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>
