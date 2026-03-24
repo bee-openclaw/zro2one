@@ -5,6 +5,492 @@
 
 ## AI Foundations
 
+### [Weight Decay: The Regularization Trick Behind Modern Deep Learning](https://zro2.one/learn/ai-foundations-weight-decay-guide)
+> Weight decay and L2 regularization are not the same thing when you're using Adam. Here's what weight decay actually does and how to tune it.
+
+Weight decay is one of those techniques that every deep learning practitioner uses but few think carefully about. It's often conflated with L2 regularization, and in the context of SGD, that conflation is harmless. But with Adam and other adaptive optimizers -- which is what most people actually use -- the distinction matters significantly.
+
+## L2 regularization: the textbook version
+
+L2 regularization adds a penalty term to the loss function proportional to the squared magnitude of the weights:
+
+L_regularized = L_original + (lambda / 2) * sum(w_i^2)
+
+The gradient of this regularized loss with respect to any weight w becomes:
+
+dL/dw = dL_original/dw + lambda * w
+
+During a gradient descent update, this means:
+
+w_new = w - lr * (dL_original/dw + lambda * w)
+w_new = w * (1 - lr * lambda) - lr * dL_original/dw
+
+The weight gets multiplied by (1 - lr * lambda) at each step, shrinking it toward zero. This is why it's called "weight decay" -- the weights decay by a fraction at each update.
+
+## Why L2 regularization and weight decay diverge with Adam
+
+With vanilla SGD, L2 regularization and weight decay are mathematically equivalent. You get the same result whether you add the penalty to the loss or directly shrink the weights. This equivalence breaks with adaptive optimizers like Adam.
+
+Adam maintains per-parameter learning rates based on the history of gradients. When you add L2 regularization to the loss, the regularization gradient (lambda * w) gets fed through Adam's adaptive scaling. This means:
+
+- Parameters with large historical gradients get less regularization (because Adam's denominator is large)
+- Parameters with small historical gradients get more regularization (because Adam's denominator is small)
+
+This is not what you want. The regularization strength becomes entangled with the optimization dynamics. A parameter that happens to have noisy gradients (large second moment) gets less regularized, regardless of whether it needs regularization.
+
+## Decoupled weight decay: AdamW
+
+Loshchilov and Hutter (2019) proposed a simple fix: apply weight decay directly to the weights, outside of Adam's adaptive gradient scaling. This is "decoupled weight decay," implemented as AdamW.
+
+The update rule becomes:
+
+1. Compute Adam's adaptive gradient step as normal: step = lr * m_hat / (sqrt(v_hat) + epsilon)
+2. Apply weight decay separately: w_new = w * (1 - lr * wd) - step
+
+The critical difference: the weight decay term (1 - lr * wd) is applied uniformly to all parameters, independent of Adam's per-parameter learning rate adaptation. Every weight decays by the same fraction, regardless of its gradient history.
+
+```python
+# PyTorch: Using AdamW (decoupled weight decay)
+import torch
+
+model = MyModel()
+
+# AdamW applies decoupled weight decay -- this is what you want
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=1e-3,
+    weight_decay=0.01  # This is the decay rate, not the L2 lambda
+)
+
+# Compare with Adam + L2 (NOT equivalent to AdamW)
+# optimizer = torch.optim.Adam(
+#     model.parameters(),
+#     lr=1e-3,
+#     weight_decay=0.01  # This is L2 regularization, coupled with Adam
+# )
+```
+
+## How weight decay prevents overfitting
+
+Weight decay works by keeping weights small. But why does that help?
+
+**Smaller weights mean smoother functions.** A neural network with large weights can represent sharp, complex decision boundaries that fit training noise. Smaller weights produce smoother functions that generalize better. This is the Occam's razor principle applied to parameter space.
+
+**It reduces co-adaptation.** When weights are large, individual neurons can develop strong, brittle dependencies on specific input patterns. Weight decay encourages distributed representations where information is spread across neurons rather than concentrated in a few high-weight connections.
+
+**It creates implicit regularization pressure.** For a weight to stay large, it must provide enough gradient signal to counteract the decay. Weights that contribute meaningfully to reducing the loss survive; weights that don't are gradually pushed toward zero.
+
+## Choosing the decay rate
+
+The weight decay rate (commonly called `wd` or `weight_decay`) controls how aggressively weights are shrunk. Common values:
+
+| Context | Typical weight decay | Notes |
+|---|---|---|
+| Transformer pretraining | 0.01 - 0.1 | GPT-style models often use 0.1 |
+| Fine-tuning LLMs | 0.001 - 0.01 | Lower to preserve pretrained knowledge |
+| CNNs (image tasks) | 1e-4 - 1e-3 | Classic computer vision range |
+| Small models / small data | 1e-3 - 0.01 | More regularization needed |
+| Large models / large data | 0.01 - 0.1 | Large models can tolerate more decay |
+
+A useful heuristic: if your model is overfitting, increase weight decay. If your model is underfitting or training loss is stuck, decrease it. Weight decay that's too high starves the model of capacity.
+
+## Interaction with learning rate schedules
+
+Weight decay and learning rate interact more than most people realize. The effective weight decay per step is proportional to `lr * wd`. When you use a learning rate warmup and cosine decay schedule (standard for transformer training), the effective regularization changes throughout training:
+
+- During warmup: low effective decay (lr is small)
+- At peak lr: maximum effective decay
+- During cooldown: decreasing effective decay
+
+This is actually desirable behavior. Early in training, you want the model to explore freely (less regularization). During the main training phase, you want full regularization. During cooldown, you're fine-tuning and want less aggressive shrinkage.
+
+Some practitioners use a fixed weight decay schedule independent of learning rate. This can work but requires more careful tuning, and the interaction between lr schedule and weight decay schedule adds complexity.
+
+## What not to decay
+
+Not all parameters should be weight-decayed. Standard practice:
+
+**Decay:** Linear layer weights, convolutional filter weights, embedding weights (sometimes).
+
+**Don't decay:** Bias terms, layer normalization parameters, batch normalization parameters.
+
+The reasoning: bias terms and normalization parameters have different roles than weights. Decaying biases toward zero can hurt performance because biases need to be free to capture data offsets. Normalization parameters control scale and shift, and decaying them interferes with normalization behavior.
+
+```python
+# PyTorch: Separate parameter groups for weight decay
+def get_parameter_groups(model, wd=0.01):
+    decay_params = []
+    no_decay_params = []
+
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if "bias" in name or "norm" in name or "layernorm" in name:
+            no_decay_params.append(param)
+        else:
+            decay_params.append(param)
+
+    return [
+        {"params": decay_params, "weight_decay": wd},
+        {"params": no_decay_params, "weight_decay": 0.0},
+    ]
+
+optimizer = torch.optim.AdamW(get_parameter_groups(model, wd=0.01), lr=1e-3)
+```
+
+## Practical tuning tips
+
+1. **Always use AdamW, not Adam with weight_decay.** If you're using an adaptive optimizer, decoupled weight decay is strictly better. PyTorch's `Adam` with `weight_decay > 0` applies L2 regularization, not true weight decay.
+
+2. **Start with 0.01 for transformers.** This is the community default for a reason. Adjust from there based on overfitting/underfitting behavior.
+
+3. **Scale weight decay with batch size.** If you increase batch size, you may need to increase weight decay proportionally to maintain the same regularization effect per epoch.
+
+4. **Monitor weight norms during training.** If weights are growing unboundedly, your decay is too low. If they collapse to near-zero early in training, your decay is too high. Healthy training shows weight norms stabilizing after an initial growth phase.
+
+5. **Don't tune weight decay and learning rate independently.** They interact. If you change one, re-evaluate the other. Grid searching over both is more reliable than tuning them sequentially.
+
+Weight decay is simple in concept but subtle in practice. The key insight to carry forward: with adaptive optimizers, weight decay and L2 regularization are different things, and AdamW's decoupled approach is what you should use by default.
+
+---
+
+### [AI Glossary: Synthetic Data Edition](https://zro2.one/learn/ai-glossary-synthetic-data-edition)
+> Plain-English definitions of 28 key terms in synthetic data generation, from data augmentation to model collapse.
+
+Synthetic data has gone from research curiosity to core infrastructure for training modern AI systems. This glossary covers the essential terminology, defined in plain English.
+
+## Core Concepts
+
+**Synthetic data.** Data generated by algorithms or models rather than collected from real-world observations. Used to augment training datasets, protect privacy, or create data for scenarios that are rare or expensive to observe in practice.
+
+**Data augmentation.** Transforming existing real data to create new training examples. Classic examples: rotating images, adding noise to audio, paraphrasing text. The augmented data is derived from real data, not generated from scratch.
+
+**Generative augmentation.** Using generative models (GANs, diffusion models, LLMs) to create new training examples rather than applying rule-based transformations. Produces more diverse and realistic augmentations but requires careful quality control.
+
+**Seed data.** The initial set of real or hand-crafted examples used to bootstrap a synthetic data generation pipeline. Seed data defines the target distribution, style, and quality bar. Poor seed data leads to poor synthetic data at scale.
+
+**Distribution matching.** The goal of ensuring synthetic data follows the same statistical distribution as the real data it's meant to represent. Measured through metrics like maximum mean discrepancy (MMD), Frechet inception distance (FID), or domain-specific statistical tests.
+
+**Fidelity.** How closely synthetic data resembles real data at the individual sample level. High fidelity means individual synthetic examples are hard to distinguish from real ones. Not always necessary -- sometimes diversity matters more than fidelity.
+
+**Diversity.** The degree to which synthetic data covers the range of variation present in the real data distribution. A generator that produces highly realistic but repetitive outputs has high fidelity but low diversity.
+
+## Privacy and Safety
+
+**Differential privacy.** A mathematical framework guaranteeing that the output of a computation doesn't reveal whether any specific individual's data was included in the input. Applied to synthetic data generation to ensure generated samples don't leak information about real individuals in the training data.
+
+**Privacy budget (epsilon).** The parameter in differential privacy that controls the privacy-utility trade-off. Lower epsilon means stronger privacy but noisier (less useful) synthetic data. Typical values range from 1 to 10, though acceptable values depend on the sensitivity of the data.
+
+**Membership inference.** An attack that determines whether a specific data point was part of a model's training data. Synthetic data generators must be tested against membership inference attacks to verify they don't memorize and reproduce real training examples.
+
+**Memorization.** When a generative model reproduces training examples verbatim or near-verbatim in its output. A critical failure mode for synthetic data generators, especially when the training data contains sensitive information. Deduplication and privacy testing help detect it.
+
+**Data contamination.** When data from a test or evaluation set leaks into training data, making evaluation metrics unreliable. In the synthetic data context, this happens when a generator trained on data that includes benchmark examples produces synthetic data containing those benchmarks.
+
+**Validation set contamination.** A specific form of contamination where synthetic training data overlaps with validation or test data, either because the generator memorized test examples or because the same source was used for both. Undermines the integrity of model evaluation.
+
+## Generation Methods
+
+**Self-instruct.** A technique where an LLM generates its own instruction-following training data. The model produces instructions, inputs, and outputs, which are filtered and used to fine-tune itself or another model. Introduced by Wang et al. (2022) and foundational to many open-source instruction-tuned models.
+
+**Evol-instruct.** An extension of self-instruct where existing instructions are iteratively made more complex by an LLM. Produces harder and more diverse training examples by "evolving" simple instructions into multi-step, nuanced ones.
+
+**Constitutional AI data.** Training data generated through a process where an AI critiques and revises its own outputs according to a set of principles (a "constitution"). Used to train models that are helpful, harmless, and honest without relying entirely on human feedback.
+
+**RLHF data (Reinforcement Learning from Human Feedback).** Preference data where humans compare model outputs and indicate which is better. Used to train reward models that guide policy optimization. Expensive to collect, leading to synthetic alternatives.
+
+**DPO data (Direct Preference Optimization).** Preference pairs (chosen and rejected responses) used to train models directly on human preferences without a separate reward model. Can be synthetically generated by having a strong model judge pairs of outputs from a weaker model.
+
+**Distillation data.** Training data generated by a larger, more capable "teacher" model for training a smaller "student" model. The student learns to replicate the teacher's behavior from the teacher's outputs. A common and effective form of synthetic data generation.
+
+## Quality and Filtering
+
+**Deduplication.** Removing duplicate or near-duplicate examples from a dataset. Critical for synthetic data because generators can produce repetitive outputs. Methods range from exact string matching to embedding-based similarity thresholds.
+
+**Quality scoring.** Assigning a quality score to each synthetic example, typically using a separate model or heuristic. Low-scoring examples are filtered out. Common approaches: perplexity-based scoring, reward model scoring, and execution-based verification (for code and math).
+
+**Execution-verified generation.** A quality assurance method for code and math synthetic data where generated solutions are executed against test cases. Only examples that produce correct outputs are kept. Produces significantly higher quality data than text-only filtering.
+
+**Perplexity filtering.** Using a language model's perplexity score (how "surprised" it is by a text) to filter synthetic data. Very low perplexity may indicate trivial or repetitive examples. Very high perplexity may indicate incoherent text. A band-pass filter in perplexity space often works well.
+
+## Failure Modes
+
+**Model collapse.** A degenerative process where a model trained on synthetic data from a previous generation of models progressively loses diversity and quality. Each generation's synthetic data is slightly less diverse, and errors compound. After several generations without real-data anchoring, the model produces increasingly narrow, repetitive output.
+
+**Mode collapse.** When a generator produces data concentrated around a few modes of the real distribution, ignoring the full range of variation. The output looks realistic but lacks diversity. Common in GAN-based generation.
+
+**Amplification of bias.** Synthetic data generators can amplify biases present in their training data. If the seed data over-represents certain demographics or perspectives, the synthetic data may exaggerate those imbalances. Bias auditing of synthetic datasets is essential.
+
+## Data Mixing
+
+**Real-synthetic mixing ratio.** The proportion of real to synthetic data in a training dataset. Research consistently finds that a mix outperforms pure synthetic or pure real data. Optimal ratios vary by task, but 60-70% real and 30-40% synthetic is a common starting range for fine-tuning.
+
+**Curriculum mixing.** Strategically varying the real-synthetic ratio during training. One approach: start with more synthetic data (broad coverage) and increase the proportion of real data toward the end of training (refinement). Analogous to curriculum learning.
+
+**Data flywheel.** A self-reinforcing cycle where a deployed model generates data (through user interactions or synthetic generation) that is used to improve the next version of the model. When managed well, each iteration produces a better model with better data. When managed poorly, it leads to model collapse.
+
+---
+
+### [Positional Encoding in Transformers: How Models Know Where Things Are](https://zro2.one/learn/deep-learning-positional-encoding-guide)
+> A technical walkthrough of positional encoding methods in transformers, from sinusoidal encodings to RoPE and ALiBi, with practical implications for context length.
+
+Transformers process all tokens in parallel. Unlike RNNs, which read sequences left-to-right and inherently know position, a transformer's self-attention treats its input as a set, not a sequence. Without positional information, the sentence "the cat sat on the mat" and "the mat sat on the cat" would produce identical representations. Positional encoding solves this by injecting position information into the model. The choice of encoding method has major consequences for context length, generalization, and performance.
+
+## Why Position Information Is Necessary
+
+Self-attention computes a weighted sum over all positions. The attention score between positions i and j depends only on the content at those positions — the query and key vectors. Formally, for queries Q, keys K, and values V:
+
+    Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) V
+
+This operation is permutation-equivariant. If you shuffle the input tokens, the output tokens get shuffled in the same way, with the same values. The model literally cannot distinguish position without explicit position information.
+
+## Sinusoidal Encoding (Vaswani et al., 2017)
+
+The original "Attention Is All You Need" paper introduced sinusoidal positional encoding. For each position pos and each dimension i of the embedding:
+
+    PE(pos, 2i) = sin(pos / 10000^(2i/d_model))
+    PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+
+These encodings are added directly to the input embeddings before the first attention layer.
+
+Key properties:
+
+- **Deterministic** — no learned parameters, computed from a formula
+- **Unique per position** — each position gets a distinct vector
+- **Relative position through linear transformation** — for any fixed offset k, PE(pos+k) can be represented as a linear function of PE(pos), which theoretically allows the model to learn relative position reasoning
+- **Bounded values** — all components are between -1 and 1 regardless of position
+
+The sinusoidal approach works but has limitations. The model must learn to extract relative position information from absolute position encodings through the attention mechanism, which is indirect.
+
+## Learned Positional Embeddings
+
+BERT and GPT-2 replaced sinusoidal encodings with learned positional embeddings — a trainable embedding matrix of shape (max_length, d_model). Each position gets its own learned vector, added to the token embedding.
+
+```python
+import torch.nn as nn
+
+class LearnedPositionalEncoding(nn.Module):
+    def __init__(self, max_len, d_model):
+        super().__init__()
+        self.pos_embedding = nn.Embedding(max_len, d_model)
+
+    def forward(self, x):
+        positions = torch.arange(x.size(1), device=x.device)
+        return x + self.pos_embedding(positions)
+```
+
+Advantages:
+
+- Simple to implement
+- The model can learn whatever positional patterns are useful for the task
+
+Disadvantages:
+
+- **Hard length limit** — cannot generalize beyond the maximum training length
+- **No extrapolation** — position 513 has no embedding if you trained with max_len=512
+- **More parameters** — though the parameter count is typically small relative to the rest of the model
+
+## Relative Positional Encoding (Shaw et al., 2018)
+
+Shaw et al. proposed adding learnable relative position biases directly to the attention scores. Instead of encoding absolute positions, the model learns embeddings for relative distances between tokens.
+
+For attention between positions i and j, the relative position is clipped to a range [-k, k]:
+
+    relative_position = clip(j - i, -k, k)
+
+A learned bias corresponding to this relative distance is added to the attention logit. This means the model directly reasons about "how far apart are these two tokens" rather than "what absolute positions are they at."
+
+This approach:
+
+- Naturally captures relative position, which is what matters for most language tasks
+- Generalizes better to unseen sequence lengths (within reason)
+- Was adopted by Transformer-XL and T5 (with simplifications)
+
+T5's version uses a bucketed relative position scheme where nearby positions get individual biases but distant positions share buckets (logarithmic spacing). This keeps the number of parameters manageable while covering long distances.
+
+## Rotary Position Embedding (RoPE)
+
+RoPE, introduced by Su et al. (2021), has become the dominant positional encoding method in modern LLMs. LLaMA, Mistral, Qwen, and most open-weight models use RoPE.
+
+The core idea: encode position by rotating the query and key vectors in 2D subspaces. For a d-dimensional embedding, split it into d/2 pairs. Each pair (x_2i, x_(2i+1)) is rotated by an angle proportional to the position:
+
+    theta_i = pos / 10000^(2i/d)
+
+    [q_2i']      [cos(theta_i)  -sin(theta_i)] [q_2i]
+    [q_(2i+1)'] = [sin(theta_i)   cos(theta_i)] [q_(2i+1)]
+
+The same rotation is applied to keys. When computing the dot product q_m^T * k_n, the rotation angles subtract, so the attention score depends only on the relative position (m - n).
+
+Why RoPE dominates:
+
+| Property | Sinusoidal | Learned | Relative | RoPE |
+|----------|-----------|---------|----------|------|
+| Encodes relative position | Indirectly | No | Yes | Yes |
+| No extra parameters | Yes | No | No | Yes |
+| Works in attention directly | No | No | Yes | Yes |
+| Theoretically unbounded length | Yes | No | Partially | Yes |
+| Decays with distance | No | N/A | Optional | Yes |
+
+RoPE naturally produces a decay in attention scores as relative distance increases — distant tokens contribute less. This is a useful inductive bias for language.
+
+```python
+import torch
+
+def apply_rope(x, positions, dim):
+    """Apply Rotary Position Embedding to queries or keys."""
+    freqs = 1.0 / (10000 ** (torch.arange(0, dim, 2, device=x.device).float() / dim))
+    angles = positions.unsqueeze(-1) * freqs.unsqueeze(0)  # (seq_len, dim/2)
+    cos_vals = angles.cos()
+    sin_vals = angles.sin()
+    x_pairs = x.view(*x.shape[:-1], -1, 2)  # (..., dim/2, 2)
+    x_rot = torch.stack([
+        x_pairs[..., 0] * cos_vals - x_pairs[..., 1] * sin_vals,
+        x_pairs[..., 0] * sin_vals + x_pairs[..., 1] * cos_vals
+    ], dim=-1)
+    return x_rot.flatten(-2)
+```
+
+## ALiBi (Attention with Linear Biases)
+
+Press et al. (2022) proposed ALiBi as a simpler alternative. Instead of modifying embeddings, ALiBi adds a static linear bias to attention scores:
+
+    attention_score(i, j) = q_i^T * k_j - m * |i - j|
+
+Where m is a head-specific slope (fixed, not learned). Different attention heads get different slopes, geometrically spaced. Heads with steep slopes focus locally; heads with shallow slopes attend more broadly.
+
+ALiBi's key claim: strong length extrapolation. A model trained on 1024 tokens can perform reasonably at 2048 or beyond, because the linear penalty on distance is a simple, predictable inductive bias.
+
+In practice, ALiBi has seen less adoption than RoPE. BLOOM used ALiBi, but most subsequent models chose RoPE. The reasons are debated, but RoPE's flexibility with context extension techniques (see below) likely played a role.
+
+## Context Length Extrapolation
+
+Position encoding choice directly affects whether a model can handle sequences longer than it was trained on. This matters because training on very long sequences is expensive, so models are often trained on shorter contexts and then extended.
+
+**RoPE + NTK-aware scaling** — rescale the frequency base in RoPE to spread the same angular range over a longer sequence. This lets models trained on 4K context work at 32K or 128K with minimal quality loss and some continued training.
+
+**YaRN (Yet another RoPE extensioN)** — combines NTK scaling with temperature adjustments across frequency bands. High-frequency components (which encode local position) are left alone; low-frequency components (which encode distant position) are rescaled more aggressively.
+
+**Dynamic NTK** — adjusts the scaling factor based on the actual sequence length at inference time, rather than using a fixed scaling ratio.
+
+These techniques have enabled the jump from 2K-4K context windows in early LLMs to 128K-1M+ context windows in current models. The positional encoding is the mechanism that makes or breaks long-context performance.
+
+## Practical Takeaways
+
+If you're building a transformer from scratch, use RoPE. It's the well-tested default with the best ecosystem of context extension techniques.
+
+If you're fine-tuning an existing model for longer contexts, understand which positional encoding it uses and apply the appropriate scaling method. Applying YaRN to a non-RoPE model won't work.
+
+If you're evaluating model quality at long contexts, be aware that positional encoding extrapolation is lossy. A model claiming 128K context that was trained on 8K with RoPE scaling will perform worse at 128K than a model trained natively at that length. Test at your actual use-case length, not just the advertised maximum.
+
+Position encoding is one of the few architectural choices in transformers where the method genuinely matters for downstream capability. It's worth understanding what's under the hood.
+
+---
+
+### [What Is Artificial General Intelligence? Definitions, Debates, and Where We Actually Stand](https://zro2.one/learn/what-is-ai-agi-explained)
+> A grounded explanation of what AGI means, why there is no consensus definition, what current AI can and cannot do, and why the definitional debate matters for policy and safety.
+
+## What AGI Means (and Why Nobody Agrees)
+
+Artificial General Intelligence refers to an AI system that can perform any intellectual task a human can. That sentence sounds simple. It is not.
+
+The concept draws a line between narrow AI, which excels at specific tasks (playing chess, generating images, transcribing speech), and a hypothetical general system that could handle any cognitive task across any domain without being specifically trained for it. A system that can diagnose diseases, write legal briefs, conduct scientific research, navigate a city, and hold a coherent conversation about philosophy, all without being purpose-built for any of these.
+
+The problem is that this definition is vague enough to be nearly unfalsifiable. How do you test "any intellectual task"? Whose intellectual tasks? At what level of performance?
+
+## Competing Definitions
+
+Several more specific definitions have been proposed. Each captures a different intuition about what "general" means.
+
+**The Turing Test framing.** AGI is achieved when a machine is indistinguishable from a human in open-ended conversation. This was the original benchmark, and it has been largely abandoned as insufficient. Current LLMs can fool many people in short conversations but lack genuine understanding by most accounts.
+
+**The economic definition.** AGI is a system that can perform any economically valuable intellectual work a human can. This is the definition used by several major AI labs. It is practical but narrows the scope: it says nothing about creativity, emotional understanding, or tasks without clear economic value.
+
+**The cognitive science definition.** AGI would possess human-like cognitive architecture: reasoning, planning, learning from few examples, transferring knowledge across domains, understanding causality, and maintaining a coherent model of the world. This is the most demanding definition and the one least likely to be satisfied by current approaches.
+
+**The threshold definition.** AGI is simply AI that exceeds human performance on a comprehensive suite of benchmarks spanning many domains. This is measurable but controversial because benchmark performance does not necessarily reflect genuine understanding or capability.
+
+| Definition | Measurable? | Current AI Close? | Useful for Policy? |
+|------------|------------|-------------------|-------------------|
+| Turing Test | Somewhat | Partially | No |
+| Economic value | Somewhat | Debated | Yes |
+| Cognitive architecture | Difficult | No | Somewhat |
+| Benchmark threshold | Yes | Getting closer | Somewhat |
+
+## What Current AI Can and Cannot Do
+
+To understand the gap between current AI and AGI, it helps to be specific about capabilities and limitations as of early 2026.
+
+**What current AI does well:**
+- Language understanding and generation at human-competitive levels for many tasks
+- Pattern recognition in structured data, images, audio, and video
+- Code generation and debugging
+- Mathematical reasoning on problems with known solution methods
+- Translation across most major language pairs
+- Creative content generation in text, image, audio, and video
+
+**What current AI struggles with:**
+- Novel scientific reasoning that requires forming and testing new hypotheses
+- Long-horizon planning with many interdependent steps and uncertain outcomes
+- Learning efficiently from a handful of examples in genuinely new domains (not domains represented in training data)
+- Maintaining consistent beliefs and knowledge across long interactions
+- Physical world understanding: common-sense physics, spatial reasoning, cause and effect
+- Genuine goal-directed behavior with the ability to define its own objectives
+- Robust performance in situations significantly different from training distribution
+
+The gap between these lists is where the AGI debate lives. Optimists point to the rapid closure of many capability gaps and argue that scaling and architectural improvements will address the rest. Skeptics argue that the remaining gaps represent qualitatively different challenges that more data and compute will not solve.
+
+## The Timeline Debate
+
+Predictions for when AGI might arrive span from "already happened" to "never." Both extremes are hard to defend.
+
+**The optimist case:** Progress in AI capabilities has been faster than most experts predicted. LLMs went from curiosities to tools that outperform humans on many professional benchmarks in under five years. Scaling laws suggest continued improvement. Multimodal models are rapidly gaining capabilities. Agent architectures are beginning to chain reasoning, tool use, and planning. If this pace continues, human-level general capability could arrive within 5-15 years.
+
+What the optimists get right: the pace of capability improvement has been genuinely surprising, and extrapolating from "AI cannot do X" has been a losing bet.
+
+**The skeptic case:** Current AI systems are sophisticated pattern matchers trained on human-generated data. They do not understand causality, cannot form genuine hypotheses, and fail brittly outside their training distribution. The remaining gaps may require fundamentally different approaches, not just more scale. We do not have a theory of how to build general intelligence, and we may be decades or more away.
+
+What the skeptics get right: there have been many "almost there" moments in AI history that turned out to be plateaus. The hardest parts of general intelligence might be the parts where current approaches show the least progress.
+
+The honest answer is that nobody knows. The uncertainty is genuine, not a diplomatic hedge.
+
+## Why the Definition Matters
+
+This is not just a semantic debate. The definition of AGI has concrete consequences.
+
+**For policy and regulation.** Several governments are drafting AI regulations triggered by capability thresholds. If your regulation says "when AGI is achieved, these restrictions apply," the definition determines when billions of dollars in compliance costs kick in. A vague definition creates legal uncertainty; an overly specific one can be gamed.
+
+**For safety research.** If AGI is defined as a system that can perform any intellectual task, then safety research must account for a system that could, in principle, find ways around its safety measures. The more capable the system, the harder alignment becomes. The definition of AGI shapes how urgently safety work is prioritized.
+
+**For investment.** Several major AI labs have corporate structures or contracts tied to achieving AGI. OpenAI's capped-profit structure, for instance, has provisions related to AGI. The definition of AGI is, literally, a multi-billion-dollar question.
+
+**For public understanding.** When headlines say "AGI is five years away," the public imagines something between a very smart assistant and a sentient being. Vague definitions feed hype cycles that alternately inflate expectations and trigger backlash.
+
+## AGI and the Alignment Problem
+
+The relationship between AGI and AI safety is not contingent. It is structural.
+
+A narrow AI system that misclassifies images is annoying. A general system that pursues goals in the real world with human-level (or beyond) capability but misaligned objectives is dangerous in a qualitatively different way.
+
+The alignment problem asks: how do we ensure that a highly capable AI system does what we actually want, not just what we literally told it? This is hard for narrow systems and potentially much harder for general ones, because a general system might find unexpected strategies to satisfy its objective that violate the spirit of what we intended.
+
+This is not science fiction. It is an engineering problem that the AI safety community is actively working on, with concrete research programs in interpretability, reward modeling, constitutional AI, and oversight mechanisms. The question is whether this work will be mature enough by the time it is needed.
+
+## Where We Actually Stand
+
+A grounded assessment as of March 2026:
+
+We have AI systems that are remarkably capable across a wide range of tasks. They are not general in the cognitive science sense. They do not understand the world the way humans do. They cannot reliably operate outside their training distribution. They cannot form and test novel hypotheses, plan over long horizons in uncertain environments, or learn entirely new domains from a few examples.
+
+They are also far more capable than most people expected at this point even five years ago. The trajectory is steep, and the remaining limitations are receiving intense research attention.
+
+Whether this trajectory leads to AGI in any meaningful sense, and on what timeline, is genuinely unknown. Anyone claiming certainty in either direction is selling something.
+
+What is not unknown is that increasingly capable AI systems, whether or not they meet any particular definition of AGI, will have profound effects on the economy, society, and the balance of power. Preparing for those effects does not require resolving the AGI definition debate. It requires clear thinking about specific capabilities, specific risks, and specific governance mechanisms.
+
+The definition of AGI matters. But what matters more is building the institutions, safety practices, and policies that work regardless of which definition turns out to be the right one.
+
+---
+
 ### [Batch Normalization: Why It Works and When It Doesn't](https://zro2.one/learn/ai-foundations-batch-normalization-explained)
 > A clear explanation of batch normalization — the mechanics, the competing theories about why it works, its limitations, and when to use alternatives like layer norm or group norm.
 
@@ -17471,6 +17957,62 @@ Welcome to your AI education. Let's go from zero to one. 🚀
 
 ## This Week in AI
 
+### [This Week in AI](https://zro2.one/learn/2026-03-24-this-week-in-ai-022)
+> This week: multimodal reasoning takes a leap, edge deployment gets simpler, and enterprises push for AI standardization across the stack.
+
+# This Week in AI #022: March 24, 2026
+
+A week defined by convergence. Multimodal models are getting genuinely better at reasoning across modalities (not just recognizing images and generating text separately). Edge deployment is crossing the complexity threshold where normal engineering teams can do it. And enterprises are tired of bespoke AI integrations and are pushing hard for standardization. Here's what happened.
+
+## Big Moves
+
+### Google DeepMind Releases Gemini 2.5 with Unified Multimodal Reasoning
+
+Google DeepMind dropped Gemini 2.5 this week, and the headline capability is what they're calling "unified reasoning" -- the model reasons across text, images, video, and audio within a single chain of thought rather than processing each modality independently and combining results.
+
+The benchmarks are notable: on tasks requiring cross-modal inference (like answering questions about a video by combining visual, audio, and textual cues), Gemini 2.5 outperforms the previous state of the art by 18-23%. More importantly, the model can articulate its reasoning across modalities, showing how visual evidence informs textual conclusions and vice versa.
+
+**Why it matters:** Previous multimodal models were essentially multiple specialist models glued together. Unified reasoning means the model can do things like watch a cooking video, hear the sizzle change, see the color shift, and infer "the pan is too hot" -- combining modalities the way humans do. This opens up applications in manufacturing inspection, medical imaging with patient history, and complex document understanding that previous architectures struggled with.
+
+### Qualcomm and ARM Announce Joint Edge AI Deployment Framework
+
+Qualcomm and ARM jointly released **EdgeReady**, an open-source framework that standardizes model deployment across ARM-based edge devices. The framework handles model optimization (quantization, pruning, graph optimization), device-specific compilation, and runtime management with a single API.
+
+Previously, deploying a model to a Qualcomm chip, a MediaTek chip, and a Samsung Exynos chip required three different toolchains with three different optimization pipelines. EdgeReady abstracts this to: define your constraints (latency, memory, power), point at your model, target your device.
+
+**Why it matters:** Edge AI adoption has been bottlenecked not by hardware capability but by deployment complexity. A framework that lets a normal ML engineer (not a chip-specific optimization specialist) deploy to edge devices could accelerate adoption significantly. Early partners report 60-70% reduction in time-to-deployment for edge inference workloads.
+
+### EU AI Office Publishes First Enterprise AI Infrastructure Standards
+
+The EU AI Office released draft standards for enterprise AI infrastructure, covering model lifecycle management, audit logging, data lineage tracking, and inter-system interoperability. The standards are voluntary for now, but the signal is clear: regulation is coming, and organizations that adopt these standards early will have a smoother compliance path.
+
+**Why it matters:** Standardization is how technologies move from artisanal to industrial. These standards address real pain points -- today, every enterprise builds its own model registry, its own audit trail, its own evaluation framework. Common standards mean common tooling, which means lower costs and faster adoption. The cynical read is that this favors large vendors who can implement comprehensive standards; the optimistic read is that it creates a level playing field with clear requirements.
+
+## Research Worth Reading
+
+**"Chain-of-Modality: Teaching LLMs to Think Across Senses"** (Stanford, Google Brain) -- Introduces a training methodology where models are explicitly taught to reference and reason about cross-modal evidence in their chain of thought. Models trained with this approach show 31% improvement on cross-modal reasoning benchmarks and, critically, produce more interpretable explanations of their multimodal reasoning.
+
+**"Drift-Aware Continual Learning for Production Systems"** (Meta AI, CMU) -- Proposes a framework where production models continuously adapt to distribution shift without catastrophic forgetting. The key innovation is a drift-gated replay mechanism that selectively rehearses examples from the training distribution proportional to detected drift magnitude. Tested on recommendation systems with 8 months of production data.
+
+**"The Quantization Tax: Measuring What We Lose at INT4"** (EleutherAI) -- A systematic study of what capabilities degrade when models are quantized to INT4 for edge deployment. Finding: factual recall degrades more than reasoning ability, and degradation is non-uniform across languages (English degrades least, lower-resource languages degrade most). Essential reading for anyone deploying quantized models.
+
+## Tools and Releases
+
+- **vLLM 0.8** ships with native support for speculative decoding across all supported model architectures, reporting 1.8-2.4x throughput improvements for long-generation workloads with no quality degradation.
+- **LangChain 0.4** drops the "chain" abstraction in favor of a graph-based execution model, addressing long-standing complaints about composability and debugging. Migration guide included.
+- **Weights & Biases Launch** releases automated model cards that generate documentation from experiment tracking data, including dataset descriptions, evaluation results, and known limitations.
+- **Ollama 0.5** adds model-level access controls, team sharing, and usage analytics -- moving from a personal tool to a team-ready local inference platform.
+
+## What We're Watching
+
+**Enterprise AI platform consolidation.** Three major acquisitions in the MLOps space were announced this month. The "best-of-breed vs platform" debate is resolving in favor of platforms, at least for enterprises. Startups focused on narrow MLOps verticals (just monitoring, just feature stores, just experiment tracking) are being absorbed into integrated platforms. Teams evaluating tooling should factor in acquisition risk.
+
+**The edge-cloud hybrid inference pattern.** With EdgeReady and similar frameworks lowering the deployment barrier, we're seeing more architectures where a small model runs on-device for common queries and routes complex requests to a cloud model. This isn't new as a concept, but the tooling is finally mature enough for production use. Expect this pattern to become standard for mobile and IoT applications within the year.
+
+**Multimodal reasoning benchmarks.** The current benchmarks for multimodal AI were designed for the "recognize and describe" era. Unified reasoning models are outgrowing them. We expect new benchmarks focused on cross-modal inference, temporal reasoning in video, and audio-visual integration to emerge in the next quarter. How we measure these capabilities will shape how they develop.
+
+---
+
 ### [This Week in AI](https://zro2.one/learn/this-week-in-ai-021)
 > Weekly AI roundup
 
@@ -19112,6 +19654,914 @@ More next week.
 ---
 
 ## Practice & Tools
+
+### [AI Workflows for Product Management: From Discovery to Delivery](https://zro2.one/learn/ai-workflows-product-management)
+> Practical AI workflows for product managers covering research analysis, prioritization, competitive intelligence, spec writing, and feedback clustering.
+
+Product management generates an enormous amount of unstructured information -- user interviews, support tickets, feature requests, competitive moves, usage data, stakeholder opinions. The PM's job is to synthesize all of this into decisions. AI can help with the synthesis, but knowing where it helps and where it hurts requires understanding each stage of the PM workflow.
+
+## User research analysis
+
+The bottleneck in user research is rarely conducting interviews -- it's analyzing them. A PM with 20 interview transcripts has hours of reading, tagging, and pattern-finding ahead. AI changes this equation.
+
+**Workflow:**
+
+1. Transcribe interviews using Whisper or a transcription service
+2. Feed transcripts to an LLM with a structured analysis prompt: extract pain points, feature requests, workflow descriptions, and emotional signals
+3. Aggregate extracted insights across interviews to identify frequency patterns
+4. Generate a summary report with supporting quotes
+
+**What to automate:** Transcription, initial tagging, frequency counting, quote extraction, and draft summary generation.
+
+**What to keep manual:** Interpreting context, evaluating significance (a pain point mentioned by 2 enterprise customers may matter more than one mentioned by 10 free-tier users), and deciding what to do about the findings.
+
+```
+Prompt template for interview analysis:
+
+Analyze this user interview transcript. Extract:
+1. PAIN POINTS: Problems the user describes, with severity (mild frustration / significant blocker / dealbreaker)
+2. FEATURE REQUESTS: Specific capabilities mentioned, with context on why they want them
+3. WORKFLOW: How the user currently accomplishes the task, step by step
+4. QUOTES: Notable direct quotes that capture sentiment or insight
+
+Transcript:
+{transcript}
+```
+
+**Why it matters:** A PM who previously spent 2-3 days analyzing 20 interviews can get a solid first-pass analysis in 2-3 hours. The AI draft isn't the final analysis, but it's a much better starting point than a blank document.
+
+## Feature prioritization with AI
+
+Prioritization frameworks (RICE, ICE, weighted scoring) all require estimating inputs like reach, impact, effort, and confidence. AI can help estimate these inputs, but the final ranking should remain a human decision.
+
+**Workflow:**
+
+1. Maintain a feature backlog with descriptions and context
+2. For each feature, use AI to estimate reach (based on user segments and usage data), effort (based on technical complexity and similar past projects), and impact (based on user research signals)
+3. Generate a scored and ranked list
+4. Review as a team, adjust scores based on strategic context the AI doesn't have, and finalize priorities
+
+**Useful AI input:** Estimating technical effort from feature descriptions (especially when fed architecture context), pulling relevant user research quotes for each feature, and identifying dependencies between features.
+
+**Where AI falls short:** Strategic alignment (does this feature support our Q3 narrative?), organizational politics (engineering just finished a hard sprint -- is this the right time for another ambitious feature?), and market timing (our competitor just launched this -- do we match or differentiate?).
+
+## Automated competitive analysis
+
+Keeping up with competitors is important but time-consuming. AI can monitor, summarize, and flag changes, freeing the PM to focus on interpretation.
+
+**Workflow:**
+
+1. Set up monitoring for competitor websites, changelog pages, press releases, app store updates, and social media
+2. AI summarizes changes weekly: new features, pricing changes, positioning shifts, notable customer wins
+3. Flag significant moves that may require a response
+4. Quarterly, use AI to generate a competitive landscape comparison table
+
+**What works well:** Summarizing changelogs, detecting pricing changes, extracting feature announcements from press releases, and maintaining a living comparison matrix.
+
+**What doesn't work well:** Assessing strategic intent (why did they build this?), predicting future moves, or understanding the quality of a competitor's implementation from their marketing copy alone.
+
+## Spec writing assistance
+
+Writing product specs is one of the most high-leverage PM activities, and AI can accelerate it without replacing the PM's judgment.
+
+**Workflow:**
+
+1. PM writes a brief (1-2 paragraph) description of the feature: what it does, who it's for, why we're building it
+2. AI expands this into a structured spec draft: user stories, acceptance criteria, edge cases, technical considerations, and open questions
+3. PM reviews, edits heavily (the draft is a scaffold, not a finished product), fills in context the AI couldn't know
+4. Share with engineering for feasibility review
+
+**The AI is good at:** Generating comprehensive acceptance criteria (it rarely forgets edge cases like empty states, error handling, or permissions), structuring information consistently, and suggesting technical considerations based on the feature description.
+
+**The AI is bad at:** Understanding organizational constraints, knowing which previous decisions constrain this feature, or calibrating scope to team capacity. The PM must edit aggressively.
+
+## Release notes generation
+
+Release notes are a clear win for AI automation. The information exists in tickets, PRs, and commit messages -- it just needs to be compiled and rewritten for a customer audience.
+
+**Workflow:**
+
+1. Collect all merged PRs and completed tickets for the release
+2. AI categorizes changes: new features, improvements, bug fixes, breaking changes
+3. AI rewrites technical descriptions into customer-facing language
+4. PM reviews for accuracy and adds context where needed
+5. Publish
+
+This workflow typically reduces release notes time from 2-4 hours to 30-45 minutes, and the consistency is better because the AI applies the same formatting rules every time.
+
+## User feedback clustering
+
+PMs drown in feedback: support tickets, NPS responses, app reviews, sales call notes, feature request forms. AI excels at clustering this unstructured feedback into actionable themes.
+
+**Workflow:**
+
+1. Aggregate feedback from all sources into a single dataset
+2. Use embeddings to represent each piece of feedback as a vector
+3. Cluster similar feedback (k-means, HDBSCAN, or LLM-based grouping)
+4. AI generates a label and summary for each cluster
+5. Rank clusters by volume, severity, and customer segment
+6. Review top clusters weekly in product review meetings
+
+```
+Text flow diagram:
+
+[Support tickets] --\
+[NPS responses]  ----> [Embed] -> [Cluster] -> [Label & Summarize] -> [Ranked themes]
+[App reviews]    ---->
+[Sales notes]    --/
+```
+
+**Why it matters:** Without clustering, feedback is anecdotal ("I heard from three customers that search is broken"). With clustering, it's quantified ("47 pieces of feedback in the last month mention search relevance, up from 12 last month, concentrated in enterprise accounts").
+
+## What PMs should automate vs keep manual
+
+| Automate | Keep manual |
+|---|---|
+| Interview transcription and initial tagging | Interpreting research findings |
+| Competitive monitoring and summarization | Strategic response to competitors |
+| Spec first drafts and acceptance criteria | Scope decisions and trade-offs |
+| Release notes compilation | Customer communication tone and timing |
+| Feedback clustering and volume tracking | Prioritization decisions |
+| Status report generation | Stakeholder relationship management |
+| Meeting note summarization | Decision-making in meetings |
+
+## Practical recommendations
+
+1. **Start with feedback clustering.** It has the highest signal-to-effort ratio. Most PM teams are sitting on valuable feedback data that nobody has time to analyze systematically.
+
+2. **Build prompts, not tools.** You don't need custom software for most of these workflows. A well-crafted prompt template in your LLM of choice, combined with copy-paste from your existing tools, handles 80% of the value.
+
+3. **Always edit AI-generated specs.** An AI spec that ships unedited will miss critical context and may mislead engineering. Treat AI specs as scaffolds that save you from blank-page syndrome, not as finished artifacts.
+
+4. **Separate synthesis from judgment.** AI is good at synthesis (combining information from multiple sources into a structured view). It is bad at judgment (deciding what matters and what to do about it). Design your workflows to leverage the first and preserve space for the second.
+
+5. **Measure output quality, not just speed.** Faster research analysis only helps if the analysis is good. Spot-check AI-generated insights against your own reading of the raw data, especially in the first few uses.
+
+The PM role isn't threatened by AI -- it's amplified by it. The PMs who thrive will be the ones who use AI to spend less time compiling information and more time making decisions with it.
+
+---
+
+### [Audio AI for Audio Description: Making Visual Media Accessible Through AI Narration](https://zro2.one/learn/audio-ai-audio-description-accessibility)
+> How AI generates audio descriptions for blind and low-vision users, from scene detection through TTS synthesis, and what still needs work.
+
+Audio description (AD) narrates the visual elements of video content — character actions, scene changes, on-screen text, facial expressions — so blind and low-vision viewers can follow along. Traditionally, this requires human describers who watch content, write scripts, and record narration. AI is now automating parts of this pipeline, making audio description faster to produce and cheaper to scale. But the quality gap between human and AI-generated descriptions remains significant.
+
+## The Audio Description Pipeline
+
+AI-generated audio description follows a multi-stage pipeline, each with its own models and challenges.
+
+### Stage 1: Scene Detection and Analysis
+
+The system needs to understand what's happening on screen. This involves:
+
+- **Shot boundary detection** — identifying when the scene changes using visual similarity metrics between frames
+- **Key frame extraction** — selecting representative frames that capture the important visual information
+- **Scene understanding** — using multimodal large language models (MLLMs) to interpret what's happening in each scene
+
+Modern MLLMs like GPT-4o, Gemini, and Claude can describe video frames with reasonable accuracy. The challenge isn't describing a single frame — it's understanding narrative flow across many frames and identifying which visual elements actually matter to the story.
+
+### Stage 2: Description Generation
+
+Once the system understands the visual content, it generates natural language descriptions. This is where MLLMs do the heavy lifting. The prompt typically includes:
+
+- The current frame or short video clip
+- Context about previous descriptions (to maintain narrative continuity)
+- Timing constraints (how long the description gap is)
+- Priority guidelines (what to describe when time is limited)
+
+A simplified approach using an MLLM API:
+
+```python
+def generate_description(frame_data, context, max_duration_sec):
+    prompt = f"""Generate an audio description for this video frame.
+    Previous context: {context}
+    Maximum speaking duration: {max_duration_sec} seconds
+    (approximately {max_duration_sec * 3} words)
+
+    Rules:
+    - Describe actions and plot-relevant visual information
+    - Name characters if previously identified
+    - Skip obvious information the audio track already conveys
+    - Prioritize: actions > setting changes > character expressions > visual details
+    """
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        messages=[{"role": "user", "content": [
+            {"type": "image", "source": frame_data},
+            {"type": "text", "text": prompt}
+        ]}]
+    )
+    return response.content[0].text
+```
+
+### Stage 3: Timing Insertion
+
+Descriptions must fit into natural pauses in dialogue and sound effects. This is one of the hardest technical problems. The system needs to:
+
+1. **Detect dialogue gaps** using voice activity detection
+2. **Estimate description duration** based on word count and speech rate
+3. **Prioritize descriptions** when gaps are too short to describe everything
+4. **Avoid overlapping** with dialogue, music, or significant sound effects
+
+Getting timing wrong destroys the viewing experience. Too much description drowns out the audio. Too little leaves viewers confused about what's happening.
+
+### Stage 4: TTS Synthesis
+
+The generated text is converted to speech using text-to-speech models. Requirements for AD-specific TTS:
+
+- **Neutral, clear delivery** — the narrator shouldn't compete with the emotional tone of the content
+- **Adjustable speaking rate** — to fit descriptions into available gaps
+- **Consistent voice** — the same narrator voice throughout a program
+- **Natural prosody** — robotic delivery is fatiguing over a full film
+
+Modern neural TTS systems (ElevenLabs, Azure Neural TTS, XTTS) handle these requirements well. The voice selection matters — AD traditionally uses a calm, descriptive tone distinct from the content's performers.
+
+## Current Tools and Services
+
+Several platforms now offer AI-assisted or fully automated audio description:
+
+| Tool | Approach | Use Case |
+|------|----------|----------|
+| **Fable** | AI-assisted with human review | Professional broadcast AD |
+| **Microsoft's AI AD** | Automated for Teams/Stream | Enterprise video content |
+| **Verbit AD** | Hybrid AI + human | Media and entertainment |
+| **Amazon Rekognition + Polly** | Build-your-own pipeline | Custom implementations |
+| **Google Video AI + Cloud TTS** | Build-your-own pipeline | Custom implementations |
+
+The hybrid approach — AI generates a first draft, human describers review and edit — currently produces the best results at reasonable cost.
+
+## Quality Challenges
+
+### Describing What Matters
+
+The hardest problem in audio description isn't technical — it's editorial. A scene might contain dozens of visual details, but only seconds of available description time. Human describers develop judgment about what matters to the narrative. AI systems tend toward either:
+
+- **Over-description** — listing every visible element, creating information overload
+- **Under-description** — missing plot-critical visual details that seem minor to a visual analysis model
+- **Wrong prioritization** — describing the setting when the character's facial expression is what matters
+
+### Context and Continuity
+
+Human describers maintain a mental model of the entire narrative. They know that the "woman in red" was introduced in scene 3 and can refer to her by name. AI systems processing frame-by-frame often lose this continuity, re-describing characters or missing callbacks to earlier scenes.
+
+### Cultural and Emotional Nuance
+
+Describing a character's expression as "she looks concerned" requires understanding social context that MLLMs handle unevenly. Describing culturally specific visual elements — clothing, gestures, architectural styles — demands knowledge that models may lack or get wrong.
+
+## Regulatory Requirements
+
+Two major regulations drive audio description adoption:
+
+**CVAA (US, 2010)** — The 21st Century Communications and Video Accessibility Act requires major broadcast networks and top cable channels to provide audio description for a minimum number of hours per quarter. The FCC has steadily expanded these requirements.
+
+**European Accessibility Act (EU, 2025)** — Requires audiovisual media services to provide audio description. Member states are implementing this with varying specificity, but the direction is clear: more content needs AD, and the deadline pressure is real.
+
+These mandates create demand that human describers alone cannot meet. The volume of video content produced annually vastly exceeds the capacity of trained describers. This is the strongest argument for AI-assisted AD — not that it's better than human description, but that the alternative for most content is no description at all.
+
+## Integration with Broadcast and Streaming
+
+For AD to reach viewers, it must integrate with existing distribution infrastructure:
+
+- **Secondary audio program (SAP)** — the traditional broadcast mechanism for AD, carried as a separate audio track
+- **Streaming platforms** — most major platforms (Netflix, Disney+, Amazon Prime) support AD as an audio track option, but coverage varies wildly
+- **MPEG-DASH / HLS** — streaming protocols support multiple audio tracks, making AD delivery straightforward once the content is produced
+
+The technical infrastructure exists. The bottleneck is content production, which is exactly where AI automation helps most.
+
+## Practical Recommendations
+
+If you're implementing AI audio description:
+
+1. **Start with hybrid workflows.** Use AI to generate draft descriptions, then have human reviewers edit for accuracy and narrative quality. This is faster than starting from scratch.
+2. **Invest in timing accuracy.** Bad timing ruins good descriptions. Voice activity detection and gap analysis should be your most tested components.
+3. **Test with actual users.** Blind and low-vision testers will catch problems that sighted developers miss entirely. Build this into your QA process.
+4. **Plan for failure gracefully.** When the AI generates a bad description, it should be easy for reviewers to flag and replace it. Don't make the correction workflow harder than writing from scratch.
+
+AI audio description isn't a solved problem, but it's a rapidly improving one. The combination of MLLMs for scene understanding, LLMs for description writing, and neural TTS for narration creates a pipeline that's good enough to be useful — and getting better fast enough to close the gap with human-only workflows within the next few years.
+
+---
+
+### [Getting Started with AI for Healthcare Professionals](https://zro2.one/learn/getting-started-ai-for-healthcare)
+> A practical guide for clinicians, nurses, and administrators on where AI helps now, what requires caution, and how to build AI literacy in healthcare settings.
+
+AI tools are entering healthcare workflows whether practitioners are ready or not. Ambient scribing, literature search, patient communication drafting, and scheduling optimization are already deployed in health systems worldwide. Meanwhile, clinical decision support and diagnostic AI remain areas where mistakes carry real consequences. This guide helps healthcare professionals understand what's practical today, what demands caution, and how to develop the skills to tell the difference.
+
+## Where AI Helps Now
+
+These applications have meaningful evidence behind them and are deployed at scale in 2026. They're reasonable starting points.
+
+### Clinical Documentation
+
+Ambient scribing — AI that listens to patient encounters and generates clinical notes — is the highest-adoption AI tool in healthcare right now. Products like Nuance DAX Copilot, Abridge, and Nabla listen to conversations and draft SOAP notes, referral letters, and visit summaries.
+
+What makes this work:
+
+- The clinician reviews and edits every note before signing, creating a natural verification step
+- Documentation is time-consuming and widely disliked — the ROI is immediately felt
+- Errors in draft notes are typically caught during review (a word wrong here or there, not fabricated findings)
+
+Start here if you've never used AI professionally. The verification habit you build reviewing AI-drafted notes transfers directly to every other AI application.
+
+### Literature Review and Evidence Search
+
+Searching PubMed with keywords is slow and imprecise. AI-powered search tools like Consensus, Elicit, and Semantic Scholar's TLDR summaries help practitioners find relevant evidence faster. LLMs can summarize papers, compare findings across studies, and identify relevant systematic reviews.
+
+The caveat: always verify citations. LLMs can hallucinate paper titles, authors, and findings. Use these tools to find papers faster, then read the actual papers.
+
+### Patient Communication Drafting
+
+Drafting patient-facing communications — after-visit summaries, medication instructions, appointment reminders, responses to portal messages — is a strong use case. AI can adjust reading level, translate medical terminology into plain language, and produce consistent formatting.
+
+Many EHR systems now offer built-in message drafting. Epic's AI features, for example, can draft patient portal responses based on the clinical context.
+
+### Scheduling and Operations
+
+Administrative AI applications carry lower risk and high impact:
+
+- **Predictive scheduling** — forecasting no-shows and overbooking appropriately
+- **Bed management** — predicting discharge timing to optimize bed allocation
+- **Supply chain** — anticipating supply needs based on scheduled procedures
+- **Prior authorization** — automating documentation gathering for insurance submissions
+
+These are back-office applications where errors are annoying but not dangerous. They're often managed by IT and operations teams rather than clinicians directly.
+
+## What Requires Extreme Caution
+
+### Clinical Decision Support
+
+AI systems that suggest diagnoses, recommend treatments, or flag potential drug interactions can be useful but require rigorous validation. The risks:
+
+- **Automation bias** — clinicians may defer to AI suggestions rather than exercising independent judgment
+- **Liability ambiguity** — who is responsible when an AI recommendation leads to a bad outcome?
+- **Population bias** — models trained on non-representative data may perform poorly for specific patient populations
+- **Alert fatigue** — if the system flags too many false positives, clinicians start ignoring all alerts
+
+If your institution is implementing clinical decision support AI, ask: What was the validation dataset? What populations were included? What's the false positive rate? Who is clinically accountable for the output?
+
+### Diagnostic AI
+
+AI for radiology reads, pathology analysis, and dermatology screening has shown strong performance in controlled studies. In practice, the deployment challenges are significant:
+
+- Performance degrades with equipment variations, patient populations, and imaging protocols that differ from training data
+- Regulatory approval (FDA, CE marking) covers specific intended uses — using a tool outside its approved scope is both risky and potentially illegal
+- Integration with clinical workflows is harder than the technology itself
+
+Diagnostic AI should augment, not replace, clinical judgment. Treat it as a second opinion, not a final answer.
+
+## HIPAA and Data Privacy
+
+Every AI interaction involving patient data raises HIPAA questions. Key considerations:
+
+**What data leaves your network?** Cloud-based AI tools send data to external servers. Understand whether your vendor's AI processes data locally or in the cloud. Many ambient scribing tools now offer on-premises or private cloud options.
+
+**Business Associate Agreements (BAAs).** Any vendor processing PHI must sign a BAA. Consumer AI tools (ChatGPT without an enterprise agreement, free-tier LLMs) are not HIPAA-compliant and should never receive patient data.
+
+**De-identification is harder than it looks.** Removing names and dates isn't sufficient. Clinical narratives often contain enough contextual information to re-identify patients. Don't paste clinical notes into consumer AI tools even after "removing identifiers."
+
+**Minimum necessary principle.** Only share the minimum patient data needed for the AI task. If you're using AI to draft a referral letter, it needs the relevant clinical context — not the patient's entire medical history.
+
+A practical rule: if you wouldn't fax the information to an unknown third party, don't paste it into an AI tool without a BAA in place.
+
+## Evaluating Vendor Claims
+
+Healthcare AI vendors make ambitious claims. Here's how to evaluate them:
+
+| Claim | What to Ask |
+|-------|-------------|
+| "95% accuracy" | On what dataset? What population? What's the comparison — human performance or chance? |
+| "FDA cleared" | For what specific indication? 510(k) clearance is a lower bar than PMA approval. |
+| "Clinically validated" | Peer-reviewed study? How many patients? Single-site or multi-site? Prospective or retrospective? |
+| "HIPAA compliant" | Will you sign a BAA? Where is data processed? What's your breach notification process? |
+| "Saves X hours per week" | Based on what workflow? Measured at your institution or extrapolated from a different setting? |
+
+Be especially skeptical of accuracy claims that don't specify the denominator. "95% accuracy in detecting condition X" means very different things depending on the prevalence of X in the tested population.
+
+## Building a Personal AI Literacy Plan
+
+You don't need to become a data scientist. You need enough understanding to use AI tools safely and evaluate claims critically.
+
+**Month 1: Use one tool well.** Pick an AI documentation tool or literature search assistant. Use it daily. Focus on learning where it makes mistakes and building the habit of verification.
+
+**Month 2: Understand the basics.** Learn what LLMs are (statistical text generators, not knowledge databases), why they hallucinate, and what "training data" means for bias. You don't need to understand the math — you need the mental model.
+
+**Month 3: Engage with your institution.** Join your hospital's AI governance committee or equivalent. If one doesn't exist, advocate for one. The decisions being made about AI procurement and deployment affect your practice directly.
+
+**Ongoing: Stay current.** Follow one or two trustworthy sources on healthcare AI. The AMA's AI resources, the WHO's guidance on AI in health, and peer-reviewed journals like npj Digital Medicine are reasonable starting points.
+
+## What to Do Today
+
+1. **Identify what AI tools your institution already provides.** Many EHR systems now include AI features that are available but underused. Check with your IT department.
+2. **Review your institution's AI use policy.** If there isn't one, that's a problem worth raising.
+3. **Try one low-risk application.** Clinical documentation or literature search. Get comfortable with the review-and-verify workflow.
+4. **Never put PHI into consumer AI tools.** This is the single most important rule and the one most frequently broken.
+
+AI in healthcare is not optional — it's arriving regardless. The question is whether you engage with it deliberately or have it imposed on you without input. Building literacy now puts you in a position to shape how these tools are used in your practice.
+
+---
+
+### [Machine Learning Drift Detection: When Your Model Stops Working and How to Catch It](https://zro2.one/learn/machine-learning-drift-detection-guide)
+> How to detect data drift, concept drift, and prediction drift in production ML systems before they silently degrade your results.
+
+Your model worked great in testing. It performed well for the first few weeks in production. Then, gradually, metrics started slipping. No one changed the model. No one changed the code. The world changed, and your model didn't.
+
+This is drift, and it's the most common way production ML systems fail. Not with a crash, but with a slow, silent degradation that's easy to miss until the business impact becomes obvious.
+
+## Types of drift
+
+There are three distinct types of drift, and they require different detection strategies.
+
+**Data drift** (also called covariate shift) means the distribution of your input features has changed. Your model was trained on data that looked one way; it's now seeing data that looks different. Example: a credit scoring model trained on pre-pandemic financial data suddenly sees widespread income volatility. The features themselves have shifted.
+
+**Concept drift** means the relationship between inputs and outputs has changed. Even if the input distribution stays the same, what the "right answer" is for a given input has changed. Example: a fraud detection model where fraudsters have adopted new tactics. The same transaction patterns now have different risk profiles.
+
+**Prediction drift** means the distribution of your model's outputs has changed. This is often the first visible symptom of data or concept drift. If your classifier suddenly predicts class A 80% of the time when it used to be 50/50, something has shifted.
+
+In practice, these often co-occur. Data drift can cause prediction drift. Concept drift manifests as prediction drift. Monitoring all three gives you the best chance of catching problems early.
+
+## Statistical tests for drift detection
+
+### Population Stability Index (PSI)
+
+PSI compares two distributions by dividing values into bins and measuring the divergence.
+
+PSI = sum((actual_pct - expected_pct) * ln(actual_pct / expected_pct))
+
+| PSI Value | Interpretation |
+|---|---|
+| < 0.1 | No significant drift |
+| 0.1 - 0.2 | Moderate drift, investigate |
+| > 0.2 | Significant drift, action needed |
+
+PSI works well for both numerical and categorical features. It's the most commonly used drift metric in production because it's simple, interpretable, and has well-established thresholds.
+
+```python
+import numpy as np
+
+def calculate_psi(expected, actual, bins=10):
+    """Calculate Population Stability Index between two distributions."""
+    breakpoints = np.linspace(
+        min(expected.min(), actual.min()),
+        max(expected.max(), actual.max()),
+        bins + 1
+    )
+    expected_pcts = np.histogram(expected, breakpoints)[0] / len(expected)
+    actual_pcts = np.histogram(actual, breakpoints)[0] / len(actual)
+
+    # Avoid division by zero
+    expected_pcts = np.clip(expected_pcts, 1e-4, None)
+    actual_pcts = np.clip(actual_pcts, 1e-4, None)
+
+    psi = np.sum((actual_pcts - expected_pcts) * np.log(actual_pcts / expected_pcts))
+    return psi
+```
+
+### Kolmogorov-Smirnov (KS) Test
+
+The KS test measures the maximum distance between two cumulative distribution functions. It's non-parametric (no assumptions about distribution shape) and works well for continuous features.
+
+A p-value below 0.05 typically indicates significant drift. The KS statistic itself (ranging from 0 to 1) gives you a measure of how far the distributions have diverged.
+
+### Chi-Squared Test
+
+For categorical features, the chi-squared test compares observed frequencies against expected frequencies. It's the standard choice when your features are categorical or have been binned.
+
+### Jensen-Shannon Divergence
+
+JSD is a symmetric, bounded (0 to 1) measure of distributional difference. It's particularly useful when you want a smooth, interpretable metric that works across feature types.
+
+## Drift detection windows and alerting
+
+How you window your data for drift detection matters as much as which test you use.
+
+**Reference window:** The baseline distribution. Usually your training data or a validated production period. Update this when you retrain.
+
+**Detection window:** Recent production data. The question is how recent.
+
+- **Too short** (hours): High variance, many false positives. You'll detect noise, not drift.
+- **Too long** (months): Low sensitivity. By the time you detect drift, it's been degrading performance for weeks.
+- **Recommended starting point:** 7-day rolling windows compared against the training distribution, calculated daily. Adjust based on your data volume and how fast your domain changes.
+
+**Alerting thresholds** should be tiered:
+
+1. **Warning:** PSI > 0.1 on any top-importance feature, or prediction distribution shift > 1 standard deviation
+2. **Alert:** PSI > 0.2 on multiple features, or sustained prediction drift for 3+ consecutive windows
+3. **Critical:** PSI > 0.25 across feature groups, or ground truth metrics (when available) show degradation > 5%
+
+## Practical monitoring architecture
+
+A production drift monitoring system needs these components:
+
+**Feature logging.** Capture input features for every prediction. Store them in a format that supports efficient statistical computation (columnar storage like Parquet works well).
+
+**Prediction logging.** Store model outputs alongside inputs. Include confidence scores, not just predictions.
+
+**Reference statistics.** Precompute and store the statistical profiles (histograms, quantiles, moments) of your training data. Computing these on-the-fly against the full training set is expensive.
+
+**Scheduled comparison jobs.** Run drift detection on a schedule (daily for most applications, hourly for high-stakes real-time systems). Compare recent windows against reference statistics.
+
+**Dashboard and alerting.** Visualize feature-level and prediction-level drift metrics over time. Route alerts to the team that owns the model.
+
+Tools like Evidently, NannyML, and Whylabs handle much of this. If you're building in-house, the architecture above is the minimum viable setup.
+
+## When to retrain vs fine-tune
+
+Detecting drift is step one. Deciding what to do about it is step two.
+
+**Retrain from scratch when:**
+- Multiple feature distributions have shifted significantly
+- The underlying task has fundamentally changed
+- You have enough new labeled data to train a full model
+- Performance has degraded beyond your acceptable threshold
+
+**Fine-tune or update when:**
+- Drift is limited to a few features or a specific data segment
+- You have limited new labeled data
+- The core patterns still hold but need adjustment
+- You need a fast fix while planning a full retrain
+
+**Do nothing (but keep watching) when:**
+- Drift is detected but performance metrics haven't degraded
+- The drift is seasonal and expected
+- The statistical significance is borderline
+
+## Real examples of drift in production
+
+**E-commerce recommendation models** commonly experience drift during sales events. Purchase patterns during Black Friday look nothing like regular weeks. Teams that don't account for this see their models recommend sale items long after the event ends. The fix: seasonal reference windows and event-aware monitoring.
+
+**NLP classification models** drift when language patterns change. Customer support ticket classifiers trained in 2024 may struggle with inquiries about products launched in 2026. The vocabulary has shifted, new intents have emerged, and existing intent boundaries have moved.
+
+**Healthcare risk models** face concept drift when treatment protocols change. A model predicting patient outcomes based on treatment plans becomes unreliable when new treatments become standard. The same patient profile now has different expected outcomes.
+
+## Key takeaways
+
+Monitor all three drift types: data, concept, and prediction. Start with PSI for its simplicity and established thresholds. Use 7-day rolling windows as your starting point. Set tiered alerts to avoid alert fatigue. And most importantly, instrument your system from day one. Retrofitting drift detection onto a production model that's already drifting is much harder than building it in from the start.
+
+Drift is not a bug in your model. It's a feature of deploying models in a changing world. The question isn't whether your model will drift -- it's whether you'll notice when it does.
+
+---
+
+### [MLLMs for Scientific Figures and Diagrams: Extracting Knowledge from Visual Research](https://zro2.one/learn/mllms-scientific-figures-guide)
+> How multimodal large language models interpret scientific charts, diagrams, and figures, with practical applications and honest assessment of limitations.
+
+Scientific papers are full of visual information — bar charts, line plots, flowcharts, molecular diagrams, microscopy images, circuit schematics, phase diagrams. Extracting structured knowledge from these figures has traditionally required domain expertise and manual effort. Multimodal large language models (MLLMs) can now interpret many types of scientific figures, opening up practical applications for literature review, data extraction, and research summarization. But the capabilities are uneven, and the failure modes can be subtle.
+
+## What MLLMs Can Do With Scientific Figures
+
+### Charts and Plots
+
+This is the strongest capability area. Modern MLLMs (GPT-4o, Claude 3.5+, Gemini 1.5+) can:
+
+- **Read bar charts** — identify categories, approximate values, compare bars
+- **Interpret line charts** — describe trends, identify inflection points, compare multiple series
+- **Parse scatter plots** — describe distributions, identify clusters, note outliers
+- **Read pie charts** — identify segments and approximate proportions
+- **Extract data from tables in figure form** — convert image tables to structured data
+
+For straightforward charts with clear labels and good resolution, MLLMs extract information at a level comparable to a careful human reader. They handle log scales, dual y-axes, and stacked bars with reasonable accuracy.
+
+```python
+import anthropic, base64
+
+def analyze_figure(image_path, question):
+    client = anthropic.Anthropic()
+    with open(image_path, "rb") as f:
+        image_data = base64.standard_b64encode(f.read()).decode("utf-8")
+
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=1024,
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "image", "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": image_data,
+                }},
+                {"type": "text", "text": question},
+            ],
+        }],
+    )
+    return response.content[0].text
+
+# Example usage
+result = analyze_figure(
+    "figure_3a.png",
+    "Extract the approximate values for each bar in this chart. "
+    "Return as a markdown table with columns: Category, Value, Unit."
+)
+```
+
+### Flowcharts and Process Diagrams
+
+MLLMs handle flowcharts well when the structure is clear:
+
+- Identifying nodes and edges
+- Describing the process flow
+- Converting visual flowcharts to text descriptions or pseudocode
+- Identifying decision points and branches
+
+Performance degrades with complex diagrams that have many crossing edges, small text, or non-standard layouts.
+
+### Molecular and Chemical Structures
+
+MLLMs can identify common molecular structures and functional groups. They can often name simple molecules from 2D structural diagrams and describe bonding patterns. For complex molecules, they may identify the general class (e.g., "this appears to be a polycyclic aromatic compound") without fully resolving the structure.
+
+Specialized tools like DECIMER and MolScribe still outperform general MLLMs for precise chemical structure recognition (SMILES string extraction, for example). MLLMs are better for qualitative description than quantitative extraction.
+
+### Microscopy and Imaging
+
+For microscopy images, MLLMs can:
+
+- Describe visible structures at a general level ("cellular tissue with clear nuclear staining")
+- Identify common staining patterns (H&E, immunofluorescence)
+- Note morphological features (cell shape, tissue architecture)
+- Compare images side-by-side
+
+They cannot replace domain-expert analysis. An MLLM might note "increased cellular density in the left region" but won't make a histopathological diagnosis.
+
+## Benchmarks for Scientific Figure Understanding
+
+Several benchmarks assess MLLM performance on scientific figures:
+
+| Benchmark | Focus | What It Tests |
+|-----------|-------|---------------|
+| **ChartQA** | Chart understanding | Questions about chart values, trends, comparisons |
+| **SciGraphQA** | Scientific plots | Questions from real papers about their figures |
+| **FigureQA** | Synthetic figures | Yes/no questions about figure properties |
+| **MathVista** | Math-heavy figures | Reasoning about mathematical plots and diagrams |
+| **AI2D** | Diagrams | Science diagram understanding (K-12 level) |
+
+Current state (approximate, as of early 2026):
+
+- Top MLLMs score 80-90% on ChartQA — strong but not perfect
+- SciGraphQA scores are lower (60-75%) — real-world scientific figures are messier than benchmarks
+- Performance drops significantly on low-resolution images, small text, and complex multi-panel figures
+
+## Practical Applications
+
+### Literature Review Automation
+
+Process a batch of papers and extract key results from their figures:
+
+```python
+def extract_key_results(figure_path, paper_context):
+    prompt = f"""This figure is from a research paper. Context: {paper_context}
+
+    1. What type of figure is this (bar chart, line plot, diagram, etc.)?
+    2. What are the key findings shown?
+    3. Extract any numerical results with their units.
+    4. Note any statistical significance indicators.
+    5. What are the axis labels and ranges?
+
+    Be precise about numbers. If you cannot read a value clearly, say so
+    rather than guessing."""
+
+    return analyze_figure(figure_path, prompt)
+```
+
+This is useful for systematic reviews where you need to extract results from dozens or hundreds of papers. The MLLM output still needs human verification, but it reduces the work from "read every figure carefully" to "verify the extracted data."
+
+### Data Extraction From Papers
+
+When papers present data only in figures (no supplementary tables), MLLMs can reconstruct approximate data tables. This is inherently lossy — reading values from a bar chart introduces estimation error — but it's often better than nothing.
+
+For critical applications, pair MLLM extraction with specialized chart digitization tools (WebPlotDigitizer, PlotDigitizer) that use pixel-level analysis for more precise value extraction.
+
+### Research Summarization
+
+Combining figure analysis with text understanding enables deeper paper summarization:
+
+- "Summarize the key results from Figures 2-4 and how they support the paper's main claim"
+- "Compare the experimental results in Figure 3 with the theoretical predictions in Figure 1"
+- "Extract the performance comparison table from Figure 5 and identify which method performs best on each metric"
+
+## Limitations and Failure Modes
+
+### Hallucinated Data Points
+
+The most dangerous failure mode. MLLMs sometimes report specific numerical values that are plausible but wrong. A bar that represents 47.3% might be reported as 52.1%. The value is in the right range, making the error hard to catch without checking the original figure.
+
+Mitigation: always ask the model to express uncertainty. Prompt with "If you cannot read a value precisely, provide a range rather than a single number."
+
+### Misread Axes
+
+Log-scale axes, broken axes, and reversed axes are common sources of error. An MLLM might read a log-scale axis linearly, reporting values that are off by orders of magnitude.
+
+### Complex Multi-Panel Figures
+
+Scientific papers frequently use multi-panel figures (Figure 3a, 3b, 3c, etc.) with shared legends, nested insets, and annotations. MLLMs struggle with:
+
+- Correctly associating panel labels with their content
+- Reading small inset plots
+- Following shared legends across panels
+- Parsing dense annotations and callout lines
+
+### Domain-Specific Notation
+
+Feynman diagrams, crystallographic notation, electrical circuit symbols, and specialized notation systems are inconsistently recognized. The model might describe what it sees ("two lines meeting at a vertex with a wavy line") without understanding the domain meaning.
+
+### Resolution Sensitivity
+
+Low-resolution figures — common in older papers, compressed PDFs, and web-scraped images — significantly degrade performance. If the text in a figure is blurry to a human reader, expect the MLLM to struggle or hallucinate.
+
+## Best Practices
+
+1. **Use the highest resolution available.** Extract figures from PDFs at high DPI rather than screenshotting. Vector graphics (SVG) converted to high-res PNG outperform compressed JPEGs.
+
+2. **Provide context.** Tell the model what field the figure is from, what the paper is about, and what you're looking for. "This is a dose-response curve from a pharmacology study" produces better analysis than "describe this figure."
+
+3. **Ask specific questions.** "What is the value of the blue bar for condition B?" gets more accurate answers than "describe everything in this figure."
+
+4. **Cross-validate critical values.** For any numerical value you plan to use in your own analysis, verify it against the original figure manually or with a second extraction method.
+
+5. **Handle multi-panel figures by cropping.** Send individual panels as separate images rather than the entire multi-panel figure. This consistently improves accuracy.
+
+6. **Be explicit about uncertainty.** Include instructions like "express uncertainty about any values you are not confident about" in your prompts.
+
+MLLMs are a genuinely useful tool for working with scientific figures at scale. They won't replace careful reading of individual papers, but they make it feasible to process the visual information in hundreds of papers during a literature review. Use them for first-pass extraction and always verify the numbers that matter.
+
+---
+
+### [Prompting for Classification: Designing Reliable Categorization with LLMs](https://zro2.one/learn/prompting-classification-guide)
+> How to design prompts that turn LLMs into reliable classifiers for sentiment, topic, intent, and priority labeling tasks.
+
+## Why Use LLMs for Classification
+
+Traditional classification required training a model from scratch with labeled data. LLMs change the economics: you can build a working classifier in hours with zero training data, then iterate based on results.
+
+This works well for tasks where labels are defined by natural language descriptions that a human could apply without special training. Sentiment analysis, topic categorization, intent routing, content moderation, priority assignment. If you can explain the categories to an intern and they could do a reasonable job, an LLM can likely do it too.
+
+Where it does not work well: highly domain-specific classifications where the labels require deep expertise, or tasks where the distinction between categories is statistical rather than semantic.
+
+## Prompt Structure for Classification
+
+A reliable classification prompt has four components.
+
+**Task definition.** State exactly what the model should do and what output to produce.
+
+**Label definitions.** Do not just list the labels. Define each one with criteria and boundary conditions. The more explicit, the fewer edge case failures.
+
+**Examples.** Include 3-5 examples per label, deliberately choosing cases near category boundaries, not just obvious ones.
+
+**Output format.** Constrain the output to valid labels only.
+
+```python
+CLASSIFICATION_PROMPT = """Classify the following customer message into exactly one category.
+
+Categories:
+- billing: Questions about charges, invoices, payment methods, refunds, or pricing
+- technical: Problems with product functionality, bugs, errors, or setup issues
+- account: Login issues, password resets, profile changes, account deletion
+- feedback: Compliments, complaints about experience, feature requests, suggestions
+- other: Messages that do not fit any above category
+
+Rules:
+- If a message spans multiple categories, choose the primary intent
+- "I can't log in to pay my bill" is account (login is the blocker), not billing
+- Feature requests are feedback, even if phrased as questions
+
+Examples:
+Message: "I was charged twice this month"
+Category: billing
+
+Message: "The app crashes when I try to upload photos"
+Category: technical
+
+Message: "I forgot my password and the reset email never arrives"
+Category: account
+
+Message: "It would be great if you added dark mode"
+Category: feedback
+
+Message: "{input_text}"
+Category:"""
+```
+
+## Single-Label vs Multi-Label Classification
+
+Single-label is simpler and more reliable with LLMs. When each item gets exactly one label, the model picks the best fit.
+
+Multi-label classification (an article tagged with multiple topics, a support ticket with multiple issues) is harder because:
+
+1. The model must decide independently for each label whether it applies
+2. Output format must accommodate variable-length responses
+3. The model tends to either over-assign labels (everything gets 3-4 tags) or under-assign (defaults to 1-2)
+
+For multi-label tasks, decompose into binary decisions:
+
+```python
+def multi_label_classify(text: str, labels: list[str], llm) -> list[str]:
+    applied = []
+    for label in labels:
+        prompt = f"""Does the following text belong to the category "{label}"?
+Answer only YES or NO.
+
+Text: {text}
+Answer:"""
+        response = llm.generate(prompt).strip().upper()
+        if response == "YES":
+            applied.append(label)
+    return applied
+```
+
+This costs more API calls but produces significantly more reliable multi-label results than asking the model to output all applicable labels at once.
+
+## Calibration and Label Bias
+
+LLMs have systematic biases in classification. Common patterns:
+
+**Positional bias.** Labels listed first or last in the prompt get selected more often. Mitigate by randomizing label order across requests, or by testing with rotated orderings and checking for inconsistency.
+
+**Verbosity bias.** Labels with longer, more detailed descriptions get selected more frequently. Keep descriptions roughly equal in length.
+
+**Frequency bias.** Labels corresponding to common concepts (the model saw more examples during pretraining) get over-predicted. Rare or domain-specific categories are under-predicted.
+
+**Sycophancy in context.** If the input text uses emotional language, the model may classify more sympathetically rather than objectively.
+
+To measure calibration, run your classifier on a balanced test set and check the confusion matrix. If you see systematic skew toward certain labels, adjust prompt descriptions or add corrective instructions.
+
+## Techniques for Difficult Cases
+
+**Chain-of-thought for ambiguous inputs.** For borderline cases, asking the model to reason before classifying improves accuracy.
+
+```python
+COT_PROMPT = """Classify this customer message.
+
+Message: "{text}"
+
+Step 1: Identify what the customer is asking for or reporting.
+Step 2: Determine which category best matches their primary intent.
+Step 3: Output the category.
+
+Categories: billing, technical, account, feedback, other
+
+Reasoning:"""
+```
+
+This adds latency and cost but improves accuracy on ambiguous inputs by 5-15% in typical benchmarks.
+
+**Self-consistency voting.** Run the same classification 3-5 times (with temperature > 0) and take the majority vote. This smooths out randomness and catches cases where the model is uncertain.
+
+```python
+from collections import Counter
+
+def classify_with_voting(text: str, prompt_template: str, llm, n: int = 5) -> str:
+    votes = []
+    for _ in range(n):
+        result = llm.generate(
+            prompt_template.format(text=text),
+            temperature=0.7
+        ).strip().lower()
+        votes.append(result)
+
+    vote_counts = Counter(votes)
+    winner, count = vote_counts.most_common(1)[0]
+
+    confidence = count / n
+    return winner, confidence
+```
+
+If voting confidence is below a threshold (say 60%), flag the item for human review rather than accepting the noisy label.
+
+**Structured output for clean labels.** Use JSON mode or function calling to constrain output to valid labels. This eliminates parsing failures where the model returns "I would classify this as billing" instead of just "billing."
+
+## Evaluation: Comparing Against Human Annotators
+
+The right baseline for LLM classification is not perfection. It is human inter-annotator agreement.
+
+If human annotators agree 85% of the time on a task, an LLM achieving 82% is performing near human level. Expecting 95% from the LLM on a task where humans disagree 15% of the time is unrealistic.
+
+Evaluation workflow:
+
+1. Label 200-500 examples with two independent human annotators
+2. Compute inter-annotator agreement (Cohen's kappa)
+3. Run the LLM classifier on the same examples
+4. Compare LLM accuracy against each annotator and against the consensus label
+5. Examine disagreements qualitatively. Are the LLM's "errors" actually defensible alternative interpretations?
+
+| Metric | What It Tells You |
+|--------|-------------------|
+| Accuracy | Overall correctness (misleading with imbalanced classes) |
+| Per-class F1 | Performance on each category separately |
+| Cohen's kappa | Agreement adjusted for chance |
+| Confusion matrix | Where specific errors cluster |
+
+## When to Fine-Tune a Small Model Instead
+
+LLM-based classification via prompting is the right starting point. But at scale, the economics shift.
+
+**Cost crossover.** If you are classifying 100K+ items per day, a fine-tuned small model (BERT-class, running on a single GPU) costs 10-100x less per prediction than LLM API calls.
+
+**Latency requirements.** A fine-tuned model returns predictions in single-digit milliseconds. LLM API calls take 200-2000ms.
+
+**Stability requirements.** Prompt-based classification depends on the LLM provider's model version. When they update the model, your classifier's behavior may shift. A fine-tuned model you control is frozen until you explicitly retrain it.
+
+The practical path: use LLM prompting to bootstrap labels on your real data. Use those labels (after human review of a sample) as training data for a fine-tuned small model. Deploy the small model for production, keep the LLM approach as a development and evaluation tool.
+
+This gives you the best of both worlds: fast iteration with LLMs, cheap and stable production inference with a dedicated model.
+
+---
 
 ### [AI Tools for Finance Teams in 2026: What Actually Works](https://zro2.one/learn/ai-tools-ai-for-finance-teams-2026)
 > A practical guide to AI tools that finance teams are actually using in 2026 — from automated reconciliation and forecasting to compliance monitoring and expense analysis.
@@ -37926,6 +39376,911 @@ Welcome to the AI age. You're going to do great. 🚀
 
 ## Building with AI
 
+### [Image AI for Data Augmentation: Synthetic Training Data That Actually Works](https://zro2.one/learn/image-ai-data-augmentation-guide)
+> When and how to use classical and generative data augmentation for computer vision, including practical pipelines and evaluation strategies.
+
+Data augmentation is the most reliable way to improve model performance when you can't collect more real data. Classical augmentation — flipping, rotating, cropping — has been standard practice for a decade. Generative augmentation using diffusion models opens new possibilities but introduces new failure modes. This guide covers when each approach works, when synthetic data hurts rather than helps, and how to build a practical augmentation pipeline.
+
+## Classical Augmentation
+
+Classical augmentation applies deterministic or random transformations to existing images. These transformations preserve the label — a flipped photo of a cat is still a cat.
+
+Standard transforms, roughly ordered by how commonly they're used:
+
+| Transform | What It Does | When It Helps |
+|-----------|-------------|---------------|
+| Horizontal flip | Mirror image left-right | Almost always (except text, laterality-sensitive tasks) |
+| Random crop | Extract a sub-region | Teaches position invariance |
+| Color jitter | Adjust brightness, contrast, saturation, hue | Lighting variation robustness |
+| Rotation | Rotate by random angle | Orientation-invariant tasks |
+| Gaussian noise | Add pixel noise | Sensor noise robustness |
+| Cutout / RandomErasing | Mask random patches | Occlusion robustness |
+| MixUp | Blend two images and their labels | Regularization, smoother decision boundaries |
+| CutMix | Paste a patch from one image onto another | Combines benefits of Cutout and MixUp |
+
+A solid baseline in PyTorch using torchvision:
+
+```python
+from torchvision import transforms
+
+train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+    transforms.RandomHorizontalFlip(),
+    transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+    transforms.RandomRotation(15),
+    transforms.RandomErasing(p=0.1),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+```
+
+For most projects, classical augmentation should be your first step. It's fast, introduces no domain gap, preserves labels reliably, and the techniques are well-understood.
+
+**AutoAugment and learned policies.** Google's AutoAugment (2019) and subsequent methods (RandAugment, TrivialAugment) search for optimal augmentation policies. RandAugment is the practical choice — it reduces the search to just two hyperparameters (number of transforms and magnitude) and performs nearly as well as the expensive AutoAugment search.
+
+```python
+from torchvision.transforms import RandAugment
+
+train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(224),
+    transforms.RandomHorizontalFlip(),
+    RandAugment(num_ops=2, magnitude=9),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+```
+
+## Generative Augmentation
+
+Diffusion models can generate entirely new training images or modify existing ones. This is useful when classical augmentation can't produce the variation you need — rare object appearances, unusual viewpoints, novel combinations of attributes, or entirely new scenes.
+
+### When Generative Augmentation Helps
+
+- **Rare class generation.** If your dataset has 10,000 "normal" samples and 50 "defective" samples, generating more defect examples can improve minority class performance.
+- **Domain transfer.** You have daytime images but need nighttime performance. Style transfer via diffusion can create plausible nighttime variants.
+- **Novel viewpoints.** Generate objects from angles not captured in your training data.
+- **Privacy-sensitive data.** Medical imaging or surveillance contexts where real data can't be shared. Synthetic alternatives can enable model development without exposing patient data.
+
+### The Domain Gap Problem
+
+Synthetic images look different from real images in subtle ways that models detect. Even photorealistic generated images have statistical properties that differ from photographs — texture distributions, noise patterns, color correlations. When your training set includes synthetic data, the model may learn features of the generation process rather than features of the actual objects.
+
+This manifests as:
+
+- **High training accuracy, lower real-world accuracy** — the model "overfits" to synthetic data characteristics
+- **Distribution shift** — synthetic and real data have different feature distributions that confuse the model
+- **Artifacts as shortcuts** — subtle generation artifacts become spurious features the model relies on
+
+### Controlling Generation
+
+Unguided generation produces random images that may not match your needs. Controlled generation techniques target specific augmentation goals:
+
+**Inpainting.** Replace specific regions of real images with generated content. Useful for adding objects to scenes or modifying attributes while preserving background context.
+
+```python
+from diffusers import StableDiffusionInpaintPipeline
+import torch
+
+pipe = StableDiffusionInpaintPipeline.from_pretrained(
+    "stabilityai/stable-diffusion-2-inpainting",
+    torch_dtype=torch.float16,
+).to("cuda")
+
+# original_image: the real training image
+# mask_image: binary mask covering the region to modify
+# prompt: what to generate in the masked region
+result = pipe(
+    prompt="a small crack in the concrete surface",
+    image=original_image,
+    mask_image=mask_image,
+    num_inference_steps=30,
+).images[0]
+```
+
+**ControlNet.** Condition generation on structural inputs (edge maps, depth maps, segmentation masks) to preserve spatial layout while varying appearance.
+
+**Textual Inversion / DreamBooth.** Fine-tune the generator on your specific objects to produce more domain-accurate synthetic data. If you need to generate images of a specific product type, a few-shot fine-tuned model will produce more useful training data than a generic generator.
+
+**IP-Adapter.** Condition generation on reference images to produce variations that preserve the identity of specific objects while varying pose, lighting, and background.
+
+## Evaluating Augmented Data Quality
+
+The only evaluation that matters: does adding synthetic data improve your model's performance on a held-out set of real data?
+
+A systematic evaluation approach:
+
+```python
+def evaluate_augmentation(real_train, synthetic_data, real_test, model_fn):
+    results = {}
+
+    # Baseline: real data only
+    model_real = model_fn()
+    model_real.fit(real_train)
+    results["real_only"] = model_real.evaluate(real_test)
+
+    # Real + synthetic combined
+    combined = real_train + synthetic_data
+    model_combined = model_fn()
+    model_combined.fit(combined)
+    results["real_plus_synthetic"] = model_combined.evaluate(real_test)
+
+    # Synthetic only (diagnostic — should be worse)
+    model_synthetic = model_fn()
+    model_synthetic.fit(synthetic_data)
+    results["synthetic_only"] = model_synthetic.evaluate(real_test)
+
+    return results
+```
+
+Key metrics to track:
+
+- **Overall accuracy / mAP on real test set.** If this doesn't improve, the synthetic data isn't helping.
+- **Per-class performance.** Synthetic data for rare classes should improve those classes without degrading common classes.
+- **Calibration.** Check whether the model's confidence scores are still well-calibrated after adding synthetic data.
+
+Common findings:
+
+- Small amounts of synthetic data (10-30% of real data size) usually help
+- Large amounts (more synthetic than real) often hurt unless the synthetic data is very high quality
+- Mixing ratio matters — a 70/30 real/synthetic split is a reasonable starting point
+- Filtering synthetic data for quality (removing low-fidelity or obviously wrong images) consistently helps
+
+## Practical Pipeline
+
+A complete augmentation pipeline for a computer vision project:
+
+1. **Start with classical augmentation.** Implement RandAugment or a tuned manual augmentation policy. Measure your baseline.
+2. **Identify specific gaps.** Analyze errors. Are failures concentrated on rare classes? Specific conditions (lighting, angle)? Occlusion patterns?
+3. **Generate targeted synthetic data.** Use controlled generation to address specific gaps, not random generation to bulk up the dataset.
+4. **Filter generated images.** Use CLIP or a pretrained classifier to remove low-quality or off-topic generations. Manual review of a sample is also worthwhile.
+5. **Train with mixing strategies.** Don't just concatenate datasets. Experiment with sampling strategies that control the real/synthetic ratio per batch.
+6. **Evaluate on real data only.** Never include synthetic data in your test set. The test set must reflect the real deployment distribution.
+
+## When to Skip Generative Augmentation
+
+Not every project benefits. Skip it when:
+
+- Classical augmentation already provides sufficient variation
+- Your dataset is large enough that more data isn't the bottleneck
+- Your task is sensitive to subtle image statistics (medical imaging where texture matters, for example)
+- The cost of generating and validating synthetic data exceeds the cost of collecting more real data
+- You can't reliably evaluate whether the synthetic data is helping
+
+Generative augmentation is a powerful tool, but it's not free. The time spent generating, filtering, and validating synthetic data is time not spent on other improvements — better architectures, hyperparameter tuning, or collecting more real data. Use it when you have a specific data gap that generation can address, not as a default step in every pipeline.
+
+---
+
+### [LLM API Token Management: Counting, Budgeting, and Optimizing Token Usage](https://zro2.one/learn/llm-api-token-management-guide)
+> Practical strategies for counting, budgeting, and optimizing token usage across LLM APIs, with Python code examples for cost control.
+
+Tokens are the billing unit for LLM APIs. Every character of your prompt, every word in the response, and every piece of context you include costs money. At small scale, this doesn't matter. At production scale — thousands or millions of requests per day — token management becomes a core operational concern. This guide covers how tokenization works, how to count tokens accurately, and practical strategies for keeping costs under control.
+
+## How Tokenization Affects Cost
+
+Different models use different tokenizers, which means the same text produces different token counts across providers.
+
+A rough comparison for the sentence "The patient presented with acute respiratory distress":
+
+| Model Family | Tokenizer | Approximate Tokens |
+|---|---|---|
+| GPT-4o | o200k_base | 7 |
+| Claude 3.5+ | Custom BPE | 8 |
+| LLaMA 3 | SentencePiece BPE | 8 |
+| Gemini | SentencePiece | 8 |
+
+These differences compound over millions of requests. A 10% difference in tokenization efficiency across providers translates directly to a 10% cost difference for the same content.
+
+Key tokenization behaviors that affect cost:
+
+- **Whitespace handling.** Some tokenizers treat spaces as part of the following token; others treat them separately.
+- **Non-English text.** Most tokenizers are optimized for English. Chinese, Japanese, Korean, and other scripts often require 2-4x more tokens per semantic unit.
+- **Code.** Indentation, brackets, and boilerplate inflate token counts. A Python function that reads as 50 words might tokenize to 150+ tokens.
+- **Numbers.** Large numbers and decimals are tokenized digit-by-digit in many tokenizers. "123456789" might be 3-5 tokens.
+
+## Counting Tokens Before Sending
+
+Never guess token counts. Count them.
+
+For OpenAI models, use tiktoken:
+
+```python
+import tiktoken
+
+def count_tokens(text, model="gpt-4o"):
+    encoding = tiktoken.encoding_for_model(model)
+    return len(encoding.encode(text))
+
+# Count tokens for a full message list
+def count_message_tokens(messages, model="gpt-4o"):
+    encoding = tiktoken.encoding_for_model(model)
+    total = 0
+    for message in messages:
+        total += 4  # message overhead (role, content markers)
+        total += len(encoding.encode(message["content"]))
+    total += 2  # reply priming
+    return total
+```
+
+For Anthropic models, use the token counting API:
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()
+
+# Count tokens before sending the full request
+token_count = client.messages.count_tokens(
+    model="claude-sonnet-4-20250514",
+    messages=[{"role": "user", "content": "Your prompt here"}],
+    system="Your system prompt here",
+)
+print(f"Input tokens: {token_count.input_tokens}")
+```
+
+For local models or when exact counts aren't available, estimate conservatively: 1 token per 3.5 characters for English text, 1 token per 2 characters for code.
+
+## Budget Allocation
+
+At production scale, you need token budgets per feature, per user, and per time period.
+
+### Per-Feature Budgets
+
+Different features have different token profiles:
+
+| Feature | Typical Input Tokens | Typical Output Tokens | Requests/Day |
+|---------|--------------------|--------------------|-------------|
+| Chat response | 500-2000 | 200-800 | High |
+| Document summary | 5000-50000 | 200-500 | Medium |
+| Code generation | 1000-5000 | 500-2000 | Medium |
+| RAG query | 2000-8000 | 300-600 | High |
+| Classification | 200-500 | 10-50 | Very high |
+
+Use these profiles to forecast monthly spend:
+
+```python
+def estimate_monthly_cost(
+    input_tokens_per_request,
+    output_tokens_per_request,
+    requests_per_day,
+    input_price_per_million,
+    output_price_per_million,
+):
+    monthly_requests = requests_per_day * 30
+    input_cost = (input_tokens_per_request * monthly_requests / 1_000_000) * input_price_per_million
+    output_cost = (output_tokens_per_request * monthly_requests / 1_000_000) * output_price_per_million
+    return input_cost + output_cost
+
+# Example: RAG feature with Claude Sonnet
+monthly = estimate_monthly_cost(
+    input_tokens_per_request=4000,
+    output_tokens_per_request=400,
+    requests_per_day=5000,
+    input_price_per_million=3.0,
+    output_price_per_million=15.0,
+)
+print(f"Estimated monthly cost: ${monthly:.2f}")
+```
+
+### Per-User Rate Limiting
+
+Prevent individual users from consuming disproportionate resources:
+
+```python
+class TokenBudget:
+    def __init__(self, daily_limit, redis_client):
+        self.daily_limit = daily_limit
+        self.redis = redis_client
+
+    def check_and_deduct(self, user_id, token_count):
+        key = f"token_budget:{user_id}:{date.today()}"
+        current = int(self.redis.get(key) or 0)
+        if current + token_count > self.daily_limit:
+            return False
+        self.redis.incrby(key, token_count)
+        self.redis.expire(key, 86400)
+        return True
+```
+
+## Token Optimization Strategies
+
+### Prompt Compression
+
+System prompts and instructions often contain redundant language. Compress them without losing meaning.
+
+Before (87 tokens):
+> "You are a helpful AI assistant that specializes in answering questions about our product catalog. When a user asks a question, you should search through the available product information and provide a clear, concise, and accurate answer. If you don't know the answer, say so honestly."
+
+After (42 tokens):
+> "Answer product catalog questions. Be concise and accurate. Say when you don't know."
+
+For few-shot examples, use the shortest examples that demonstrate the pattern. Three well-chosen examples often outperform ten verbose ones.
+
+### Context Window Management
+
+When using RAG or long-context applications, manage what goes into the context:
+
+- **Chunk relevance scoring.** Only include the top-k most relevant chunks, not everything above a threshold.
+- **Progressive detail.** Start with summaries of all documents, then include full text only for the most relevant ones.
+- **Sliding window.** For conversations, keep recent messages in full and summarize older ones.
+
+```python
+def manage_context(messages, max_context_tokens=4000):
+    """Keep recent messages, summarize old ones."""
+    total = 0
+    kept = []
+    for msg in reversed(messages):
+        msg_tokens = count_tokens(msg["content"])
+        if total + msg_tokens > max_context_tokens:
+            # Summarize remaining older messages
+            older = messages[:len(messages) - len(kept)]
+            summary = summarize_messages(older)
+            kept.append({"role": "system", "content": f"Earlier conversation summary: {summary}"})
+            break
+        kept.append(msg)
+        total += msg_tokens
+    return list(reversed(kept))
+```
+
+### Response Length Control
+
+Output tokens are typically 3-5x more expensive than input tokens. Control response length:
+
+- Set `max_tokens` to a reasonable ceiling for each use case
+- Include length instructions in the prompt: "Respond in 2-3 sentences" or "Keep your response under 100 words"
+- For classification tasks, constrain output to labels only — no explanations unless needed
+
+### Model Selection by Task
+
+Not every request needs your most capable (and expensive) model. Route requests by complexity:
+
+- **Classification, extraction, formatting** — use a smaller, cheaper model
+- **Complex reasoning, nuanced writing** — use a larger model
+- **High-volume, low-stakes** — use the cheapest model that meets quality requirements
+
+## Monitoring and Alerting
+
+Track token usage in real time. At minimum, log:
+
+- Input and output tokens per request
+- Cost per request (calculated from token counts and current pricing)
+- Daily and weekly aggregates per feature and per user
+- P95 and P99 token counts (catch outlier requests)
+
+Set alerts for:
+
+- **Daily spend exceeding 120% of expected budget** — catches runaway loops or abuse
+- **Single request exceeding 2x normal token count** — catches prompt injection or unexpected input
+- **Sustained increase in average tokens per request** — catches gradual prompt bloat
+
+```python
+import logging
+
+def log_token_usage(feature, user_id, input_tokens, output_tokens, model, price_per_m_in, price_per_m_out):
+    cost = (input_tokens / 1e6) * price_per_m_in + (output_tokens / 1e6) * price_per_m_out
+    logging.info(
+        "token_usage",
+        extra={
+            "feature": feature,
+            "user_id": user_id,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "model": model,
+            "cost_usd": round(cost, 6),
+        },
+    )
+```
+
+Token management isn't glamorous, but it's the difference between an LLM feature that scales sustainably and one that generates a surprising cloud bill. Count tokens before sending, set budgets per feature and user, optimize prompts aggressively, and monitor everything. The tools are straightforward — the discipline of using them consistently is what matters.
+
+---
+
+### [LLM Structured Generation: Constrained Decoding and Grammar-Guided Outputs](https://zro2.one/learn/llms-structured-generation-guide)
+> How constrained decoding and grammar-guided generation force LLMs to produce valid structured output, and when to use each approach.
+
+Most production LLM applications need structured output -- JSON, XML, SQL, or domain-specific formats. The naive approach is prompting the model to "return JSON" and hoping for the best. The engineered approach is constrained decoding: intervening in the generation process itself to guarantee valid output.
+
+This guide covers how constrained decoding works, the major approaches and tools, and the trade-offs you'll face when choosing between them.
+
+## How constrained decoding works
+
+During standard LLM generation, the model produces a probability distribution over all tokens at each step. The highest-probability token (or a sampled token) is selected, and generation continues.
+
+Constrained decoding adds a filter before token selection. At each step, a validator checks which tokens would keep the output on a valid path according to some grammar or schema. Invalid tokens get their probabilities set to zero (or negative infinity in logit space). The model then samples only from valid continuations.
+
+The key insight: you're not changing what the model wants to say. You're restricting how it can say it. The model still provides the semantic content; the constraint engine ensures structural validity.
+
+## Token masking: the core mechanism
+
+Token masking is the implementation detail that makes constrained decoding work. Here's the process:
+
+1. The model produces logits (raw scores) for all vocabulary tokens
+2. A constraint checker evaluates which tokens are valid given the current generation state
+3. Invalid token logits are set to -infinity
+4. Softmax is applied to the remaining logits to get a valid probability distribution
+5. Sampling proceeds as normal from the masked distribution
+
+This happens at every generation step. For JSON output, the constraint checker tracks whether you're inside a string, expecting a key, need a comma, etc. It's essentially running a parser in parallel with generation.
+
+## Grammar-guided generation: CFG and PEG approaches
+
+The most flexible form of constrained decoding uses formal grammars to define valid output.
+
+**Context-Free Grammars (CFGs)** define valid output through production rules. A JSON grammar, for example, specifies that a value can be a string, number, boolean, null, array, or object -- and recursively defines each. At each generation step, the system checks which tokens are consistent with at least one valid parse continuation.
+
+**Parsing Expression Grammars (PEGs)** are similar but use ordered choice instead of ambiguous alternatives. They're deterministic by construction, which can simplify the constraint checking logic.
+
+In practice, most tools use a variant of CFG-based checking, often compiled into a finite-state machine for the non-recursive parts and using a pushdown automaton for nested structures.
+
+```python
+# Example: Defining a grammar for constrained generation with Outlines
+from outlines import models, generate
+
+model = models.transformers("mistralai/Mistral-7B-v0.3")
+
+# JSON schema constraint
+schema = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "sentiment": {"enum": ["positive", "negative", "neutral"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+    },
+    "required": ["name", "sentiment", "confidence"]
+}
+
+generator = generate.json(model, schema)
+result = generator("Analyze the sentiment of: 'The product is decent but overpriced.'")
+# result is guaranteed to be valid JSON matching the schema
+```
+
+## Major tools and frameworks
+
+**Outlines** (github.com/outlines-dev/outlines) is the most mature open-source library for constrained generation. It supports JSON Schema, regex, and custom CFG constraints. It precompiles grammars into efficient index structures so the per-token overhead is minimal. Works with Hugging Face Transformers and vLLM.
+
+**Guidance** (github.com/guidance-ai/guidance) takes a template-based approach where you interleave fixed text with model-generated sections. It supports constrained generation but focuses more on controlling the overall generation flow.
+
+**llama.cpp GBNF grammars** support grammar-guided generation natively in the llama.cpp ecosystem. You define a GBNF grammar file, and the engine applies token masking during generation. Efficient for local deployment.
+
+**vLLM** has integrated Outlines-based structured generation directly into its serving engine, making constrained decoding available via API without code changes.
+
+```python
+# Example: Regex-constrained generation with Outlines
+from outlines import models, generate
+
+model = models.transformers("mistralai/Mistral-7B-v0.3")
+
+# Force output to match an ISO date format
+date_generator = generate.regex(model, r"\d{4}-\d{2}-\d{2}")
+date = date_generator("Today's date is ")
+
+# Force output to match a phone number pattern
+phone_generator = generate.regex(model, r"\(\d{3}\) \d{3}-\d{4}")
+phone = phone_generator("The customer's phone number is ")
+```
+
+## Native API structured output vs custom constrained decoding
+
+Most major API providers (OpenAI, Anthropic, Google) now offer structured output modes. When should you use those vs rolling your own?
+
+| Factor | Native API structured output | Custom constrained decoding |
+|---|---|---|
+| Setup effort | Minimal -- pass a schema | Significant -- need model hosting |
+| Schema flexibility | JSON Schema only (usually) | Any grammar, regex, or custom logic |
+| Latency overhead | Minimal (optimized internally) | Varies; 5-20% overhead typical |
+| Output quality | High (models fine-tuned for it) | Depends on model and constraint complexity |
+| Cost | API pricing applies | Inference compute cost |
+| Control | Limited to provider's options | Full control over decoding |
+
+**Use native API structured output when:** You're using a hosted model, your schema fits JSON Schema, and you don't need custom grammar constraints.
+
+**Use custom constrained decoding when:** You're self-hosting, need non-JSON formats, want fine-grained control over generation, or need to enforce constraints that go beyond JSON Schema (regex patterns, co-occurrence rules, domain-specific grammars).
+
+## Trade-offs: quality vs constraint strictness
+
+Constrained decoding is not free. Important considerations:
+
+**Quality degradation under tight constraints.** When you heavily mask the token distribution, the model may be forced into low-probability tokens. A model that "wants" to write a nuanced explanation might produce awkward phrasing when constrained to a strict enum. The tighter the constraint, the further the output can diverge from what the unconstrained model would produce.
+
+**Latency overhead.** Grammar checking at every token adds computation. For simple schemas, the overhead is negligible (under 5%). For complex nested grammars, it can reach 15-20%. Precompilation helps significantly.
+
+**Interaction with sampling temperature.** Low temperatures work better with constrained decoding because the model's probability mass is already concentrated. High temperatures spread probability across many tokens, and after masking, you may be sampling from a very flat distribution over the remaining valid tokens, producing less coherent output.
+
+**Schema complexity limits.** Some constraints are easy to express as grammars (JSON format, date patterns) and some are hard (semantic constraints like "the summary must be shorter than the input"). Constrained decoding handles syntactic constraints well but cannot enforce semantic ones.
+
+## Practical recommendations
+
+1. **Start with native API structured output** if you're using a hosted model. It's the lowest-effort path and works well for most use cases.
+
+2. **Move to Outlines or equivalent** when you need custom formats, self-host your models, or need deterministic schema compliance without retries.
+
+3. **Precompile your grammars.** The per-request overhead of grammar compilation can exceed the generation time for short outputs. Compile once, reuse across requests.
+
+4. **Test output quality, not just validity.** Valid JSON is necessary but not sufficient. Compare the semantic quality of constrained vs unconstrained outputs to ensure the constraints aren't degrading the useful content.
+
+5. **Use the simplest constraint that works.** If a regex suffices, don't use a full CFG. If an enum works, don't use a regex. Simpler constraints mean less masking and better output quality.
+
+Structured generation has matured rapidly. What was a research curiosity in 2024 is production infrastructure in 2026. The core question has shifted from "can we get valid output?" to "what's the right constraint granularity for this use case?"
+
+---
+
+### [NLP for Dialogue Systems: Building Conversational AI That Understands Context](https://zro2.one/learn/nlp-dialogue-systems-guide)
+> A technical guide to building dialogue systems that manage multi-turn context, from dialogue state tracking to modern LLM-based architectures.
+
+## The Evolution of Dialogue Systems
+
+Dialogue systems have passed through three distinct eras, each still relevant depending on the use case.
+
+**Rule-based systems** use handcrafted decision trees and pattern matching. They are brittle but predictable. For tightly scoped tasks like IVR phone menus, they still work and are easy to audit. Their fatal limitation: they cannot handle anything the designer did not anticipate.
+
+**Retrieval-based systems** select the best response from a predefined set given the conversation context. They guarantee grammatical, on-brand responses since every possible reply was written by a human. The tradeoff is coverage. If the right response is not in the candidate set, the system fails silently by returning something close but wrong.
+
+**Generative systems** produce responses token by token. Modern LLM-based dialogue systems fall here. They handle open-ended input gracefully but introduce new problems: hallucination, inconsistency across turns, and difficulty constraining behavior to business rules.
+
+Most production systems in 2026 are hybrids. An LLM handles understanding and generation, while structured logic enforces business rules, API calls, and safety guardrails.
+
+## Dialogue State Tracking
+
+In task-oriented dialogue, the system needs to track what the user wants across multiple turns. This is dialogue state tracking (DST).
+
+A dialogue state is typically a set of slot-value pairs. For a restaurant booking system: `{cuisine: italian, party_size: 4, date: null, time: null}`. Each user turn may fill, modify, or clear slots.
+
+Traditional DST used classifiers per slot. Modern approaches treat it as a generation problem: given the conversation so far, output the current state as structured data.
+
+```python
+from dataclasses import dataclass, field
+
+@dataclass
+class DialogueState:
+    slots: dict = field(default_factory=dict)
+    confirmed: dict = field(default_factory=dict)
+    turn_count: int = 0
+
+    def update(self, new_values: dict):
+        self.slots.update(new_values)
+        self.turn_count += 1
+
+    def confirm(self, slot: str):
+        if slot in self.slots:
+            self.confirmed[slot] = self.slots[slot]
+
+    def is_complete(self, required_slots: list) -> bool:
+        return all(s in self.confirmed for s in required_slots)
+```
+
+The critical challenge in DST is handling corrections. When a user says "Actually, make that 6 people instead," the system must identify which slot to update and that this is a correction, not a new request.
+
+## Slot Filling and Intent Recognition in 2026
+
+Classic NLU pipelines decomposed understanding into intent classification and slot extraction as separate model stages. A user utterance like "Book a table for four at an Italian place tomorrow" would yield intent `restaurant_booking` with slots `{party_size: 4, cuisine: italian, date: tomorrow}`.
+
+This decomposition is largely obsolete for new systems. LLMs handle both tasks simultaneously through structured output generation. You describe the schema in the prompt or via function calling, and the model extracts everything in one pass.
+
+However, the concepts remain useful even with LLMs. You still need to define your intent taxonomy and slot schemas. The difference is that instead of training separate NLU models, you encode this structure in prompts and output schemas.
+
+Where traditional NLU still wins: latency-sensitive edge deployments, extremely high-volume routing (millions of messages per minute where LLM inference cost is prohibitive), and regulatory environments requiring deterministic, auditable classification.
+
+## Multi-Turn Context Management
+
+The hardest problem in dialogue systems is maintaining coherent context across turns. Three sub-problems dominate.
+
+**Conversation memory.** What was said and decided earlier in the conversation? Naive approaches stuff the entire conversation history into the prompt. This works for short exchanges but hits context window limits and degrades performance as conversations lengthen. Better approaches summarize older turns while keeping recent turns verbatim.
+
+```python
+def build_context_window(
+    turns: list[dict],
+    max_recent: int = 6,
+    summary_model=None
+) -> str:
+    if len(turns) <= max_recent:
+        return format_turns(turns)
+
+    old_turns = turns[:-max_recent]
+    recent_turns = turns[-max_recent:]
+
+    summary = summary_model.summarize(format_turns(old_turns))
+    return f"Previous context summary:\n{summary}\n\nRecent conversation:\n{format_turns(recent_turns)}"
+```
+
+**Topic tracking.** Conversations drift. A customer support dialogue might start with a billing question, shift to a technical issue, then return to billing. The system needs to recognize topic boundaries and maintain separate context per topic thread.
+
+**Reference resolution.** When a user says "that one," "the cheaper option," or "same as before," the system must resolve these references against conversation history. This is coreference resolution applied to dialogue. LLMs handle simple cases well but struggle with complex anaphora chains spanning many turns.
+
+## Task-Oriented vs Open-Domain Systems
+
+These require fundamentally different architectures.
+
+| Aspect | Task-Oriented | Open-Domain |
+|--------|--------------|-------------|
+| Goal | Complete a specific task | Engage in natural conversation |
+| State tracking | Structured slots | Loose topic/persona tracking |
+| Success metric | Task completion rate | User engagement and satisfaction |
+| Response space | Constrained by API/database | Open-ended |
+| Typical turns | 5-15 | Unlimited |
+| Error handling | Explicit confirmation and repair | Graceful topic change |
+
+Task-oriented systems benefit from explicit state machines that gate progression. A booking system should not attempt to confirm a reservation until all required slots are filled and confirmed. This control logic sits outside the LLM.
+
+Open-domain systems need persona consistency, factual grounding, and the ability to say "I don't know" rather than hallucinate. Memory across sessions (remembering user preferences from previous conversations) is increasingly expected.
+
+## Evaluation Metrics
+
+Dialogue evaluation remains an open problem. Automated metrics capture different facets.
+
+**Task completion rate** measures whether the system achieved the user's goal. This is the north star for task-oriented systems but requires clear task definitions and instrumentation to detect completion.
+
+**Turn efficiency** counts how many turns the system needed to complete a task. Fewer is usually better, but too aggressive (asking for everything in one turn) hurts usability.
+
+**Coherence** measures whether responses logically follow from the conversation. LLM-as-judge approaches score this reasonably well, correlating with human judgments at r=0.7-0.8 in published benchmarks.
+
+**User satisfaction** is the ultimate metric but requires explicit feedback (surveys, thumbs up/down) or implicit signals (conversation abandonment, escalation to human agent, return visits).
+
+**Groundedness** measures whether the system's factual claims are supported by its knowledge base. Critical for retrieval-augmented dialogue systems.
+
+A practical evaluation suite combines automated metrics for rapid iteration with periodic human evaluation for calibration.
+
+## Building a Simple Dialogue Manager
+
+A minimal but functional dialogue manager for task-oriented systems:
+
+```python
+class DialogueManager:
+    def __init__(self, llm_client, schema: dict):
+        self.llm = llm_client
+        self.schema = schema  # defines intents, slots, required fields
+        self.state = DialogueState()
+        self.history = []
+
+    def process_turn(self, user_input: str) -> str:
+        self.history.append({"role": "user", "content": user_input})
+
+        # Extract structured information from user input
+        extraction = self.llm.extract(
+            conversation=self.history,
+            schema=self.schema
+        )
+
+        # Update dialogue state
+        self.state.update(extraction.get("slots", {}))
+
+        # Determine next action
+        if self.state.is_complete(self.schema["required_slots"]):
+            response = self._execute_task()
+        else:
+            missing = self._get_missing_slots()
+            response = self._generate_prompt_for_slots(missing)
+
+        self.history.append({"role": "assistant", "content": response})
+        return response
+
+    def _get_missing_slots(self) -> list:
+        return [
+            s for s in self.schema["required_slots"]
+            if s not in self.state.confirmed
+        ]
+
+    def _generate_prompt_for_slots(self, missing: list) -> str:
+        return self.llm.generate(
+            system="Ask the user for the missing information naturally.",
+            context=f"Missing: {missing}, Current state: {self.state.slots}",
+            conversation=self.history
+        )
+
+    def _execute_task(self) -> str:
+        # Call the backend API with confirmed slot values
+        result = self.schema["action_fn"](self.state.confirmed)
+        return self.llm.generate(
+            system="Confirm the completed action to the user.",
+            context=f"Action result: {result}",
+            conversation=self.history
+        )
+```
+
+This separates concerns: the LLM handles language understanding and generation, the dialogue manager handles state and control flow, and the schema defines the task structure.
+
+## Practical Considerations
+
+**Latency matters more in dialogue than in other NLP tasks.** Users expect sub-second responses in conversation. Streaming responses help perceived latency but do not help if you need the full response before taking an action.
+
+**Error recovery is a feature, not an edge case.** Every dialogue system misunderstands users. Building explicit "I didn't catch that" and "Let me confirm" patterns is essential. Systems that barrel forward on misunderstandings destroy user trust.
+
+**Testing conversational systems requires scenario-based evaluation.** Unit tests on individual turns are insufficient. You need multi-turn test scenarios that exercise state tracking, error recovery, and topic switching. Simulated user agents (an LLM playing the user) can generate diverse test conversations at scale, but human evaluation remains necessary for final validation.
+
+---
+
+### [RAG for Conversational AI: Managing Multi-Turn Context in Retrieval Systems](https://zro2.one/learn/rag-conversational-context-guide)
+> How to build RAG systems that handle multi-turn conversations where user queries reference previous turns and context must be managed across retrieval and generation.
+
+## The Core Problem
+
+In single-turn RAG, the pipeline is straightforward: take a user query, retrieve relevant documents, generate an answer. But conversations are not single turns.
+
+Consider this exchange:
+
+> **User:** What is your return policy for electronics?
+> **Assistant:** Electronics can be returned within 30 days with original packaging...
+> **User:** What about the restocking fee?
+> **User:** And does that apply to refurbished items too?
+
+The third message, taken alone, is nearly meaningless for retrieval. "That" refers to the restocking fee. "Refurbished items" needs to be scoped to electronics. A naive RAG system that embeds only the latest query will retrieve irrelevant documents or nothing useful at all.
+
+This is the fundamental challenge of conversational RAG: user queries in context-dependent conversations cannot be used directly as retrieval queries.
+
+## Query Rewriting for Multi-Turn Context
+
+The most effective approach is to rewrite the user's query into a self-contained search query before retrieval. This step resolves references and incorporates context from previous turns.
+
+```python
+REWRITE_PROMPT = """Given the conversation history and the latest user message,
+rewrite the user message as a standalone search query that captures the full intent.
+
+Conversation:
+{history}
+
+Latest message: {current_message}
+
+Rewritten query:"""
+
+def rewrite_query(history: list[dict], current_message: str, llm) -> str:
+    formatted_history = "\n".join(
+        f"{turn['role']}: {turn['content']}" for turn in history[-6:]
+    )
+    response = llm.generate(
+        REWRITE_PROMPT.format(
+            history=formatted_history,
+            current_message=current_message
+        )
+    )
+    return response.strip()
+```
+
+For the example above, the rewriter should produce something like: "Does the restocking fee for electronics returns apply to refurbished electronics items?"
+
+This rewritten query retrieves relevant documents far more effectively than the raw user message.
+
+**Key implementation detail:** The rewriter should be fast and cheap. Use a smaller, faster model for this step rather than your primary generation model. The rewrite does not need to be eloquent. It needs to capture intent and resolve references.
+
+## Context Window Budget Allocation
+
+In conversational RAG, you are stuffing three things into the context window: conversation history, retrieved documents, and system instructions. The window is finite, so allocation matters.
+
+A practical budget framework for a 128K-token context window:
+
+| Component | Budget | Reasoning |
+|-----------|--------|-----------|
+| System prompt | 500-2000 tokens | Fixed instructions, persona, guardrails |
+| Conversation history | 2000-8000 tokens | Last 4-8 turns verbatim, older turns summarized |
+| Retrieved documents | 4000-16000 tokens | 3-8 chunks depending on complexity |
+| Generation headroom | 1000-4000 tokens | Space for the response |
+
+The tension is between conversation history and retrieved content. More history means better conversational coherence but fewer retrieved documents. More retrieved content means better grounding but potential loss of conversational thread.
+
+```python
+def allocate_context(
+    system_prompt: str,
+    history: list[dict],
+    retrieved_chunks: list[str],
+    max_tokens: int = 16000,
+    min_chunks: int = 2,
+    max_history_turns: int = 8
+) -> dict:
+    system_tokens = count_tokens(system_prompt)
+    generation_buffer = 2000
+    available = max_tokens - system_tokens - generation_buffer
+
+    # Prioritize recent history, then fill with chunks
+    history_text = ""
+    included_turns = 0
+    for turn in reversed(history[-max_history_turns:]):
+        turn_text = f"{turn['role']}: {turn['content']}\n"
+        if count_tokens(history_text + turn_text) > available * 0.4:
+            break
+        history_text = turn_text + history_text
+        included_turns += 1
+
+    remaining = available - count_tokens(history_text)
+
+    # Fill remaining space with retrieved chunks
+    included_chunks = []
+    for chunk in retrieved_chunks:
+        if count_tokens("\n".join(included_chunks + [chunk])) > remaining:
+            break
+        included_chunks.append(chunk)
+
+    if len(included_chunks) < min_chunks and len(retrieved_chunks) >= min_chunks:
+        # Truncate history to make room for minimum chunks
+        included_chunks = retrieved_chunks[:min_chunks]
+
+    return {
+        "system": system_prompt,
+        "history": history_text,
+        "context": "\n\n".join(included_chunks)
+    }
+```
+
+## Coreference Resolution in Queries
+
+Beyond simple pronoun resolution ("it," "that," "those"), conversational queries contain subtler reference patterns.
+
+**Ellipsis.** "And for the enterprise plan?" is missing the verb and object. The system must infer from context: "What is the pricing for the enterprise plan?" or "What are the features of the enterprise plan?" depending on the conversation.
+
+**Comparative references.** "Is there a cheaper option?" requires knowing what was previously discussed and its price point.
+
+**Implicit scope.** "What about security?" inherits the topic scope from earlier turns. If the conversation was about a specific product, security means that product's security, not security in general.
+
+LLM-based query rewriting handles most of these cases well. The failure mode is when the relevant context is many turns back and has been truncated from the history window. For long conversations, maintain a running topic summary that captures key entities and their attributes even as individual turns are dropped.
+
+## Session-Based Retrieval Strategies
+
+Not every retrieval in a conversation needs to start from scratch.
+
+**Cached retrieval.** If the user's follow-up question is about the same topic, the documents retrieved in previous turns are likely still relevant. Cache retrieved documents per session and include them as candidates alongside fresh retrieval results.
+
+```python
+class ConversationalRetriever:
+    def __init__(self, retriever, reranker):
+        self.retriever = retriever
+        self.reranker = reranker
+        self.session_cache = []
+
+    def retrieve(self, rewritten_query: str, top_k: int = 5) -> list[str]:
+        # Fresh retrieval
+        new_results = self.retriever.search(rewritten_query, top_k=top_k)
+
+        # Combine with cached results from previous turns
+        candidates = new_results + self.session_cache[-10:]
+
+        # Deduplicate by document ID
+        seen = set()
+        unique = []
+        for doc in candidates:
+            if doc.id not in seen:
+                seen.add(doc.id)
+                unique.append(doc)
+
+        # Rerank combined set against current query
+        ranked = self.reranker.rank(rewritten_query, unique)[:top_k]
+
+        # Update cache
+        self.session_cache.extend(new_results)
+
+        return ranked
+```
+
+**Progressive refinement.** In some conversations, each turn narrows the scope. The first query retrieves broad information, and subsequent queries should filter within that set. Implementing this as a filter on previously retrieved document clusters can be more efficient than re-searching the entire corpus each turn.
+
+**Topic-segmented retrieval.** When a conversation shifts topics, reset the retrieval context. Use a lightweight topic change detector (even a simple embedding similarity check between consecutive rewritten queries) to decide when to clear the session cache.
+
+## Memory Architectures for Long Conversations
+
+Short conversations (under 10 turns) are manageable by including the full history in the prompt. Long conversations need memory management.
+
+**Sliding window with summary.** Keep the last N turns verbatim and maintain a running summary of older content. The summary is updated every few turns. This is the most common production approach.
+
+**Entity-based memory.** Extract key entities and facts from the conversation into a structured store. When generating responses, query this store for relevant facts rather than scanning the full history. This scales better for very long conversations but requires reliable entity extraction.
+
+**Hierarchical memory.** Maintain multiple levels: full recent turns, summarized older turns, and a session-level topic/intent summary. Each level is consulted depending on the query type. Factual follow-ups need detailed recent context; topic shifts need the broad session summary.
+
+The choice depends on conversation length. For support conversations averaging 8-12 turns, the sliding window with summary is sufficient. For long advisory sessions or ongoing project conversations, entity-based or hierarchical approaches are worth the complexity.
+
+## Evaluation Challenges
+
+Evaluating conversational RAG is harder than single-turn RAG because:
+
+1. **Turn-level metrics are insufficient.** A system might answer each turn correctly in isolation but lose coherence across the conversation.
+2. **Context dependence makes test sets harder to build.** Each test case is an entire conversation, not a single question-answer pair.
+3. **The rewrite step introduces a new failure mode.** Bad rewrites cause bad retrieval, which causes bad answers, but the root cause is not visible in the final output.
+
+A practical evaluation framework:
+
+- **Rewrite quality.** Evaluate query rewrites independently. Does the rewritten query capture the full intent? Human evaluation on 100-200 rewrites calibrates this.
+- **Retrieval relevance per turn.** For each turn in a test conversation, check whether the retrieved documents contain the information needed to answer correctly.
+- **Answer correctness.** Standard RAG evaluation (faithfulness, relevance, completeness) applied per turn.
+- **Conversational coherence.** Does the system maintain consistent facts and context across turns? Detect contradictions between responses in the same conversation.
+
+Log rewritten queries, retrieved documents, and generated responses for every turn in production. When users report bad answers, trace back through the pipeline to identify whether the failure was in rewriting, retrieval, or generation. This decomposition is essential for targeted improvement.
+
+---
+
 ### [LLM API Webhooks and Async Patterns: Beyond Request-Response](https://zro2.one/learn/llm-api-webhook-and-async-patterns-guide)
 > How to build LLM-powered systems that go beyond synchronous request-response — covering webhook callbacks, job queues, long-running tasks, and event-driven architectures.
 
@@ -53291,6 +55646,295 @@ What gets built on top of these advances — the multimodal agents, the embodied
 ---
 
 ## Industry & Applications
+
+### [AI Tools for Project Management in 2026: What Actually Helps Teams Ship](https://zro2.one/learn/ai-tools-project-management-2026)
+> A pragmatic look at AI features in project management tools -- what genuinely saves time, what's gimmicky, and how to evaluate what fits your team.
+
+Every project management tool now has "AI-powered" somewhere in its marketing. Most of these features range from genuinely useful to outright distracting. This guide separates the signal from the noise, based on what's actually working for teams in 2026.
+
+## Where AI actually helps in project management
+
+The useful AI features in project management cluster around a few patterns: summarizing information humans don't have time to read, detecting patterns humans miss, and automating repetitive formatting tasks.
+
+### Status summarization
+
+This is the single most valuable AI feature in modern PM tools. Instead of reading through 47 task updates, comments, and commit messages to write a weekly status report, AI generates a draft summary from the actual work artifacts.
+
+**Why it matters:** Status reporting is one of the highest-overhead, lowest-value activities in project management. It takes time, it's always slightly out of date, and people hate doing it. AI-generated status summaries from actual task data are more accurate and more current than manually written ones.
+
+Tools doing this well: Linear, Asana, and Monday.com all offer AI status summaries that pull from task updates, linked PRs, and comments. The quality varies -- Linear's tends to be the most concise, while Monday.com's captures more detail at the cost of being verbose.
+
+### Risk and blocker detection
+
+AI can scan across tasks, dependencies, and timelines to flag potential issues before they become emergencies. This includes: tasks that have been in progress too long without updates, dependency chains where a delayed item blocks multiple downstream tasks, and workload imbalances where one person is overcommitted.
+
+**Why it matters:** Project managers already do this manually, but they do it periodically (weekly reviews, standups). AI can do it continuously and catch things between check-ins.
+
+The limitation: these systems detect surface-level risk signals (stale tasks, broken dependencies) but can't assess qualitative risk ("this task is technically complex and the estimate is optimistic"). Treat AI risk detection as a first filter, not a final judgment.
+
+### Smart task assignment
+
+Some tools now suggest task assignments based on team members' skills, current workload, past performance on similar tasks, and availability. This works reasonably well for teams with 15+ members where the PM doesn't have full visibility into everyone's capacity.
+
+For small teams (under 10), the overhead of configuring and correcting smart assignment usually isn't worth it. You already know who should do what.
+
+### Sprint planning assistance
+
+AI-assisted sprint planning analyzes historical velocity, task complexity estimates, and team availability to suggest sprint compositions. The best implementations show confidence intervals rather than point estimates, acknowledging the inherent uncertainty.
+
+This is helpful as a starting point for sprint planning conversations, but experienced teams typically adjust 30-50% of the AI suggestions. The value is in having a data-informed baseline rather than starting from scratch.
+
+## What's gimmicky (skip these)
+
+**AI-generated task descriptions from one-line inputs.** These produce generic, padded descriptions that teams ignore. Writing a clear task description requires context the AI doesn't have. A human writing "Implement OAuth flow for SSO" is more useful than an AI expanding it into three paragraphs of generic requirements.
+
+**Predictive project completion dates.** Most tools now offer "AI-predicted completion dates" for projects. In practice, these are only as good as the underlying estimates and historical data. For novel projects (which most are), the predictions are not meaningfully better than a PM's informed guess. They create a false sense of precision.
+
+**Automated meeting scheduling "optimization."** Tools that claim to find the "optimal" meeting time based on AI analysis of work patterns and preferences. In practice, calendar constraints dominate, and a simple availability checker (which has existed for years) works just as well.
+
+**Sentiment analysis on team communications.** Some tools now analyze Slack messages and comments to detect "team morale." This is invasive, unreliable, and solves a problem that's better addressed by managers actually talking to their teams.
+
+## Tools worth evaluating
+
+| Tool | Best AI feature | Limitation | Best for |
+|---|---|---|---|
+| Linear | Automated status and cycle reports | Limited to software development workflows | Engineering teams |
+| Asana | Smart goal tracking and workload balancing | AI features locked to Business tier | Cross-functional teams |
+| Monday.com | Workflow automation with AI triggers | Can be overwhelming to configure | Operations teams |
+| Notion Projects | AI-generated summaries across linked docs | PM features less mature than dedicated tools | Teams already in Notion |
+| Shortcut | Story grouping and dependency analysis | Smaller ecosystem | Lean engineering teams |
+| Jira (Atlassian Intelligence) | Predictive sprint analytics | Complex setup, heavy platform | Enterprise teams |
+
+## Integration with existing workflows
+
+The biggest factor in whether AI PM features deliver value is how well they integrate with where work actually happens. A brilliant risk detection system is useless if alerts go to a dashboard nobody checks.
+
+**What works:**
+- AI summaries delivered in Slack/Teams channels where the team already communicates
+- Risk alerts that create actual tasks or flag existing ones, not just notifications
+- Sprint suggestions that appear in the planning interface, editable inline
+- Status reports that auto-populate existing report templates
+
+**What doesn't work:**
+- Separate AI dashboards that require checking another tool
+- Features that require manual data entry to feed the AI
+- Insights that are interesting but not actionable ("your team's velocity has a 0.73 correlation with sprint length" -- so what?)
+
+## Practical recommendations
+
+1. **Start with status summarization.** It's the highest-value, lowest-risk AI feature. If your PM tool offers it, turn it on. If it doesn't, consider whether that's reason enough to switch.
+
+2. **Be skeptical of prediction features.** AI predictions in project management are useful as conversation starters, not as reliable forecasts. Never commit to a deadline based on an AI prediction without human review.
+
+3. **Audit AI suggestions for two weeks before trusting them.** Turn on smart assignment or sprint planning AI, but review every suggestion manually for the first few sprints. This calibrates your understanding of when the AI is helpful and when it's off.
+
+4. **Don't adopt AI PM features in isolation.** The value compounds when AI summarization connects to AI risk detection connects to AI sprint planning. Picking one tool with a coherent AI story is better than mixing best-of-breed AI features across tools.
+
+5. **Measure time saved, not features used.** The only metric that matters is whether your team spends less time on project management overhead and more time on actual work. If an AI feature doesn't measurably reduce overhead within a month, turn it off.
+
+The honest assessment: AI in project management in 2026 is useful at the margins. It removes some drudgery and catches some things humans miss. It doesn't fundamentally change how projects are managed. The teams shipping the fastest are still the ones with clear priorities, small batch sizes, and good communication -- with or without AI.
+
+---
+
+### [Multimodal AI for Quality Inspection: Visual and Sensor Fusion in Manufacturing](https://zro2.one/learn/multimodal-ai-quality-inspection-guide)
+> How combining camera-based visual inspection with sensor data like vibration, thermal, and acoustic signals catches manufacturing defects that either modality alone would miss.
+
+## Why Single-Modality Inspection Falls Short
+
+A camera can spot a hairline crack on a PCB. A vibration sensor can detect a bearing wearing down inside a motor. But neither alone catches everything. Surface defects that look fine visually may correlate with abnormal thermal signatures. A weld that passes visual inspection might produce a distinctive acoustic emission pattern that flags porosity inside the joint.
+
+Manufacturing quality inspection has relied on either visual systems or sensor-based monitoring for decades. Multimodal AI brings them together, and the combination catches 15-30% more defects than the best single-modality approach in most documented deployments.
+
+## Architecture: How Fusion Actually Works
+
+Multimodal inspection systems combine data streams from cameras (RGB, infrared, hyperspectral) with physical sensors (vibration, acoustic, temperature, pressure). The core architectural question is when and how to merge these signals.
+
+**Early fusion** concatenates raw or lightly processed data from all sensors before feeding it into a single model. The model learns cross-modal correlations from scratch. This works when modalities are tightly coupled in time and space, like combining an RGB image with a co-registered thermal image of the same part.
+
+**Late fusion** processes each modality through its own specialized model, then combines predictions or learned features at a higher level. Each sub-model becomes an expert in its domain. A CNN processes the visual stream; a 1D convolutional or recurrent network handles the time-series sensor data. Their outputs merge through a learned attention mechanism or a simple classifier head.
+
+**Mid fusion** (also called intermediate fusion) extracts features from each modality independently, then combines feature representations at one or more intermediate layers. This balances the strengths of both approaches.
+
+| Approach | Strengths | Weaknesses | Best For |
+|----------|-----------|------------|----------|
+| Early fusion | Learns subtle cross-modal patterns | Needs aligned data; harder to train | Co-registered spatial data |
+| Late fusion | Modular; easier to develop and debug | May miss low-level interactions | Independent sensor streams |
+| Mid fusion | Balances cross-modal learning and modularity | More complex architecture | Most production deployments |
+
+In practice, late fusion dominates production systems because you can develop and validate each modality's model independently, then combine them. This also lets you fall back to single-modality operation if a sensor fails.
+
+## Real Use Cases
+
+**PCB inspection.** Optical cameras detect solder bridges, missing components, and misalignment. Adding X-ray imaging catches hidden voids inside solder joints. Thermal cycling data during powered testing reveals cold joints that look fine visually but show abnormal heating patterns.
+
+**Weld quality assessment.** High-speed cameras capture the weld pool geometry during arc welding. Acoustic emission sensors detect cracking and porosity. Combined, these predict weld strength more accurately than either alone, often enabling a reduction in destructive testing from 1-in-50 to 1-in-200 samples.
+
+**Surface defect detection.** In steel and glass manufacturing, line-scan cameras running at production speed catch surface scratches, pits, and discoloration. Adding laser profilometry provides depth information, distinguishing between a harmless stain and a structural pit. Combining both modalities reduces false positives by 40-60% in documented cases.
+
+**Food safety.** Hyperspectral cameras detect foreign matter and spoilage indicators not visible in RGB. Combined with weight sensors and X-ray inspection, they provide layered screening that meets HACCP requirements while reducing manual inspection labor.
+
+## ROI Calculation
+
+The economics of multimodal inspection depend on three factors: current defect escape rate, cost per escaped defect, and inspection system cost.
+
+A reasonable framework:
+
+```
+Annual savings = (defects_caught_per_year * cost_per_escaped_defect)
+               + (labor_hours_saved * labor_cost_per_hour)
+               - (system_cost / amortization_years)
+               - annual_maintenance
+```
+
+For a mid-volume electronics manufacturer running a $200K multimodal system amortized over 5 years, catching 500 additional defects per year at $150 cost per customer return, the math is straightforward: $75K in avoided returns plus $40K in labor savings against $40K annualized system cost plus $15K maintenance. Payback period: roughly 18 months.
+
+The harder-to-quantify benefit is preventing catastrophic escapes. A single product recall can cost millions. Multimodal systems provide defense in depth.
+
+## Integration With Existing QA Processes
+
+Most factories do not rip out existing inspection systems. Multimodal AI layers on top.
+
+The typical integration path:
+
+1. **Instrument first.** Add sensors to existing inspection stations. Camera mounting, lighting, and sensor placement require careful engineering specific to the product and defect types.
+2. **Collect and label.** Run the system in shadow mode alongside human inspectors for 2-6 months. Label defects across all modalities. This is the most expensive and time-consuming step.
+3. **Train and validate.** Build models offline, validate against held-out labeled data, then deploy in advisory mode where the system flags suspects for human review.
+4. **Close the loop.** Gradually shift to automated pass/fail decisions for high-confidence predictions. Keep human review for edge cases and novel defect types.
+
+Integration with MES (Manufacturing Execution Systems) and PLC/SCADA controls is necessary for automated reject handling. Standard protocols like OPC-UA provide the bridge.
+
+## Challenges to Plan For
+
+**Labeling multimodal data is expensive.** A visual defect label does not automatically apply to the associated sensor data. You need annotators who understand both domains, or you need to build tooling that synchronizes and presents all modalities together.
+
+**False positive management matters more than raw accuracy.** A 99.5% accurate system on a line producing 10,000 parts per day generates 50 false alarms daily. If each requires manual review, operators develop alarm fatigue and start ignoring the system. Tuning the operating point for each defect type, and providing explainable alerts (highlighting the region and modality that triggered the flag), is critical.
+
+**Sensor drift and degradation.** Cameras get dirty. Vibration sensors decouple from mounting points. Thermal cameras lose calibration. Production multimodal systems need automated health monitoring for each sensor channel, with graceful degradation when a modality becomes unreliable.
+
+**Data synchronization.** When fusing a 30fps camera with a 10kHz vibration sensor and a 1Hz temperature reading, temporal alignment is non-trivial. Hardware-triggered acquisition with shared timestamps is the reliable approach; software synchronization introduces jitter that degrades fusion accuracy.
+
+## Where This Is Heading
+
+The trend is toward self-supervised pretraining on unlabeled production data, dramatically reducing the labeled data requirement. Foundation models pretrained on large manufacturing image datasets are emerging, allowing fine-tuning with hundreds rather than thousands of labeled defect examples. Combined with edge inference hardware that can run multi-stream models at production line speeds, multimodal inspection is becoming accessible to smaller manufacturers who could not previously justify the engineering investment.
+
+---
+
+### [Video AI for Quality Control: Automated Defect Detection in Manufacturing](https://zro2.one/learn/video-ai-quality-control-manufacturing)
+> How video AI systems detect manufacturing defects in real time on production lines, covering edge deployment, camera setup, model architecture, and integration with industrial controls.
+
+## Why Video, Not Just Images
+
+Single-frame image inspection has been used in manufacturing for decades. Video AI adds a temporal dimension that catches defects image-based systems miss.
+
+**Temporal patterns.** A surface that looks acceptable in a single frame may show intermittent flickering reflections that indicate sub-surface delamination. Tracking how a defect appears and evolves across frames provides confidence that it is real, not a lighting artifact.
+
+**Motion-based detection.** Vibration in a rotating part, wobble in a conveyor belt, inconsistent fluid flow in a filling line. These are invisible in still images but obvious in video.
+
+**Tracking across views.** On a production line, a part moves through multiple camera stations. Video tracking links observations across frames and cameras, building a complete inspection record for each unit rather than isolated snapshots.
+
+**Speed verification.** Video can verify that production line speed is within tolerance, that parts are properly spaced, and that orientation is correct before they reach the next processing station.
+
+## Real-Time Edge Deployment
+
+Production lines do not wait for cloud inference. The latency budget for inline inspection is typically 10-50 milliseconds per frame at 30-60 fps. This means edge deployment is not optional.
+
+The hardware stack for production video AI:
+
+| Component | Typical Choice | Notes |
+|-----------|---------------|-------|
+| Camera | GigE Vision or Camera Link | Industrial-grade, global shutter, precise triggering |
+| Edge compute | NVIDIA Jetson Orin, Intel discrete GPU, or FPGA | GPU for flexibility, FPGA for deterministic latency |
+| Connectivity | Ethernet to PLC/SCADA | OPC-UA or Modbus TCP for reject triggers |
+| Storage | Local NVMe + periodic cloud sync | Store defect images for retraining |
+
+Inference optimization is critical. Techniques that matter in practice:
+
+- **Model quantization.** INT8 quantization typically reduces inference time by 2-3x with less than 1% accuracy loss for defect detection tasks.
+- **TensorRT or OpenVINO compilation.** Framework-specific optimization for the target hardware.
+- **Region of interest.** Do not process the entire frame. Detect the part location first with a fast detector, then run the detailed inspection model only on the cropped region.
+- **Temporal downsampling.** If the production line moves at a known speed, you may only need to inspect every Nth frame rather than every frame.
+
+## Camera Setup and Lighting
+
+The best model in the world fails if the imaging is poor. Camera and lighting setup is where most manufacturing video AI projects spend the plurality of their engineering time.
+
+**Lighting is more important than camera resolution.** Consistent, controlled illumination reveals defects. Ambient light variation is the enemy. Common approaches:
+
+- **Diffuse backlighting** for detecting inclusions, holes, and contamination in translucent materials
+- **Dark field illumination** for surface scratches and texture defects (light enters at a steep angle, only scattered light from defects reaches the camera)
+- **Structured light** for 3D surface profiling to detect dents and warpage
+- **Strobe synchronization** to freeze motion and eliminate blur at high line speeds
+
+**Camera selection criteria.** Resolution should match the smallest defect you need to detect. A 50-micron defect requires at least 25-micron pixel resolution at the sensor plane. Frame rate must exceed the line speed divided by the field of view. Global shutter is essential for moving parts; rolling shutter introduces distortion.
+
+## Model Architectures for High-Speed Inspection
+
+The dominant architecture for production-line video AI is not a single monolithic model. It is a pipeline.
+
+**Stage 1: Part detection and tracking.** A lightweight detector (YOLO-class) identifies parts entering the field of view and assigns tracking IDs. This runs on every frame.
+
+**Stage 2: Region extraction.** Once a part is detected, the relevant image region is cropped and aligned. Geometric normalization compensates for position and rotation variation on the conveyor.
+
+**Stage 3: Defect detection.** A classification or segmentation model inspects the normalized region. For binary pass/fail, an anomaly detection approach (trained only on good parts) often outperforms supervised classification because defects are rare and diverse.
+
+**Stage 4: Temporal aggregation.** Multiple inspections of the same part across frames are combined. A part flagged as defective in 3 out of 5 frames is rejected. A single-frame flag might be noise.
+
+Anomaly detection deserves emphasis. In manufacturing, you have abundant examples of good parts and scarce examples of defects. Training a model to recognize "normal" and flag deviations works better than trying to classify every possible defect type.
+
+## Handling Class Imbalance
+
+Defect rates on a well-run production line are typically 0.1-2%. This creates severe class imbalance.
+
+**Data strategies:**
+- Collect defect examples deliberately from line trials and historical quality records
+- Use synthetic defect generation (overlaying realistic defect textures on good-part images)
+- Augment real defect images with geometric and photometric transformations
+
+**Training strategies:**
+- Focal loss or class-weighted loss functions to prevent the model from defaulting to "good"
+- Anomaly detection approaches that only train on good examples
+- Hard negative mining: focus training on borderline cases that the model gets wrong
+
+**Evaluation must reflect production conditions.** Accuracy is meaningless when 99% of parts are good. Use precision and recall at the operating point. A false positive rate of 0.5% sounds low but means 50 false rejects per 10,000 parts. If each requires manual re-inspection, that can overwhelm your QA team.
+
+## Integration With PLC/SCADA Systems
+
+The inspection system must communicate decisions to the production line in real time.
+
+**Reject mechanism.** When a defect is detected, the system triggers a reject actuator (air jet, diverter gate, robotic arm) via a digital output to the PLC. The timing must account for the delay between inspection and the reject station. At 1 meter/second line speed with a 500mm gap between camera and rejector, you have 500ms. That is comfortable. At 5 meters/second with a 200mm gap, you have 40ms. That requires deterministic timing.
+
+**Data logging.** Every inspection decision, with the image and model confidence, should be logged to a database. This provides traceability for quality audits and training data for model improvement.
+
+**Recipe management.** Different products on the same line need different inspection parameters (sensitivity thresholds, region of interest, defect types). The inspection system must accept recipe changes from the MES/SCADA system when a product changeover occurs.
+
+## Case Studies
+
+**Automotive paint inspection.** A major OEM deployed 48 cameras on a paint inspection tunnel, processing 120 fps per camera. The system detects orange peel texture, runs, sags, and particle inclusions down to 0.3mm. Result: 60% reduction in paint defect escapes to final assembly, with the false positive rate kept below 0.3% through temporal aggregation across the multi-camera array.
+
+**Electronics assembly.** A contract electronics manufacturer uses video AI to monitor pick-and-place machines in real time. The system tracks component placement accuracy across the entire board assembly process. By catching placement drift early (before solder), they reduced post-reflow defect rates by 35% and eliminated one downstream AOI station.
+
+**Textile weaving.** Video AI monitors fabric as it comes off the loom at 2 meters/second. Line-scan cameras with dark field lighting detect broken threads, pattern defects, and contamination. The system grades each meter of fabric automatically, replacing manual inspection tables and reducing grading labor by 80%.
+
+## ROI and Payback
+
+A practical ROI model for video AI inspection:
+
+| Cost Component | Typical Range |
+|----------------|---------------|
+| Cameras and lighting | $20K-$100K per station |
+| Edge compute hardware | $5K-$30K per station |
+| Software and integration | $50K-$200K (one-time) |
+| Annual maintenance | 10-15% of hardware cost |
+
+Against savings:
+- Reduced scrap from early defect detection
+- Reduced warranty claims from escaped defects
+- Reduced manual inspection labor (typically 1-3 FTEs per shift per line)
+- Faster line speeds enabled by automated inspection confidence
+
+Payback periods typically range from 12-24 months for high-volume lines where the cost of escaped defects is significant. Lower-volume operations need a stronger per-defect cost justification.
+
+---
 
 ### [Voice Activity Detection: The Unsung Hero of Audio AI](https://zro2.one/learn/audio-ai-voice-activity-detection-guide)
 > A practical guide to voice activity detection (VAD) — the critical preprocessing step that determines when someone is speaking, covering algorithms, tuning, and production deployment patterns.

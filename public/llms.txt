@@ -4,6 +4,10 @@
 
 ## AI Foundations
 
+- [Weight Decay: The Regularization Trick Behind Modern Deep Learning](https://zro2.one/learn/ai-foundations-weight-decay-guide): Weight decay and L2 regularization are not the same thing when you're using Adam. Here's what weight decay actually does and how to tune it.
+- [AI Glossary: Synthetic Data Edition](https://zro2.one/learn/ai-glossary-synthetic-data-edition): Plain-English definitions of 28 key terms in synthetic data generation, from data augmentation to model collapse.
+- [Positional Encoding in Transformers: How Models Know Where Things Are](https://zro2.one/learn/deep-learning-positional-encoding-guide): A technical walkthrough of positional encoding methods in transformers, from sinusoidal encodings to RoPE and ALiBi, with practical implications for context length.
+- [What Is Artificial General Intelligence? Definitions, Debates, and Where We Actually Stand](https://zro2.one/learn/what-is-ai-agi-explained): A grounded explanation of what AGI means, why there is no consensus definition, what current AI can and cannot do, and why the definitional debate matters for policy and safety.
 - [Batch Normalization: Why It Works and When It Doesn't](https://zro2.one/learn/ai-foundations-batch-normalization-explained): A clear explanation of batch normalization — the mechanics, the competing theories about why it works, its limitations, and when to use alternatives like layer norm or group norm.
 - [AI Glossary: Production & Operations Edition](https://zro2.one/learn/ai-glossary-production-edition): Essential terminology for running AI systems in production — from model serving and feature stores to observability, canary deployments, and shadow mode, explained for practitioners.
 - [Residual Connections: The Simple Idea That Made Deep Learning Deep](https://zro2.one/learn/deep-learning-residual-connections-explained): Why residual connections work, how they solve the degradation problem, their mathematical properties, and their role in everything from ResNets to transformers.
@@ -130,6 +134,7 @@
 
 ## This Week in AI
 
+- [This Week in AI](https://zro2.one/learn/2026-03-24-this-week-in-ai-022): This week: multimodal reasoning takes a leap, edge deployment gets simpler, and enterprises push for AI standardization across the stack.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-021): Weekly AI roundup
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-020): This week's AI roundup: major labs clash over distillation rights, audio AI hits production quality, and open-source reasoning models close the gap with proprietary systems.
 - [This Week in AI](https://zro2.one/learn/this-week-in-ai-019): Enterprise AI adoption enters its boring-but-productive phase, video generation models find practical use cases beyond demos, and the open-weight ecosystem hits a milestone. Here's what mattered this week.
@@ -154,6 +159,12 @@
 
 ## Practice & Tools
 
+- [AI Workflows for Product Management: From Discovery to Delivery](https://zro2.one/learn/ai-workflows-product-management): Practical AI workflows for product managers covering research analysis, prioritization, competitive intelligence, spec writing, and feedback clustering.
+- [Audio AI for Audio Description: Making Visual Media Accessible Through AI Narration](https://zro2.one/learn/audio-ai-audio-description-accessibility): How AI generates audio descriptions for blind and low-vision users, from scene detection through TTS synthesis, and what still needs work.
+- [Getting Started with AI for Healthcare Professionals](https://zro2.one/learn/getting-started-ai-for-healthcare): A practical guide for clinicians, nurses, and administrators on where AI helps now, what requires caution, and how to build AI literacy in healthcare settings.
+- [Machine Learning Drift Detection: When Your Model Stops Working and How to Catch It](https://zro2.one/learn/machine-learning-drift-detection-guide): How to detect data drift, concept drift, and prediction drift in production ML systems before they silently degrade your results.
+- [MLLMs for Scientific Figures and Diagrams: Extracting Knowledge from Visual Research](https://zro2.one/learn/mllms-scientific-figures-guide): How multimodal large language models interpret scientific charts, diagrams, and figures, with practical applications and honest assessment of limitations.
+- [Prompting for Classification: Designing Reliable Categorization with LLMs](https://zro2.one/learn/prompting-classification-guide): How to design prompts that turn LLMs into reliable classifiers for sentiment, topic, intent, and priority labeling tasks.
 - [AI Tools for Finance Teams in 2026: What Actually Works](https://zro2.one/learn/ai-tools-ai-for-finance-teams-2026): A practical guide to AI tools that finance teams are actually using in 2026 — from automated reconciliation and forecasting to compliance monitoring and expense analysis.
 - [AI Workflows for Quality Assurance: Automating the Boring Parts](https://zro2.one/learn/ai-workflows-quality-assurance-automation): How to build AI-powered QA workflows that handle test generation, visual regression, log analysis, and bug triage — keeping humans focused on exploratory testing and edge cases.
 - [Self-Consistency Prompting: When One Answer Isn't Enough](https://zro2.one/learn/prompting-self-consistency-guide): How to use self-consistency prompting to improve LLM accuracy — generating multiple reasoning paths, aggregating answers, and knowing when the technique is worth the extra cost.
@@ -279,6 +290,11 @@
 
 ## Building with AI
 
+- [Image AI for Data Augmentation: Synthetic Training Data That Actually Works](https://zro2.one/learn/image-ai-data-augmentation-guide): When and how to use classical and generative data augmentation for computer vision, including practical pipelines and evaluation strategies.
+- [LLM API Token Management: Counting, Budgeting, and Optimizing Token Usage](https://zro2.one/learn/llm-api-token-management-guide): Practical strategies for counting, budgeting, and optimizing token usage across LLM APIs, with Python code examples for cost control.
+- [LLM Structured Generation: Constrained Decoding and Grammar-Guided Outputs](https://zro2.one/learn/llms-structured-generation-guide): How constrained decoding and grammar-guided generation force LLMs to produce valid structured output, and when to use each approach.
+- [NLP for Dialogue Systems: Building Conversational AI That Understands Context](https://zro2.one/learn/nlp-dialogue-systems-guide): A technical guide to building dialogue systems that manage multi-turn context, from dialogue state tracking to modern LLM-based architectures.
+- [RAG for Conversational AI: Managing Multi-Turn Context in Retrieval Systems](https://zro2.one/learn/rag-conversational-context-guide): How to build RAG systems that handle multi-turn conversations where user queries reference previous turns and context must be managed across retrieval and generation.
 - [LLM API Webhooks and Async Patterns: Beyond Request-Response](https://zro2.one/learn/llm-api-webhook-and-async-patterns-guide): How to build LLM-powered systems that go beyond synchronous request-response — covering webhook callbacks, job queues, long-running tasks, and event-driven architectures.
 - [LLM Tool Use and Function Calling: Patterns That Actually Work](https://zro2.one/learn/llms-tool-use-and-function-calling-patterns): A practical guide to LLM tool use and function calling — covering schema design, error handling, multi-step orchestration, and the patterns that separate reliable tool-using systems from brittle demos.
 - [MLLMs in the Wild: Real-World Visual Understanding Beyond Benchmarks](https://zro2.one/learn/mllms-real-world-visual-understanding): How multimodal large language models perform on real-world visual understanding tasks — the gaps between benchmark scores and production accuracy, failure modes, and practical mitigation strategies.
@@ -376,6 +392,9 @@
 
 ## Industry & Applications
 
+- [AI Tools for Project Management in 2026: What Actually Helps Teams Ship](https://zro2.one/learn/ai-tools-project-management-2026): A pragmatic look at AI features in project management tools -- what genuinely saves time, what's gimmicky, and how to evaluate what fits your team.
+- [Multimodal AI for Quality Inspection: Visual and Sensor Fusion in Manufacturing](https://zro2.one/learn/multimodal-ai-quality-inspection-guide): How combining camera-based visual inspection with sensor data like vibration, thermal, and acoustic signals catches manufacturing defects that either modality alone would miss.
+- [Video AI for Quality Control: Automated Defect Detection in Manufacturing](https://zro2.one/learn/video-ai-quality-control-manufacturing): How video AI systems detect manufacturing defects in real time on production lines, covering edge deployment, camera setup, model architecture, and integration with industrial controls.
 - [Voice Activity Detection: The Unsung Hero of Audio AI](https://zro2.one/learn/audio-ai-voice-activity-detection-guide): A practical guide to voice activity detection (VAD) — the critical preprocessing step that determines when someone is speaking, covering algorithms, tuning, and production deployment patterns.
 - [AI for Architectural Visualization: From Sketches to Photorealistic Renders](https://zro2.one/learn/image-ai-architectural-visualization-guide): How architects and designers are using AI image generation for concept visualization, design iteration, and client presentations — with practical workflows and limitations.
 - [Video Search and Retrieval: Finding Moments in Hours of Footage](https://zro2.one/learn/video-ai-video-search-and-retrieval-guide): How AI-powered video search works — from text-to-video retrieval and visual similarity to semantic scene search, with practical architectures for building searchable video libraries.
