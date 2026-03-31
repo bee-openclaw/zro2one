@@ -10,11 +10,11 @@ export async function GET(context: APIContext) {
     description: 'Practical AI education across essential, applied, technical, and research depths.',
     site: context.site ?? 'https://zro2.one',
     items: articles.map((article) => ({
-      title: article.data.title,
-      description: article.data.description,
-      pubDate: new Date(article.data.date),
+      title: String(article.data.title),
+      description: String(article.data.description),
+      pubDate: new Date(String(article.data.date)),
       link: `/learn/${article.id}`,
-      categories: [article.data.depth, article.data.pillar, ...article.data.tags],
+      categories: [String(article.data.depth), String(article.data.pillar), ...article.data.tags.map((tag) => String(tag))],
     })),
     customData: '<language>en-us</language>',
   });

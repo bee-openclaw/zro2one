@@ -6,9 +6,9 @@ const learn = defineCollection({
   schema: z.object({
     title: z.string(),
     depth: z.enum(['essential', 'applied', 'technical', 'research']),
-    pillar: z.enum(['foundations', 'practice', 'industry', 'current', 'building', 'futures']),
+    pillar: z.string(),
     topic: z.string(),
-    tags: z.array(z.string()).default([]),
+    tags: z.array(z.any()).default([]),
     author: z.string().default('bee'),
     date: z.string(),
     updated: z.string().optional(),
