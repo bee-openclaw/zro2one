@@ -4,6 +4,12 @@
 
 ## AI Foundations
 
+- [Embedding Spaces Explained: Why Similar Things End Up Near Each Other](https://zro2.one/learn/ai-foundations-embedding-spaces-explained): Embeddings power semantic search, recommendation systems, clustering, and RAG. This guide explains the mental model without drowning in notation.
+- [Deep Learning Normalization Layers: What They Do and When They Help](https://zro2.one/learn/deep-learning-normalization-layers-guide): BatchNorm, LayerNorm, RMSNorm, GroupNorm. Normalization layers show up everywhere in deep learning, but they solve slightly different problems in different architectures.
+- [Machine Learning Active Learning: How to Label Less Data and Learn Faster](https://zro2.one/learn/machine-learning-active-learning-guide): Active learning helps ML teams spend annotation effort where it has the highest impact instead of labeling large random datasets with low signal.
+- [What Is AI Training vs Inference? The Simplest Distinction That Explains a Lot](https://zro2.one/learn/what-is-ai-inference-vs-training): A lot of AI confusion disappears once you separate training from inference. One phase creates the model. The other phase uses it.
+- [Cross-Validation: The Right Way to Estimate Model Performance](https://zro2.one/learn/ai-foundations-cross-validation-guide): Cross-validation gives you a more honest estimate of how your model will perform on unseen data. This guide covers k-fold, stratified, time-series, and grouped variants — with guidance on which to use when.
+- [What Is AI Infrastructure? The Hardware and Software Stack Behind Modern AI](https://zro2.one/learn/what-is-ai-infrastructure): A clear explanation of what AI infrastructure actually means — the GPUs, cloud platforms, frameworks, and orchestration tools that make training and deploying AI models possible — written for people who want to understand the stack without building it.
 - [AI Foundations: Mixture-of-Experts Explained Without the Marketing Fog](https://zro2.one/learn/ai-foundations-mixture-of-experts-explained): Mixture-of-experts models activate only part of a network for each input. This guide explains why that matters, how routing works, and why MoE systems are efficient but not simple.
 - [Loss Landscapes and Generalization: Why Flat Minima Matter](https://zro2.one/learn/ai-foundations-loss-landscape-and-generalization): The shape of the loss landscape around a solution tells you more about generalization than the loss value itself. This guide explains why flat minima generalize better, how training choices affect where you land, and what this means for practitioners.
 - [Dropout and Stochastic Regularization: Training Better Networks by Breaking Them](https://zro2.one/learn/ai-foundations-dropout-and-stochastic-regularization): How dropout works, why randomly disabling neurons during training produces more robust models, and how stochastic regularization techniques have evolved from the original idea to modern variants.
@@ -162,6 +168,7 @@
 
 ## This Week in AI
 
+- [This Week in AI](https://zro2.one/learn/2026-04-02-this-week-in-ai-030): A concise roundup of what mattered in AI this week, from inference economics and multimodal product moves to enterprise adoption patterns and safety debates.
 - [This Week in AI](https://zro2.one/learn/2026-03-29-this-week-in-ai-026): Weekly roundup of the most important AI developments — covering new model releases, research breakthroughs, industry moves, policy updates, and notable open-source projects from the past week.
 - [This Week in AI](https://zro2.one/learn/2026-03-26-this-week-in-ai-024): Llama 4 lands with native multimodal, Google proposes an open agent communication protocol, and every major provider races to slash prompt caching costs.
 - [This Week in AI](https://zro2.one/learn/2026-03-25-this-week-in-ai-023): Weekly AI roundup
@@ -190,6 +197,13 @@
 
 ## Practice & Tools
 
+- [AI Tools for Research Teams in 2026: A Stack That Produces Better Thinking](https://zro2.one/learn/ai-tools-research-stack-2026): Research teams do not need more tabs. They need a compact AI stack for search, synthesis, citation capture, and reusable notes.
+- [AI Workflows for Customer Support Triage: A Playbook That Actually Scales](https://zro2.one/learn/ai-workflows-customer-support-triage): Support teams get leverage from AI when they triage, route, summarize, and enrich tickets before a human ever touches the queue.
+- [Getting Started With AI: How to Pick a First Use Case That Will Not Waste a Month](https://zro2.one/learn/getting-started-picking-your-first-ai-use-case): The fastest way to get useful AI results is not choosing the flashiest idea. It is choosing a small, repeated, measurable workflow.
+- [Image AI for Synthetic Product Photography: Where It Helps and Where It Still Breaks](https://zro2.one/learn/image-ai-synthetic-product-photography-guide): Synthetic product photography is one of the most useful commercial applications of image AI, but it works best when teams respect realism, brand constraints, and review workflows.
+- [LLM API Webhooks and Async Jobs: The Right Pattern for Long-Running AI Work](https://zro2.one/learn/llm-api-webhooks-and-async-jobs-guide): If every LLM call in your system is synchronous, you are probably forcing the wrong UX and the wrong reliability model onto long-running AI tasks.
+- [Constraint-Based Prompting for Writing: The Fastest Way to Get Less Generic Output](https://zro2.one/learn/prompting-constraint-based-writing-guide): When AI writing feels bland, the problem is usually underconstraint. Useful prompts specify boundaries, exclusions, format, and audience pressure.
+- [Video AI for Shot Planning: Faster Pre-Production Without Pretending the Shoot Is Done](https://zro2.one/learn/video-ai-shot-planning-with-ai): Video teams can use AI to accelerate shot exploration, previs, and location planning, but the real win is decision speed before production begins.
 - [AI Workflows for Supply Chain Optimization](https://zro2.one/learn/ai-workflows-supply-chain-optimization): How to design and implement AI workflows for supply chain operations — covering demand forecasting, inventory optimization, logistics routing, supplier risk assessment, and quality control.
 - [Acoustic Scene Classification: Teaching AI to Understand Where It Is](https://zro2.one/learn/audio-ai-acoustic-scene-classification): How acoustic scene classification works — from mel spectrograms to neural networks that identify environments by their sound signatures, with applications in smart devices, accessibility, and urban monitoring.
 - [AI for Retirees: A Practical Guide to Getting Started](https://zro2.one/learn/getting-started-ai-for-retirees): A straightforward guide for retirees who want to understand and use AI tools — no technical background required. Covers the most useful applications, how to get started safely, and how to separate hype from reality.
@@ -339,6 +353,11 @@
 
 ## Building with AI
 
+- [AI Glossary: Context Windows and Retrieval Edition](https://zro2.one/learn/ai-glossary-context-windows-and-retrieval-edition): A practical glossary for the context and retrieval terms that show up constantly in modern LLM systems, from chunking and grounding to reranking and provenance.
+- [LLM Inference-Time Compute Budgeting: Where Better Answers Actually Come From](https://zro2.one/learn/llms-inference-time-compute-budgeting): Model quality is not just about parameter count. Inference-time compute changes how much work a model does per request, and that directly shapes latency, cost, and answer quality.
+- [MLLM Video Understanding Patterns: How Vision-Language Models Actually Read Video](https://zro2.one/learn/mllms-video-understanding-patterns): Video understanding with MLLMs is not just image captioning repeated many times. The real challenge is choosing frames, preserving temporal structure, and asking the right questions.
+- [NLP Extraction Pipelines for Operations Teams](https://zro2.one/learn/nlp-extraction-pipelines-for-operations): A practical guide to building NLP extraction pipelines that turn tickets, emails, forms, and documents into structured operational data.
+- [RAG Freshness and Reindexing: How to Keep Retrieval Useful After the Docs Change](https://zro2.one/learn/rag-freshness-and-reindexing-guide): A RAG system is only as current as its index. This guide covers freshness strategy, reindexing triggers, and the operational tradeoffs behind keeping retrieval up to date.
 - [Neural Architecture Search: Automating Network Design](https://zro2.one/learn/deep-learning-neural-architecture-search-guide): How neural architecture search works — from search spaces and strategies to one-shot methods and hardware-aware NAS — and when it makes sense to automate network design versus using established architectures.
 - [3D Reconstruction from Images: From Photos to Three-Dimensional Models](https://zro2.one/learn/image-ai-3d-reconstruction-from-images): How AI reconstructs 3D scenes from 2D images — covering classical photogrammetry, Neural Radiance Fields (NeRF), Gaussian Splatting, and practical applications from real estate to cultural preservation.
 - [Multi-Provider Abstraction: Building LLM Applications That Work Across Providers](https://zro2.one/learn/llm-api-multi-provider-abstraction-guide): How to design LLM applications that work across multiple providers — from abstraction layer design and provider-specific quirks to testing strategies and migration patterns.
@@ -456,6 +475,8 @@
 
 ## Industry & Applications
 
+- [Audio AI for Call Center Quality Assurance: From Random Sampling to Full Coverage](https://zro2.one/learn/audio-ai-call-center-quality-assurance): Audio AI lets support and sales teams review every call for compliance, coaching, and customer-risk signals instead of relying on tiny manual QA samples.
+- [Multimodal AI for Retail Operations: Seeing the Shelf, Reading the System, Closing the Loop](https://zro2.one/learn/multimodal-ai-retail-operations-guide): Retail operations improve when AI can combine images, text, inventory data, and task systems instead of treating each signal in isolation.
 - [AI Tools for Marketing Teams in 2026](https://zro2.one/learn/ai-tools-ai-for-marketing-teams-2026): A practical guide to AI tools that marketing teams are actually using in 2026 — from content generation and SEO to audience segmentation, campaign optimization, and performance analytics.
 - [Multimodal AI for Sports Analytics](https://zro2.one/learn/multimodal-ai-sports-analytics-guide): How multimodal AI combines video, sensor data, audio, and statistics to transform sports analytics — from player tracking and tactical analysis to injury prediction and fan engagement.
 - [AI Tools for Project Management in 2026: What Actually Helps Teams Ship](https://zro2.one/learn/ai-tools-project-management-2026): A pragmatic look at AI features in project management tools -- what genuinely saves time, what's gimmicky, and how to evaluate what fits your team.
@@ -486,87 +507,104 @@
 
 ## this-week-in-ai
 
+- [This Week in AI](https://zro2.one/learn/2026-04-01-this-week-in-ai-029): The signal from this week in AI: open model fine-tuning gets more accessible, RAG tooling matures, and the enterprise adoption curve keeps bending toward practical over flashy.
 - [This Week in AI](https://zro2.one/learn/2026-03-31-this-week-in-ai-028): The signal from this week in AI: inference efficiency keeps improving, multimodal products are getting less gimmicky, and enterprise buyers are getting harder to impress.
 - [This Week in AI](https://zro2.one/learn/2026-03-30-this-week-in-ai-027): Your weekly briefing on what matters in AI — model releases, research breakthroughs, industry moves, and tools worth knowing about.
 
 ## ai-glossary
 
+- [AI Glossary: Audio AI Edition](https://zro2.one/learn/ai-glossary-audio-ai-edition): Key terms for working with audio AI — from spectrograms and mel-frequency cepstral coefficients to speaker diarization and voice activity detection. Plain-language definitions with enough depth to be useful.
 - [AI Glossary: Inference Edition](https://zro2.one/learn/ai-glossary-inference-edition): A practical glossary for AI inference and serving terms, from throughput and latency to batching, quantization, and cold starts.
 - [AI Glossary: Reinforcement Learning Edition](https://zro2.one/learn/ai-glossary-reinforcement-learning-edition): Key terms in reinforcement learning explained clearly — from policies and rewards to RLHF and PPO. No PhD required.
 
 ## ai-tools
 
+- [AI Tools for Supply Chain Teams in 2026: What's Actually Useful](https://zro2.one/learn/ai-tools-for-supply-chain-teams-2026): A practical guide to AI tools that supply chain teams can actually deploy — covering demand forecasting, inventory optimization, logistics routing, and supplier risk monitoring.
 - [AI Tools: Browser Agents in 2026 — Useful, Overhyped, and Finally Getting Real](https://zro2.one/learn/ai-tools-browser-agents-2026): Browser agents promise to click, fill, search, and operate web apps on your behalf. Here is where they are actually useful in 2026 and where they still fall over.
 - [AI Tools for Customer Success Teams in 2026](https://zro2.one/learn/ai-tools-ai-for-customer-success-2026): Customer success teams are using AI to predict churn before it happens, automate health scoring, and personalize outreach at scale. Here are the tools reshaping CS in 2026.
 
 ## ai-workflows
 
+- [AI Workflow: Automated Localization and Translation Pipeline](https://zro2.one/learn/ai-workflows-localization-translation): A practical workflow for building an AI-powered localization pipeline — from content extraction through translation, review, and deployment — that balances speed, cost, and quality.
 - [AI Workflows for Meeting Intelligence: Beyond Transcripts and Into Useful Work](https://zro2.one/learn/ai-workflows-meeting-intelligence-systems): A good meeting-intelligence workflow does more than record and summarize. It routes decisions, tracks risks, captures action items, and feeds the systems teams already use.
 - [AI Workflow: Personal Knowledge Management with AI](https://zro2.one/learn/ai-workflows-personal-knowledge-management): How to build a personal knowledge management workflow where AI helps you capture, organize, connect, and retrieve information — turning scattered notes into a thinking partner.
 
 ## audio-ai
 
+- [Audio AI for Call Center Analytics: Quality Scoring, Compliance, and Agent Coaching](https://zro2.one/learn/audio-ai-call-center-analytics): How audio AI transforms call center operations — from automated quality scoring and compliance monitoring to real-time agent coaching. A practical guide to what works, what's oversold, and how to deploy responsibly.
 - [Audio AI: Speech Enhancement That People Actually Notice](https://zro2.one/learn/audio-ai-speech-enhancement-guide): Speech enhancement is one of the most practical audio AI categories: remove noise, improve intelligibility, and make messy recordings usable in the real world.
 - [Voice Conversion and Style Transfer in Audio AI](https://zro2.one/learn/audio-ai-voice-conversion-style-transfer): Voice conversion changes who is speaking without changing what they say. This guide covers how modern voice conversion works, practical applications from dubbing to accessibility, and the ethical considerations you can't ignore.
 
 ## deep-learning
 
+- [Deep Learning for Tabular Data: When Neural Networks Compete with Gradient Boosting](https://zro2.one/learn/deep-learning-tabular-data-guide): Gradient boosting has long dominated tabular ML, but recent architectures are closing the gap. This guide reviews the leading deep learning approaches for tabular data — TabNet, FT-Transformer, TabPFN — and when they actually beat tree-based methods.
 - [Deep Learning: Why Residual Connections Changed Everything](https://zro2.one/learn/deep-learning-residual-connections-guide): Residual connections made very deep networks trainable by letting layers learn corrections instead of full transformations. Here is why that mattered so much.
 - [Continual Learning: Training Neural Networks That Don't Forget](https://zro2.one/learn/deep-learning-continual-learning-guide): Neural networks are prone to catastrophic forgetting — learning a new task erases what they knew about old tasks. This guide covers continual learning methods that let models accumulate knowledge over time without starting from scratch.
 
 ## getting-started
 
+- [Getting Started with AI for Journalists](https://zro2.one/learn/getting-started-ai-for-journalists): A practical introduction to AI tools and techniques for journalists — covering research, transcription, data analysis, and verification — with honest guidance on what to trust and what to double-check.
 - [Getting Started: Build Your First RAG Prototype Without Overengineering It](https://zro2.one/learn/getting-started-building-your-first-rag-prototype): Your first RAG prototype should be small, measurable, and honest about what it can do. Here is a simple path from documents to working answers.
 - [Getting Started: Using AI in Your Job Search](https://zro2.one/learn/getting-started-ai-for-job-seekers): AI can make your job search dramatically more efficient — from tailoring resumes to preparing for interviews. Here's how to use it without making your application look like it was written by a robot.
 - [AI for Writers: A Practical Getting Started Guide](https://zro2.one/learn/getting-started-ai-for-writers): How writers can use AI as a genuine creative tool — for brainstorming, editing, research, and overcoming blocks — without losing their voice or outsourcing their thinking.
 
 ## image-ai
 
+- [Image AI for Insurance Claims: Automating Damage Assessment and Fraud Detection](https://zro2.one/learn/image-ai-insurance-claims-guide): How insurance companies use image AI to assess damage from photos, detect fraudulent claims, and speed up processing — with practical guidance on building these systems responsibly.
 - [Image AI: Segmentation for Real Products, Not Just Pretty Benchmarks](https://zro2.one/learn/image-ai-segmentation-guide-for-products): Image segmentation lets systems reason about pixels as objects and regions. Here is why it matters for product teams building practical computer vision.
 - [Neural Radiance Fields for Product Photography and Visualization](https://zro2.one/learn/image-ai-neural-radiance-fields-products): NeRFs turn a handful of product photos into interactive 3D views. This guide covers how they work, when they outperform traditional 3D modeling, and practical workflows for e-commerce and product teams.
 
 ## llm-api-integration
 
+- [LLM API A/B Testing: Comparing Models and Prompts in Production](https://zro2.one/learn/llm-api-ab-testing-guide): Running controlled experiments on LLM-powered features is harder than traditional A/B testing. This guide covers traffic splitting, metric design, statistical challenges, and practical tooling for comparing models and prompts in production.
 - [LLM API Integration: Circuit Breakers, Fallbacks, and Other Signs of Maturity](https://zro2.one/learn/llm-api-circuit-breakers-and-fallbacks): Production LLM integrations need more than a clever prompt. This guide covers circuit breakers, retries, fallbacks, and the reliability patterns that keep systems upright.
 - [Validating Structured LLM Outputs in Production](https://zro2.one/learn/llm-api-structured-output-validation-guide): LLMs can generate structured data, but they make mistakes. This guide covers validation strategies — from JSON Schema to semantic validation — that make structured outputs reliable enough for production use.
 
 ## llms
 
+- [LLM Model Merging: Combining Models Without Additional Training](https://zro2.one/learn/llms-model-merging-guide): Model merging lets you combine the strengths of multiple fine-tuned LLMs into a single model — no GPU training required. This guide covers the main techniques, when merging works, and when it doesn't.
 - [Speculative Decoding in LLMs: Faster Generation Without Waiting Forever](https://zro2.one/learn/llms-speculative-decoding-guide): Speculative decoding speeds up LLM generation by using a smaller draft model to propose tokens and a larger model to verify them. Here is how it works, where it helps, and what breaks in practice.
 - [Prompt Caching in LLMs: How Providers Save You Time and Money](https://zro2.one/learn/llms-prompt-caching-internals): Prompt caching lets LLM providers skip redundant computation when your prompt shares a prefix with a previous request. This guide explains how it works internally, which providers support it, and how to structure prompts to maximize cache hits.
 
 ## machine-learning
 
+- [Machine Learning for Tabular Data: Why Gradient Boosting Still Dominates](https://zro2.one/learn/machine-learning-tabular-data-guide): Despite deep learning's dominance in vision and language, gradient boosting remains the best default for tabular data. This guide explains why, compares the leading approaches, and helps you choose.
 - [Domain Adaptation in Machine Learning: When Your Training Data Stops Matching Reality](https://zro2.one/learn/machine-learning-domain-adaptation-guide): Domain adaptation helps models trained in one setting perform in another. This guide explains the problem, the main approaches, and the failure modes that matter in production.
 - [Survival Analysis with Machine Learning: Predicting When Events Happen](https://zro2.one/learn/machine-learning-survival-analysis-guide): Survival analysis predicts not just whether something will happen, but when. This guide covers how ML approaches improve on classical methods like Cox regression, with practical applications from churn prediction to equipment maintenance.
 
 ## mllms
 
+- [Multimodal LLMs for Retail: Product Recognition, Shelf Analysis, and Visual Search](https://zro2.one/learn/mllms-retail-product-recognition): How multimodal LLMs are changing retail operations — from identifying products on shelves to powering visual search and generating rich product descriptions from images alone.
 - [MLLMs for Document Understanding: Why PDFs Are Finally Becoming Queryable](https://zro2.one/learn/mllms-document-understanding-guide): Multimodal large language models are changing document understanding by treating text, layout, tables, and images as a single problem instead of separate pipelines.
 - [Dense Captioning with Multimodal LLMs: Beyond Single-Sentence Descriptions](https://zro2.one/learn/mllms-dense-captioning-guide): Dense captioning generates detailed, region-specific descriptions for everything in an image. This guide covers how multimodal LLMs have transformed this task and practical applications from accessibility to training data generation.
 
 ## multimodal-ai
 
+- [Multimodal AI for Scientific Research: Connecting Papers, Data, and Figures](https://zro2.one/learn/multimodal-ai-scientific-research-guide): How multimodal AI helps researchers navigate the literature, extract data from figures, and connect findings across papers — with honest guidance on what these tools get right and where human judgment remains essential.
 - [Multimodal AI and Grounded Assistants: Seeing, Reading, and Acting With Context](https://zro2.one/learn/multimodal-ai-grounded-assistants-guide): Grounded multimodal assistants combine text, images, interfaces, and environment context to behave more usefully than chat-only systems.
 - [Multimodal AI in Real Estate: From Listings to Valuations](https://zro2.one/learn/multimodal-ai-real-estate-guide): Real estate generates massive amounts of visual, textual, and spatial data. Multimodal AI combines these signals for smarter property valuation, automated listing generation, and enhanced search.
 
 ## nlp
 
+- [NLP for Technical Documentation: Automated Quality Checks and Style Enforcement](https://zro2.one/learn/nlp-technical-documentation-quality): How NLP tools can catch inconsistencies, enforce style guides, and improve technical documentation quality — without replacing the writers who understand the product.
 - [NLP: Entity Linking Turns Mentions Into Meaning](https://zro2.one/learn/nlp-entity-linking-guide): Named entities are only half the job. Entity linking maps mentions to the right real-world people, places, products, or concepts so downstream systems can reason correctly.
 - [Text Deduplication: Cleaning Training Data and Content Pipelines](https://zro2.one/learn/nlp-text-deduplication-guide): Duplicate text in training data degrades model quality and wastes compute. This guide covers deduplication methods from simple hashing to semantic similarity, with practical implementations for both training data and production content pipelines.
 
 ## prompting
 
+- [Prompt Injection Defense: Protecting LLM Applications from Adversarial Inputs](https://zro2.one/learn/prompting-injection-defense-guide): Prompt injection is the most common vulnerability in LLM applications. This guide explains how attacks work, catalogs defense strategies — input filtering, output validation, architectural separation — and helps you build layered protection.
 - [Prompting: Evaluation-Driven Prompt Design Beats Prompt Vibes](https://zro2.one/learn/prompting-evaluation-driven-prompt-design): Prompting gets dramatically better when it is tied to evaluation. Write prompts against real tasks, real failure modes, and measurable outcomes instead of guessing from vibes.
 - [Chain of Verification: Making LLMs Check Their Own Work](https://zro2.one/learn/prompting-chain-of-verification-guide): Chain of Verification (CoVe) is a prompting technique that asks the model to generate verification questions about its own output, answer them independently, and revise based on findings. It significantly reduces hallucinations in factual tasks.
 
 ## rag
 
+- [RAG Prompt Engineering: Crafting Instructions That Help Models Use Retrieved Context](https://zro2.one/learn/rag-prompt-engineering-guide): The prompt that sits between your retrieval system and the LLM determines whether RAG produces grounded answers or confident hallucinations. This guide covers system prompt design, context formatting, citation instructions, and failure-mode handling.
 - [RAG: Why Hybrid Search Usually Beats Pure Vector Search](https://zro2.one/learn/rag-hybrid-search-guide): Hybrid search combines lexical and semantic retrieval so RAG systems can handle both precise keywords and fuzzy meaning. That tends to work better than relying on embeddings alone.
 - [Query Decomposition for RAG: Breaking Complex Questions into Retrievable Pieces](https://zro2.one/learn/rag-query-decomposition-guide): Complex questions often can't be answered by a single retrieval step. Query decomposition breaks them into sub-questions, retrieves information for each, and synthesizes a complete answer. This guide covers strategies, implementation, and when decomposition helps vs. hurts.
 
 ## video-ai
 
+- [Video AI for Fitness and Rehabilitation: Pose Estimation, Form Correction, and Progress Tracking](https://zro2.one/learn/video-ai-fitness-rehabilitation-guide): How video AI enables automated movement analysis for fitness coaching and physical therapy — covering pose estimation, form correction, rep counting, and progress tracking, with honest assessment of current accuracy limits.
 - [Video AI: Scene Detection Is More Valuable Than It Sounds](https://zro2.one/learn/video-ai-scene-detection-guide): Scene detection breaks long video into meaningful units, making search, editing, indexing, and automation much more practical.
 - [AI Video Summarization: From Hours of Footage to Key Moments](https://zro2.one/learn/video-ai-video-summarization-guide): Video summarization uses AI to condense long videos into short summaries — either as text descriptions or as shortened video clips containing the most important moments. This guide covers methods, tools, and practical applications.
 
